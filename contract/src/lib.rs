@@ -5,6 +5,7 @@ use near_sdk::{
     AccountId, PanicOnDefault
 };
 use near_sdk::{env, near_bindgen};
+//use chrono::{DateTime, Utc, Local};
 
 /*
 use near_sdk::collections::{LookupMap, UnorderedSet};
@@ -66,24 +67,24 @@ impl Contract {
         }
     }
 
-    pub fn add_entry (&mut self, user_id: &AccountId, timestamp: String, name: String, message: String) {
+    pub fn add_entry (&mut self, timestamp: String, name: String, message: String) {
         let new_entry = LogEntry {
-            timestamp : timestamp.clone(),
-            account : user_id.clone(),
+            timestamp,
+            account : env::predecessor_account_id(),
             name,
             message   
         };
         self.mylog.push(&new_entry);
         env::log_str("Entry Added!");
     }
-
     pub fn num_entries(&self) -> u64 {
-        self.mylog.len()
+       self.mylog.len()
     }
 
     pub fn list_entries(&self) -> String {
         let mut count = 0;
         let mut result = String::new();
+        
         for entry in self.mylog.iter() {
             count = count + 1;
             let line = format!("Entry #{} TS: {} NAME: {} ACCT: {} MSG: {}",count, entry.timestamp, entry.name, entry.account, entry.message);
@@ -92,6 +93,13 @@ impl Contract {
         }
         result
     }
+
+    pub fn reset_log (&mut self, msg: String) -> String {
+        env::predecessor_account_id().to_string();
+        msg
+        
+    }
+
 }
 
 /*

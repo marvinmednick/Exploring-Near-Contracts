@@ -1,2 +1,10 @@
-/target
+/contract/target
+/contract/res
 /neardev
+/.cache
+/dist
+marvfirst.sublime-project
+marvfirst.sublime-workspace
+/node_modules
+/out
+yarn-error.log
