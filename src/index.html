@@ -94,47 +94,58 @@
         <div class="row">
             <h1>This marvin's first smart contract project!</h1>
             <div class="col-3">
-            <p class="bg-light.bg.gradient border"><span id="cur_login_text"></span><span class="fs-5 fw-bolder text-info" id="cur_login_id"></span></p>
-          </div>
+                <p class="bg-light.bg.gradient border"><span id="cur_login_text"></span><span class="fs-5 fw-bolder text-info" id="cur_login_id"></span></p>
+            </div>
+            <div class="col-3">
+                <p class="bg-light.bg.gradient border"><span id="contract_owner_text"></span><span class="fs-5 fw-bolder text-info" id="contract_owner_id"></span></p>
+            </div>
+        </div>
+        <br>
+        <div class="row get_entry_count">
+            <div class="col-4">There are curently <span id="showcount"></span> entries in the log</div>
+            <div class="col-2"><button class="btn btn-primary" style="background-color: #0072CE;">Refresh Count</button></div>
         </div>
         <br>
         <div class="row">
             <div class="viewcommands" style="display: block;">
-                <h3>These commands are available without sigining in:</h3>
+                <h4>These commands are available without sigining in:</h4>
             </div>
-        </div>
-        <div class="row get_entry_count">
-            
-            <div class="col-2"><button class="btn btn-primary" style="background-color: #0072CE;">Get Count</button></div>
-            <div class="col-3">Current number of entries in the log</div>
-            <div class="col" id="showcount">The current number of log entries is not yet determined. Press the button to query.</span></div>
         </div>
         <br>
         <div class="row get_entry_list">
             <div class="col-2"><button class="btn btn-primary" style="background-color: #0072CE;">Display Entries</button></div>
             <div class="col-3">The current log entries are:</div>
-            <div class="col" id="showlistdata">Press button to query</div>
+        </div>
+        <br>
+        <div class="row">
+              <strong><pre id="entry_list_hdr"></pre></strong>
+        </div>
+        <div class="row get_entry_list">
+            <pre id="showlistdata">Press button to query</pre>
         </div>
         <div class="sign-in" style="display: none;">
-            <p>You'll need to sign in to call the contract methods that modify data</p>
+            <h4>You'll need to sign in to call the contract methods that modify data</h4>
             <button class="btn btn-primary" style="background-color: #0072CE;">Sign In</button>
         </div>
         <div class="after-sign-in" style="display: none;">
-            <p>You're signed in!</p>
-            <p>These commands modify the contract, require signing, and are
-                only available after sigining in:</p>
+            <br>
+            <h3>Commands that modify data</h3>
+            <br>
+            <h4>Add a new entry to the log:</h4>
             <form id="add-entry" name="add-entry">
-                    <div class="mb-3"><label for="Name" class="form-label">Name</label>
+                <div class="mb-3"><label for="Name" class="form-label">Name</label>
                     <input type="text" class="form-control" id="name" placeholder="Name?" name="name"></div>
                 <div class="mb-3"><label for="Msg" class="form-label">Message</label> <input type="text" class="form-control" id="Message" placeholder="Message?" name="msg"></div>
                 <button type="submit" class="btn btn-primary" style="background-color: #0072CE;">Add a new Log Entry</button>
             </form>
-                    <br>
-        <div class="row log_reset">
-            <div class="col-2"><button class="btn btn-primary" style="background-color: #0072CE;">Reset</button></div>
-            <div class="col-3">Reset the log and remove all entries</div>
-        </div>
-        <br>
+            <br>
+            <br>
+            <h4> Clear the log:</h4>
+            <div class="row log_reset">
+                <div class="col-2"><button class="btn btn-primary" style="background-color: #0072CE;">Reset</button></div>
+                <div class="col-3">Reset the log and remove all entries</div>
+            </div>
+            <br>
             <div class="sign-out"><button class="btn btn-primary" style="background-color: #0072CE;">Sign Out</button></div>
         </div>
     </div>

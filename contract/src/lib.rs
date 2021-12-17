@@ -1,46 +1,19 @@
 use near_sdk::collections::{Vector};
 use near_sdk::{
     borsh::{self, BorshDeserialize, BorshSerialize},
-    serde::{Deserialize, Serialize},
+   serde::{Deserialize, Serialize},
+//    serde::ser::SerializeSeq,
     AccountId, PanicOnDefault
 };
 use near_sdk::{env, near_bindgen};
 //use chrono::{DateTime, Utc, Local};
+//use serde::{Deserialize, Serialize};
 
-/*
-use near_sdk::collections::{LookupMap, UnorderedSet};
-use near_sdk::{
-    borsh::{self, BorshDeserialize, BorshSerialize},
-    log,
-    serde::{Deserialize, Serialize},
-    AccountId, PanicOnDefault, Promise,
-};
-use near_sdk::{env, near_bindgen};
 
-// 5 Ⓝ in yoctoNEAR
-const PRIZE_AMOUNT: u128 = 5_000_000_000_000_000_000_000_000;
-
-#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug)]
-#[serde(crate = "near_sdk::serde")]
-pub enum AnswerDirection {
-    Across,
-    Down,
-}
-
-/// The origin (0,0) starts at the top left side of the square
-#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug)]
-#[serde(crate = "near_sdk::serde")]
-pub struct CoordinatePair {
-    x: u8,
-    y: u8,
-}
-
-*/
-
-/// The origin (0,0) starts at the top left side of the square
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug)]
 #[serde(crate = "near_sdk::serde")]
 pub struct LogEntry {
+    entry_id:  u64,
     timestamp: String,
     account: AccountId,
     name: String,
@@ -53,22 +26,22 @@ pub struct LogEntry {
 pub struct Contract {
     owner_id:  AccountId,
     mylog:  Vector<LogEntry>
-    
 }
 
 #[near_bindgen]
 impl Contract {
 
     #[init]
-    pub fn new(owner_id: AccountId) -> Self {
+    pub fn new() -> Self {
         Self {
-            owner_id,
+            owner_id: env::current_account_id(),
             mylog: Vector::new(b"c"),        
         }
     }
 
     pub fn add_entry (&mut self, timestamp: String, name: String, message: String) {
         let new_entry = LogEntry {
+            entry_id : self.mylog.len() +1,
             timestamp,
             account : env::predecessor_account_id(),
             name,
@@ -85,18 +58,28 @@ impl Contract {
         let mut count = 0;
         let mut result = String::new();
         
+        result += r#"{ "log_entries": ["#;
         for entry in self.mylog.iter() {
             count = count + 1;
-            let line = format!("Entry #{} TS: {} NAME: {} ACCT: {} MSG: {}",count, entry.timestamp, entry.name, entry.account, entry.message);
-            result += &line;
-            println!("{}",&result);
+            if count > 1 {
+                result += ", ";
+            }
+            //let line = format!("Entry #{} TS: {} NAME: {} ACCT: {} MSG: {}",count, entry.timestamp, entry.name, entry.account, entry.message);
+            let serialized = near_sdk::serde_json::to_string(&entry).unwrap();
+            result += &serialized;
+    
+//            println!("{}",&result);
         }
+        result += r#"] }"#;
+
+        
         result
     }
 
     pub fn reset_log (&mut self, msg: String) -> String {
-        env::predecessor_account_id().to_string();
-        msg
+        let result = msg + " " + &env::current_account_id().to_string() + " " + &env::predecessor_account_id().to_string();
+        self.mylog.clear();
+        result
         
     }
 

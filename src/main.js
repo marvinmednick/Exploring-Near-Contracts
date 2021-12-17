@@ -48,14 +48,23 @@ function errorHelper(err) {
 
 function updateUI() {
   let cur_account = window.walletConnection.getAccountId();
+  document.querySelector('#cur_login_id').innerText = cur_account;
+
+  contract.num_entries().then(count => {
+      document.querySelector('#showcount').innerText = count;
+    }).catch(err => errorHelper(err));
+
   if (!cur_account) {
     document.querySelector('#cur_login_id').innerText = "";
     document.querySelector('#cur_login_text').innerText = "You are not currently logged in.";
     Array.from(document.querySelectorAll('.sign-in')).map(it => it.style = 'display: block;');
+    Array.from(document.querySelectorAll('.after-sign-in')).map(it => it.style = 'display: none;');
   } else {
     document.querySelector('#cur_login_text').innerText = "You current are logged in as "
     document.querySelector('#cur_login_id').innerText = cur_account;
+    Array.from(document.querySelectorAll('.sign-in')).map(it => it.style = 'display: none;');
     Array.from(document.querySelectorAll('.after-sign-in')).map(it => it.style = 'display: block;');
+
   }
 }
 
@@ -82,12 +91,25 @@ document.querySelector('.get_entry_count .btn').addEventListener('click', () => 
 });
 
 
+
+function append_entry(value, index, array) {
+
+}
+
 document.querySelector('.get_entry_list .btn').addEventListener('click', () => {
+  
+  document.querySelector('#entry_list_hdr').innerText = "#".padEnd(4) + "   " + "Timestamp".padEnd(25," ") + "   " + "Account".padEnd(35," ")+ "   " + "Message\n";
   contract.list_entries().then(listdata => {
       console.log("retrieved", listdata);
+      const obj = JSON.parse(listdata);
+      console.log("retrieved", obj);
+      let finaldata = "";
+      obj.log_entries.forEach(element => finaldata += element.entry_id.toString().padEnd(4) + "   " +element.timestamp.padEnd(25," ") + "   " + element.account.padEnd(35," ")+ "   " + element.message+ '\n');
+      console.log(finaldata)
+      console.log(finaldata.length)
       console.log(document.querySelector('#showlistdata').innerText);
        // document.querySelector('#showcount').classList.replace('loader','number');
-      document.querySelector('#showlistdata').innerText = listdata;
+      document.querySelector('#showlistdata').innerText = finaldata;
   }).catch(err => errorHelper(err));
 });
 
@@ -102,17 +124,17 @@ document.querySelector('.log_reset .btn').addEventListener('click', () => {
 
 
 document.querySelector('#add-entry').onsubmit = function() { 
-   add_new_entry(this);
+   // prevent further default processing from occuring (i.e. don't POST the result/refresh page)
    event.preventDefault();
+
+   // process the form data 
+   add_new_entry(this);
+
 };
 
 function add_new_entry(form_info) {
    const d = new Date();
-   console.log(d.valueOf())
-   console.log(Date().valueOf());
-   console.log(form_info.elements['name'].value);
-   console.log(form_info.elements['msg'].value);
-
+   console.log("Date type is",typeof(d),d)
 
    let args = {
        timestamp: d, 
@@ -122,7 +144,7 @@ function add_new_entry(form_info) {
    contract.add_entry(args).then(result => {
        console.log("Add Entry",result);
        form_info.reset();
-   }).catch(err => errorHelper(err));
+   }).then(updateUI).catch(err => errorHelper(err));
  
 } 
 
