@@ -1,6 +1,6 @@
 {
-  "name": "rust-counter",
-  "description": "Counter Smart Contract\n\nThis project contains implementation of counter backed by blockchain, written in Rust.",
+  "name": "marvfirst",
+  "description": "A simply logging Smart Contract\n\nThis project contains implementation of a log backed by blockchain, written in Rust.",
   "version": "0.0.1",
   "license": "(MIT AND Apache-2.0)",
   "scripts": {
@@ -18,6 +18,9 @@
     "test:cargo": "cd contract && cargo test -- --nocapture",
     "test": "yarn build && yarn test:cargo && jest"
   },
+  "jest": {
+    "testEnvironment": "near-cli/test_environment"
+  },
   "devDependencies": {
     "env-cmd": "^10.1.0",
     "near-cli": "^2.1.1",
@@ -25,6 +28,7 @@
     "parcel-bundler": "~1.12.5"
   },
   "dependencies": {
+    "jest": "^27.4.5",
     "near-api-js": "^0.43.1",
     "regenerator-runtime": "^0.13.9"
   }

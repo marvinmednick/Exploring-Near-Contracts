@@ -113,19 +113,17 @@ mod tests {
         let context = get_context(account);
         testing_env!(context.build());
 
-        let account = AccountId::new_unchecked("mmednick.testnet".to_string());
-        let send_account = AccountId::new_unchecked("mmednick.testnet".to_string());
-        let mut contract = Contract::new(account);
-        contract.add_entry(&send_account,"dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string());
+        let mut contract = Contract::new();
+        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string());
         
         assert_eq!(get_logs(), ["Entry Added!"], "Exec.");
 
         assert_eq!(contract.num_entries(),1);
 
-        contract.add_entry(&send_account,"dateAndTime".to_string(),"My Name is".to_string(),"My Message is".to_string());
+        contract.add_entry("dateAndTime1".to_string(),"My Name is".to_string(),"My Message is".to_string());
         assert_eq!(contract.num_entries(),2);
 
-        contract.list_entries()
+        contract.list_entries();
 
     }
 
