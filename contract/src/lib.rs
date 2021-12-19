@@ -37,21 +37,34 @@ impl Contract {
             owner_id: env::current_account_id(),
             mylog: Vector::new(b"c"),        
         }
-    }
+   }
 
     pub fn add_entry (&mut self, timestamp: String, name: String, message: String) {
+	let newtime = env::block_timestamp().to_string();
+	let count_str = self.num_entries().to_string();
+	let newinfo = self.get_info();
+	
         let new_entry = LogEntry {
             entry_id : self.mylog.len() +1,
-            timestamp,
+            timestamp : env::block_timestamp().to_string(),
             account : env::predecessor_account_id(),
             name,
-            message   
+            message   : message + &"; " + &count_str + &"; " + &newtime + &"; " + &newinfo,
         };
         self.mylog.push(&new_entry);
         env::log_str("Entry Added!");
     }
     pub fn num_entries(&self) -> u64 {
        self.mylog.len()
+    }
+
+    pub fn get_info(&self) -> String {
+	let envused_gas = u64::from(env::used_gas()).to_string();
+	let envtime = env::block_timestamp().to_string();
+	let curcount = self.mylog.len().to_string();
+
+	let result = String::new() + & "Block time: " + &envtime + "; used_gas: " + &envused_gas + &"; num_entries" + &curcount;
+	result
     }
 
     pub fn list_entries(&self) -> String {
