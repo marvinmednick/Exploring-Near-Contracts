@@ -9,7 +9,7 @@ describe('Token', function () {
     accountId = nearConfig.contractName;
     contract = await near.loadContract(nearConfig.contractName, {
       viewMethods: ['num_entries'],
-      changeMethods: ['new','add_entry', 'reset'],
+      changeMethods: ['new','add_entry', 'reset_log'],
       sender: accountId
     });
     console.log("Contract is:", contract);
@@ -29,13 +29,13 @@ describe('Token', function () {
     });
     it('can add entries', async function () {
       const startCounter = await contract.num_entries();
-      await contract.add_entry("Time1","My Name","My Message");
-      const endCounter = await contract.get_num();
+      await contract.add_entry({ "timestamp" : "Time1","name" : "My Name","message": "My Message"});
+      const endCounter = await contract.num_entries();
       expect(endCounter).toEqual(startCounter + 1);
     });
     it('can be reset', async function () {
       const startCounter = await contract.num_entries();
-      await contract.reset();
+      await contract.reset_log({ 'msg' : 'Reseting'} );
       const endCounter = await contract.num_entries();
       expect(endCounter).toEqual(0);
     });
