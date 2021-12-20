@@ -21,9 +21,9 @@ async function connect(nearConfig) {
   // Initializing our contract APIs by contract name and configuration.
   window.contract = await new nearAPI.Contract(window.walletConnection.account(), nearConfig.contractName, {
     // View methods are read-only – they don't modify the state, but usually return some value
-    viewMethods: ['num_entries', 'list_entries'],
+    viewMethods: ['num_entries', 'list_entries',],
     // Change methods can modify the state, but you don't receive the returned value when called
-    changeMethods: ['new', 'add_entry', 'reset_log'],
+    changeMethods: ['new', 'add_entry', 'reset_log', 'get_info'],
     // Sender is the account ID to initialize transactions.
     // getAccountId() will return empty string if user is still unauthorized
     sender: window.walletConnection.getAccountId()
@@ -54,6 +54,13 @@ function updateUI() {
       document.querySelector('#showcount').innerText = count;
     }).catch(err => errorHelper(err));
 
+  contract.get_info().then(last_info => {
+      document.querySelector('#cur_info').innerText = last_info;
+    }).catch(err => errorHelper(err));
+
+
+
+  console.log(cur_account);
   if (!cur_account) {
     document.querySelector('#cur_login_id').innerText = "";
     document.querySelector('#cur_login_text').innerText = "You are not currently logged in.";
@@ -132,6 +139,11 @@ document.querySelector('#add-entry').onsubmit = function() {
 
 };
 
+function post_add_entry() {
+    $("inprocess_modal").modal("hide")
+}
+
+
 function add_new_entry(form_info) {
    const d = new Date();
    console.log("Date type is",typeof(d),d)
@@ -141,13 +153,19 @@ function add_new_entry(form_info) {
        name: form_info.elements['name'].value, 
        message: form_info.elements['msg'].value
    }
+   $('inprocess_modal').modal('show');
+   $("add_status").style = "display:block;";
+  document.querySelector('#add_status').style = "display: block;";
+  document.querySelector('#add_entry_form').style = "display: none;";
    contract.add_entry(args).then(result => {
        console.log("Add Entry",result);
        form_info.reset();
+       document.querySelector('#add_status').style = "display: none;";
+       document.querySelector('#add_entry_form').style = "display: block;";
    }).then(updateUI).catch(err => errorHelper(err));
  
 } 
-
+  
 
 
 window.nearInitPromise = connect(nearConfig)

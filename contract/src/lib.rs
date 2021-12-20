@@ -53,17 +53,19 @@ impl Contract {
         };
         self.mylog.push(&new_entry);
         env::log_str("Entry Added!");
+        env::log_str(&self.get_info())
     }
     pub fn num_entries(&self) -> u64 {
        self.mylog.len()
     }
 
     pub fn get_info(&self) -> String {
-	let envused_gas = u64::from(env::used_gas()).to_string();
-	let envtime = env::block_timestamp().to_string();
+	let env_used_gas = u64::from(env::used_gas()).to_string();
+    let env_prepaid_gas = u64::from(env::prepaid_gas()).to_string();
+	let env_time = env::block_timestamp().to_string();
 	let curcount = self.mylog.len().to_string();
 
-	let result = String::new() + & "Block time: " + &envtime + "; used_gas: " + &envused_gas + &"; num_entries" + &curcount;
+	let result = String::new() + &"Block time: " + &env_time + "; used_gas: " + &env_used_gas + "; prepaid_gas: " + &env_prepaid_gas + &"; num_entries: " + &curcount;
 	result
     }
 
