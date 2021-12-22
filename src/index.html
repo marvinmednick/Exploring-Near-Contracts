@@ -101,6 +101,17 @@
                 <p class="bg-light.bg.gradient border"><span id="contract_owner_text"></span><span class="fs-5 fw-bolder text-info" id="contract_owner_id"></span></p>
             </div>
         </div>
+        <div class="sign-in" style="display: none;">
+            <div class="row">
+                <div class=col-2>
+                    <button class="btn btn-primary" style="background-color: #0072CE;">Sign In</button>
+                </div>
+                <div class=col>
+                    <p>You'll need to sign in to be able to access the contract methods that modify data</p>
+                </div>
+            </div>
+        </div>
+        <div class="sign-out after-sign-in"><button class="btn btn-primary" style="background-color: #0072CE;">Sign Out</button></div>
         <!-- row -->
         <br>
         <div class="row get_entry_count">
@@ -143,10 +154,6 @@
         <div class="row get_entry_list">
             <pre id="showlistdata">Press button to query</pre>
         </div>
-        <div class="sign-in" style="display: none;">
-            <h4>You'll need to sign in to call the contract methods that modify data</h4>
-            <button class="btn btn-primary" style="background-color: #0072CE;">Sign In</button>
-        </div>
         <div class="after-sign-in" style="display: none;">
             <br>
             <h3>Commands that modify data</h3>
@@ -178,7 +185,6 @@
                 <div class="col-3">Reset the log and remove all entries</div>
             </div>
             <br>
-            <div class="sign-out"><button class="btn btn-primary" style="background-color: #0072CE;">Sign Out</button></div>
         </div>
     </div>
     </div>

@@ -100,28 +100,31 @@ impl Contract {
 
     
     pub fn get_info(&self) -> String {
-	let env_used_gas = u64::from(env::used_gas()).to_string();
-    let env_prepaid_gas = u64::from(env::prepaid_gas()).to_string();
-	let env_time = env::block_timestamp().to_string();
-	let curcount = self.mylog.len().to_string();
+        let env_used_gas = u64::from(env::used_gas()).to_string();
+        let env_prepaid_gas = u64::from(env::prepaid_gas()).to_string();
+        let env_time = env::block_timestamp().to_string();
+        let curcount = self.mylog.len().to_string();
 
-	let result = String::new() + &"Block time: " + &env_time + "; used_gas: " + &env_used_gas + "; prepaid_gas: " + &env_prepaid_gas + &"; num_entries: " + &curcount;
-	result
+    	let result = String::new() + &"Block time: " + &env_time + "; used_gas: " + &env_used_gas + "; prepaid_gas: " + &env_prepaid_gas + &"; num_entries: " + &curcount;
+    	result
     }
    
 
 	pub fn get_last(&self) -> String {
 
-		let index = self.mylog.len() - 1;
         let mut result = String::new() + r#"{ "log_entries": ["#;
-		let entry = self.mylog.get(index);
-		let x = match entry {
+		
+        let len = self.mylog.len();
+        if len > 0 {
+    
+		  let entry = self.mylog.get(len-1);
+		  let x = match entry {
 			// If there was an entry, add it to the result
 			Some(x) => { near_sdk::serde_json::to_string(&x).unwrap() }
 			None => { String::new() }
-		};
-
-		result += &x;
+		  };    
+		  result += &x;
+        }
         result += r#"] }"#;
 
 		result
