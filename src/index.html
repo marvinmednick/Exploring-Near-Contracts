@@ -104,8 +104,11 @@
         <!-- row -->
         <br>
         <div class="row get_entry_count">
-            <div class="col-8">There are curently <span id="showcount"></span> entries in the log</div>
+            <div class="col-8">Number of entries in the log:<span id="showcount"></span></div>
             <div class="col-2"><button class="btn btn-primary" style="background-color: #0072CE;">Refresh Count</button></div>
+        </div>
+        <div class="row ">
+            <div class="col-"><strong>Lastest Entry</strong>`</div>
         </div>
         <div class="row get_entry_count">
             <div class="col-">Current: <span id="cur_info"></span></div>
@@ -121,7 +124,14 @@
         <br>
         <!-- row -->
         <div class="row get_entry_list">
-            <div class="col-2"><button class="btn btn-primary" style="background-color: #0072CE;">Display Entries</button></div>
+            <div class="col-2">
+                <button id='display_entries' class="btn btn-primary" style="background-color: #0072CE;">Display Entries</button>
+            </div>
+            <div class="col-2">
+                <button id='hide_entries' class="btn btn-primary" style="background-color: #0072CE;">HideEntries</button>
+            </div>
+        </div>
+        <div class="row get_entry_list">
             <div class="col-3">The current log entries are:</div>
         </div>
         <br>
@@ -142,32 +152,34 @@
             <h3>Commands that modify data</h3>
             <br>
             <h4>Add an Entry</h4>
-            <div class="row">
+            <div class="row border border-primary">
                 <div class="col-1"></div>
                 <div class="col">
                     <div id="add_entry_form" style="display: block;">
                         <form id="add-entry" name="add-entry">
+                            <br>
                             <label for="Name" class="form-label">Name</label>
                             <input type="text" class="form-control" id="name" placeholder="Name?" name="name">
                             <label for="Msg" class="form-label">Message</label> <input type="text" class="form-control" id="Message" placeholder="Message?" name="msg">
                             <br>
                             <button type="submit" class="btn btn-primary" style="background-color: #0072CE;">Add a new Log Entry</button>
                         </form>
+                        <br>
                     </div>
                     <div class="bg-info text-white">
                         <h4 id="add_status" style="display: none">Adding Entry</h4>
                     </div>
                 </div>
             </div>
+            <br>
+            <h4> Clear the log:</h4>
+            <div class="row log_reset">
+                <div class="col-2"><button class="btn btn-primary" style="background-color: #0072CE;">Reset</button></div>
+                <div class="col-3">Reset the log and remove all entries</div>
+            </div>
+            <br>
+            <div class="sign-out"><button class="btn btn-primary" style="background-color: #0072CE;">Sign Out</button></div>
         </div>
-        <br>
-        <h4> Clear the log:</h4>
-        <div class="row log_reset">
-            <div class="col-2"><button class="btn btn-primary" style="background-color: #0072CE;">Reset</button></div>
-            <div class="col-3">Reset the log and remove all entries</div>
-        </div>
-        <br>
-        <div class="sign-out"><button class="btn btn-primary" style="background-color: #0072CE;">Sign Out</button></div>
     </div>
     </div>
 </body>

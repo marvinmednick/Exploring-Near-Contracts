@@ -21,7 +21,7 @@ async function connect(nearConfig) {
   // Initializing our contract APIs by contract name and configuration.
   window.contract = await new nearAPI.Contract(window.walletConnection.account(), nearConfig.contractName, {
     // View methods are read-only – they don't modify the state, but usually return some value
-    viewMethods: ['num_entries', 'list_entries',],
+    viewMethods: ['num_entries', 'list_entries', 'get_last'],
     // Change methods can modify the state, but you don't receive the returned value when called
     changeMethods: ['new', 'add_entry', 'reset_log', 'get_info'],
     // Sender is the account ID to initialize transactions.
@@ -46,6 +46,34 @@ function errorHelper(err) {
   console.error(err);
 }
 
+
+function formatLogHdr() {
+  let spacer = "  "
+  let result = "#".padEnd(4) 
+            + spacer + "User Provided Timestamp".padEnd(25," ")
+            + spacer + "Block TS".padEnd(50," ") 
+            + spacer + "Account".padEnd(35," ")
+            + spacer + "Message\n"
+            
+
+  return(result);
+}
+
+function formatLogEntry (entry) {
+  let spacer = "  "
+   let block_time = new Date(entry.block_ts / 1e6);
+   console.log(block_time,typeof(block_time));
+   let block_iso = block_time.toISOString();
+
+  let result = entry.entry_id.toString().padEnd(4) 
+             + spacer + entry.timestamp.padEnd(25," ")
+             + spacer + (block_iso + " (" + entry.block_ts.toString() + ")").padEnd(50," ") 
+             + spacer + entry.account.padEnd(35," ")
+             + "   " + entry.message+ '\n';
+  return(result);
+}
+
+
 function updateUI() {
   let cur_account = window.walletConnection.getAccountId();
   document.querySelector('#cur_login_id').innerText = cur_account;
@@ -54,7 +82,7 @@ function updateUI() {
       document.querySelector('#showcount').innerText = count;
     }).catch(err => errorHelper(err));
 
-  contract.get_info().then(last_info => {
+  contract.get_last().then(last_info => {
       document.querySelector('#cur_info').innerText = last_info;
     }).catch(err => errorHelper(err));
 
@@ -103,15 +131,15 @@ function append_entry(value, index, array) {
 
 }
 
-document.querySelector('.get_entry_list .btn').addEventListener('click', () => {
+document.querySelector('#display_entries').addEventListener('click', () => {
   
-  document.querySelector('#entry_list_hdr').innerText = "#".padEnd(4) + "   " + "Timestamp".padEnd(25," ") + "   " + "Account".padEnd(35," ")+ "   " + "Message\n";
+  document.querySelector('#entry_list_hdr').innerText = formatLogHdr(); //"#".padEnd(4) + "   " + "Timestamp".padEnd(25," ") + "   " + "Account".padEnd(35," ")+ "   " + "Message\n";
   contract.list_entries().then(listdata => {
       console.log("retrieved", listdata);
       const obj = JSON.parse(listdata);
       console.log("retrieved", obj);
       let finaldata = "";
-      obj.log_entries.forEach(element => finaldata += element.entry_id.toString().padEnd(4) + "   " +element.timestamp.padEnd(25," ") + "   " + element.account.padEnd(35," ")+ "   " + element.message+ '\n');
+      obj.log_entries.forEach(element => finaldata += formatLogEntry(element));
       console.log(finaldata)
       console.log(finaldata.length)
       console.log(document.querySelector('#showlistdata').innerText);
@@ -120,6 +148,10 @@ document.querySelector('.get_entry_list .btn').addEventListener('click', () => {
   }).catch(err => errorHelper(err));
 });
 
+document.querySelector('#hide_entries').addEventListener('click', () => {
+    document.querySelector('#entry_list_hdr').innerText = "";
+    document.querySelector('#showlistdata').innerText = "";
+});
 
 document.querySelector('.log_reset .btn').addEventListener('click', () => {
   contract.reset_log({msg: "A Reset occurred"}).then(listdata => {

@@ -9,15 +9,56 @@ use near_sdk::{env, near_bindgen};
 //use chrono::{DateTime, Utc, Local};
 //use serde::{Deserialize, Serialize};
 
+#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug)]
+#[serde(crate = "near_sdk::serde")]
+
+pub struct MyTimestamp {
+	value : u64
+}
+    
+    
+impl MyTimestamp {
+
+    /*
+    pub fn new(secs: u32 ,nanosecs: u32) -> MyTimestamp {
+        let result = MyTimestamp { 
+			secs: secs ,
+			nsecs:  nanosecs ,
+		};
+		result
+    }
+
+*/
+    pub fn new(nanosecs : u64) -> MyTimestamp {
+        let result = MyTimestamp {
+            value : nanosecs
+        };
+        result
+
+    }
+
+    pub fn as_secs(&self) -> u64 {
+        let result = self.value / (1e9 as u64);
+        result
+    }
+
+    pub fn as_msec(&self) -> u64 {
+        let result = self.value / (1e6 as u64);
+        result
+    }
+
+}
 
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug)]
 #[serde(crate = "near_sdk::serde")]
 pub struct LogEntry {
     entry_id:  u64,
     timestamp: String,
+    block_ts: u64,
     account: AccountId,
     name: String,
     message: String,
+    used_gas: u64
 }
 
 
@@ -40,25 +81,24 @@ impl Contract {
    }
 
     pub fn add_entry (&mut self, timestamp: String, name: String, message: String) {
-	let newtime = env::block_timestamp().to_string();
-	let count_str = self.num_entries().to_string();
-	let newinfo = self.get_info();
-	
+	                                  
         let new_entry = LogEntry {
-            entry_id : self.mylog.len() +1,
-            timestamp : env::block_timestamp().to_string(),
+            entry_id : self.mylog.len()+1,
+            timestamp : timestamp, 
+            block_ts:   u64::from(env::block_timestamp()),
             account : env::predecessor_account_id(),
-            name,
-            message   : message + &"; " + &count_str + &"; " + &newtime + &"; " + &newinfo,
+            name    : name,
+            message   : message,
+            used_gas :  u64::from(env::used_gas())
         };
         self.mylog.push(&new_entry);
         env::log_str("Entry Added!");
-        env::log_str(&self.get_info())
     }
     pub fn num_entries(&self) -> u64 {
        self.mylog.len()
     }
 
+    
     pub fn get_info(&self) -> String {
 	let env_used_gas = u64::from(env::used_gas()).to_string();
     let env_prepaid_gas = u64::from(env::prepaid_gas()).to_string();
@@ -68,6 +108,24 @@ impl Contract {
 	let result = String::new() + &"Block time: " + &env_time + "; used_gas: " + &env_used_gas + "; prepaid_gas: " + &env_prepaid_gas + &"; num_entries: " + &curcount;
 	result
     }
+   
+
+	pub fn get_last(&self) -> String {
+
+		let index = self.mylog.len() - 1;
+        let mut result = String::new() + r#"{ "log_entries": ["#;
+		let entry = self.mylog.get(index);
+		let x = match entry {
+			// If there was an entry, add it to the result
+			Some(x) => { near_sdk::serde_json::to_string(&x).unwrap() }
+			None => { String::new() }
+		};
+
+		result += &x;
+        result += r#"] }"#;
+
+		result
+	}
 
     pub fn list_entries(&self) -> String {
         let mut count = 0;
