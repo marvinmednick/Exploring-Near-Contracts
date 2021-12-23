@@ -73,10 +73,7 @@ function formatLogEntry (entry) {
   return(result);
 }
 
-
-function updateUI() {
-  let cur_account = window.walletConnection.getAccountId();
-  document.querySelector('#cur_login_id').innerText = cur_account;
+function update_current_info() {
 
   let cur_count = 0;
   let update_info = "The log is empty";
@@ -87,17 +84,20 @@ function updateUI() {
       contract.get_last().then(last_info => {
             var lastEntry;
             if (cur_count > 0) { 
-                update_info = last_info;
                 lastEntry = JSON.parse(last_info);
+                update_info =  JSON.stringify(lastEntry,null,2);
             }   
-            console.log(lastEntry,JSON.stringify(lastEntry));
-            document.querySelector('#cur_info').innerText = JSON.stringify(lastEntry,null,2);
+            document.querySelector('#cur_info').innerText = update_info;
       }).catch(err => errorHelper(err));
     }).catch(err => errorHelper(err));
-
+}
   
 
+function updateUI() {
+  let cur_account = window.walletConnection.getAccountId();
+  document.querySelector('#cur_login_id').innerText = cur_account;
 
+  update_current_info(); 
 
   console.log(cur_account);
   if (!cur_account) {
