@@ -95,10 +95,10 @@
         <!-- row -->
         <div class="row">
             <div class="col-3">
-                <p class="bg-light.bg.gradient border"><span id="cur_login_text"></span><span class="fs-5 fw-bolder text-info" id="cur_login_id"></span></p>
+                <p><span id="cur_login_text"></span><span class="fs-5 fw-bolder text-info" id="cur_login_id"></span></p>
             </div>
             <div class="col-3">
-                <p class="bg-light.bg.gradient border"><span id="contract_owner_text"></span><span class="fs-5 fw-bolder text-info" id="contract_owner_id"></span></p>
+                <p><span id="contract_owner_text"></span><span class="fs-5 fw-bolder text-info" id="contract_owner_id"></span></p>
             </div>
         </div>
         <div class="sign-in" style="display: none;">
@@ -114,45 +114,57 @@
         <div class="sign-out after-sign-in"><button class="btn btn-primary" style="background-color: #0072CE;">Sign Out</button></div>
         <!-- row -->
         <br>
-        <div class="row get_entry_count">
-            <div class="col-8">Number of entries in the log:<span id="showcount"></span></div>
-            <div class="col-2"><button class="btn btn-primary" style="background-color: #0072CE;">Refresh Count</button></div>
-        </div>
-        <div class="row ">
-            <div class="col-"><strong>Lastest Entry</strong>`</div>
-        </div>
-        <div class="row get_entry_count">
-            <div class="col-">Current: <span id="cur_info"></span></div>
-        </div>
-        <br>
-        <!-- row -->
-        <div class="row">
-            <div class="viewcommands" style="display: block;">
-                <h4>These commands are available without sigining in:</h4>
+        <div id="current_info" class="row border border-primary">
+            <div class="col-1"></div>
+            <div class="col-10">
+                <br>
+                <div class="row get_entry_count">
+                    <div class="col-5">Number of entries in the log: <span id="showcount"></span></div>
+                    <div class="col-1"><button class="btn btn-primary" style="background-color: #0072CE;">Refresh</button></div>
+                    <div class="col-5">
+                        <p>The page updates this information when it creates a change, but this can force a refresh for updates from other instances or via the near cli</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-5"><strong>Lastest Entry</strong>`</div>
+                </div>
+                <div class="row get_entry_count">
+                    <div class="col-5">
+                        <pre id="cur_info"></pre>
+                    </div>
+                    <div class="col-3"></div>
+                </div>
+                <br>
+                <!-- row -->
+                <div class="row">
+                    <div class="viewcommands" style="display: block;">
+                        <h4>These commands are available without sigining in:</h4>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <!-- row -->
+                <div class="row get_entry_list">
+                    <div class="col-2">
+                        <button id='display_entries' class="btn btn-primary" style="background-color: #0072CE;">Display Entries</button>
+                    </div>
+                    <div class="col-2">
+                        <button id='hide_entries' class="btn btn-primary" style="background-color: #0072CE;">HideEntries</button>
+                    </div>
+                </div>
+                <div class="row get_entry_list">
+                    <div class="col-3">The current log entries are:</div>
+                </div>
+                <br>
+                <!-- row -->
+                <div class="row">
+                    <strong>
+                        <pre id="entry_list_hdr"></pre></strong>
+                </div>
+                <div class="row get_entry_list">
+                    <pre id="showlistdata">Press button to query</pre>
+                </div>
             </div>
-        </div>
-        <br>
-        <br>
-        <!-- row -->
-        <div class="row get_entry_list">
-            <div class="col-2">
-                <button id='display_entries' class="btn btn-primary" style="background-color: #0072CE;">Display Entries</button>
-            </div>
-            <div class="col-2">
-                <button id='hide_entries' class="btn btn-primary" style="background-color: #0072CE;">HideEntries</button>
-            </div>
-        </div>
-        <div class="row get_entry_list">
-            <div class="col-3">The current log entries are:</div>
-        </div>
-        <br>
-        <!-- row -->
-        <div class="row">
-            <strong>
-                <pre id="entry_list_hdr"></pre></strong>
-        </div>
-        <div class="row get_entry_list">
-            <pre id="showlistdata">Press button to query</pre>
         </div>
         <div class="after-sign-in" style="display: none;">
             <br>

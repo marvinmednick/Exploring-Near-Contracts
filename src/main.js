@@ -78,13 +78,24 @@ function updateUI() {
   let cur_account = window.walletConnection.getAccountId();
   document.querySelector('#cur_login_id').innerText = cur_account;
 
+  let cur_count = 0;
+  let update_info = "The log is empty";
+
   contract.num_entries().then(count => {
-      document.querySelector('#showcount').innerText = count;
+      cur_count = count;
+      document.querySelector('#showcount').innerText = cur_count;
+      contract.get_last().then(last_info => {
+            var lastEntry;
+            if (cur_count > 0) { 
+                update_info = last_info;
+                lastEntry = JSON.parse(last_info);
+            }   
+            console.log(lastEntry,JSON.stringify(lastEntry));
+            document.querySelector('#cur_info').innerText = JSON.stringify(lastEntry,null,2);
+      }).catch(err => errorHelper(err));
     }).catch(err => errorHelper(err));
 
-  contract.get_last().then(last_info => {
-      document.querySelector('#cur_info').innerText = last_info;
-    }).catch(err => errorHelper(err));
+  
 
 
 
@@ -154,7 +165,7 @@ document.querySelector('#hide_entries').addEventListener('click', () => {
 });
 
 document.querySelector('.log_reset .btn').addEventListener('click', () => {
-  contract.reset_log({msg: "A Reset occurred"}).then(listdata => {
+  contract.reset_log({}).then(listdata => {
       console.log("retrieved", listdata);
   }).catch(err => errorHelper(err));
 

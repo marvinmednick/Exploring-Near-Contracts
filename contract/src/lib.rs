@@ -112,7 +112,7 @@ impl Contract {
 
 	pub fn get_last(&self) -> String {
 
-        let mut result = String::new() + r#"{ "log_entries": ["#;
+        let mut result = String::new();
 		
         let len = self.mylog.len();
         if len > 0 {
@@ -123,9 +123,9 @@ impl Contract {
 			Some(x) => { near_sdk::serde_json::to_string(&x).unwrap() }
 			None => { String::new() }
 		  };    
-		  result += &x;
-        }
-        result += r#"] }"#;
+		   result = x;
+        };
+        //result += r#"] }"#;
 
 		result
 	}
@@ -152,8 +152,8 @@ impl Contract {
         result
     }
 
-    pub fn reset_log (&mut self, msg: String) -> String {
-        let result = msg + " " + &env::current_account_id().to_string() + " " + &env::predecessor_account_id().to_string();
+    pub fn reset_log (&mut self) -> String {
+        let result = env::current_account_id().to_string() + " " + &env::predecessor_account_id().to_string();
         self.mylog.clear();
         result
         
