@@ -100,20 +100,25 @@
             <div class="col-3">
                 <p><span id="contract_owner_text"></span><span class="fs-5 fw-bolder text-info" id="contract_owner_id"></span></p>
             </div>
-        </div>
-        <div class="sign-in" style="display: none;">
-            <div class="row">
-                <div class=col-2>
-                    <button class="btn btn-primary" style="background-color: #0072CE;">Sign In</button>
-                </div>
-                <div class=col>
-                    <p>You'll need to sign in to be able to access the contract methods that modify data</p>
+            <div class="sign-in" style="display: none;">
+                <div class="row">
+                    <div class=col-2>
+                        <button class="btn btn-primary" style="background-color: #0072CE;">Sign In</button>
+                    </div>
+                    <div class=col>
+                        <p>You'll need to sign in to be able to access the contract methods that modify data</p>
+                    </div>
                 </div>
             </div>
+            <div class="sign-out after-sign-in"><button class="btn btn-primary" style="background-color: #0072CE;">Sign Out</button></div>
+            <!-- row -->
+            <br>
+            <br>
+            <div class="viewcommands" style="display: block;">
+                <br>
+                <p><span class="h4">View Commands</span> (available without sigining in)</p>
+            </div>
         </div>
-        <div class="sign-out after-sign-in"><button class="btn btn-primary" style="background-color: #0072CE;">Sign Out</button></div>
-        <!-- row -->
-        <br>
         <div id="current_info" class="row border border-primary">
             <div class="col-1"></div>
             <div class="col-10">
@@ -137,68 +142,65 @@
                 <br>
                 <!-- row -->
                 <div class="row">
-                    <div class="viewcommands" style="display: block;">
-                        <h4>These commands are available without sigining in:</h4>
+                    <br>
+                    <!-- row -->
+                    <div class="row get_entry_list">
+                        <div class="col-2">
+                            <button id='display_entries' class="btn btn-primary" style="background-color: #0072CE;">Display Entries</button>
+                        </div>
+                        <div class="col-2">
+                            <button id='hide_entries' class="btn btn-primary" style="background-color: #0072CE;">HideEntries</button>
+                        </div>
                     </div>
-                </div>
-                <br>
-                <br>
-                <!-- row -->
-                <div class="row get_entry_list">
-                    <div class="col-2">
-                        <button id='display_entries' class="btn btn-primary" style="background-color: #0072CE;">Display Entries</button>
+                    <!-- row -->
+                    <div class="row">
+                        <p></p>
+                        <strong><pre id="entry_list_hdr"></pre></strong>
                     </div>
-                    <div class="col-2">
-                        <button id='hide_entries' class="btn btn-primary" style="background-color: #0072CE;">HideEntries</button>
+                    <div class="row get_entry_list">
+                        <pre id="showlistdata"></pre>
                     </div>
-                </div>
-                <div class="row get_entry_list">
-                    <div class="col-3">The current log entries are:</div>
-                </div>
-                <br>
-                <!-- row -->
-                <div class="row">
-                    <strong>
-                        <pre id="entry_list_hdr"></pre></strong>
-                </div>
-                <div class="row get_entry_list">
-                    <pre id="showlistdata">Press button to query</pre>
                 </div>
             </div>
         </div>
         <div class="after-sign-in" style="display: none;">
-            <br>
-            <h3>Commands that modify data</h3>
-            <br>
-            <h4>Add an Entry</h4>
-            <div class="row border border-primary">
-                <div class="col-1"></div>
-                <div class="col">
-                    <div id="add_entry_form" style="display: block;">
-                        <form id="add-entry" name="add-entry">
+                <br>
+                <p><span class="h4">Call Commands</span> (require sign in, modifiy Contract data)</p>
+                <br>
+                <h4>Add an Entry</h4>
+                <div class="row">
+                    <div class="col-1"></div>
+                    <div class="col">
+                        <div id="add_sentry_form" class="border border-primary" style="display: block; padding-left: 50px;">
+                            <form id="add-entry" name="add-entry">
+                                <br>
+                                <div style="display:flex; flex-direction: row">
+                                    <label for="Name" class="form-label" style="padding-right: 25px;">Name</label>
+                                    <input type="text" class="form-control" id="name" placeholder="Name?"   name="name">
+                                </div>
+                                <div style="display:flex; flex-direction: row">
+                                    <label for="Msg" class="form-label" style="padding-right: 25px;">Message</label>
+                                    <input type="text" class="form-control" id="Message" placeholder="Message?" name="msg">
+                                </div>
+                                <br>
+                                <button type="submit" class="btn btn-primary" style="background-color: #0072CE;">Add a new Log Entry</button>
+                                <
+                            </form>
                             <br>
-                            <label for="Name" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="name" placeholder="Name?" name="name">
-                            <label for="Msg" class="form-label">Message</label> <input type="text" class="form-control" id="Message" placeholder="Message?" name="msg">
-                            <br>
-                            <button type="submit" class="btn btn-primary" style="background-color: #0072CE;">Add a new Log Entry</button>
-                        </form>
-                        <br>
-                    </div>
-                    <div class="bg-info text-white">
-                        <h4 id="add_status" style="display: none">Adding Entry</h4>
+                        </div>
+                        <div class="bg-info text-white">
+                            <h4 id="add_status" style="display: none">Adding Entry</h4>
+                        </div>
                     </div>
                 </div>
+                <br>
+                <h4> Clear the log:</h4>
+                <div class="row log_reset">
+                    <div class="col-2"><button class="btn btn-primary" style="background-color: #0072CE;">Reset</button></div>
+                    <div class="col-3">Reset the log and remove all entries</div>
+                </div>
+                <br>
             </div>
-            <br>
-            <h4> Clear the log:</h4>
-            <div class="row log_reset">
-                <div class="col-2"><button class="btn btn-primary" style="background-color: #0072CE;">Reset</button></div>
-                <div class="col-3">Reset the log and remove all entries</div>
-            </div>
-            <br>
-        </div>
-    </div>
     </div>
 </body>
 <script src="./main.js"></script>

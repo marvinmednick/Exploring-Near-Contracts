@@ -46,31 +46,44 @@ function errorHelper(err) {
   console.error(err);
 }
 
+// Variables used tp size the columns of data and headers in display all entries
+let col1_size = 4;
+let col2_size = 53;
+let col3_size = 35;
 
 function formatLogHdr() {
   let spacer = "  "
-  let result = "#".padEnd(4) 
-            + spacer + "User Provided Timestamp".padEnd(25," ")
-            + spacer + "Block TS".padEnd(50," ") 
-            + spacer + "Account".padEnd(35," ")
+  let result = "#".padEnd(col1_size) 
+            + spacer + "Timestamps".padEnd(col2_size," ")
+            + spacer + "Account".padEnd(col3_size," ")
             + spacer + "Message\n"
-            
 
   return(result);
 }
 
 function formatLogEntry (entry) {
   let spacer = "  "
-   let block_time = new Date(entry.block_ts / 1e6);
-   console.log(block_time,typeof(block_time));
-   let block_iso = block_time.toISOString();
+  let block_time = new Date(entry.block_ts / 1e6);
+  console.log(block_time,typeof(block_time));
+  let block_iso = block_time.toISOString();
 
+
+  let line1 = entry.entry_id.toString().padEnd(col1_size)
+             + spacer + ("User: ".padEnd(7) + entry.timestamp).padEnd(col2_size," ")
+             + spacer + entry.account.padEnd(col3_size," ")
+             + "   " + entry.message+ '\n';
+
+  let line2 = " ".padEnd(col1_size)
+              + spacer + ("Block: ".padStart(7) + block_iso + " (" + entry.block_ts.toString() + ")").padEnd(col2_size," ") + '\n';  
+  /*
   let result = entry.entry_id.toString().padEnd(4) 
              + spacer + entry.timestamp.padEnd(25," ")
              + spacer + (block_iso + " (" + entry.block_ts.toString() + ")").padEnd(50," ") 
              + spacer + entry.account.padEnd(35," ")
              + "   " + entry.message+ '\n';
-  return(result);
+  */
+
+  return(line1 + line2);
 }
 
 function update_current_info() {
