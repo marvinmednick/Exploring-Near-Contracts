@@ -12,11 +12,9 @@ describe('Token', function () {
       changeMethods: ['new','add_entry', 'reset_log'],
       sender: accountId
     });
-    console.log("Contract is:", contract);
   });
 
   describe('entries', function () {
-    console.log("A Contract is:", contract);
 
     it('can be initialized', async function() {
       await contract.new();
@@ -34,9 +32,8 @@ describe('Token', function () {
       expect(endCounter).toEqual(startCounter + 1);
     });
     it('can be reset', async function () {
-      const startCounter = await contract.num_entries();
-      await contract.reset_log({ 'msg' : 'Reseting'} );
-      const endCounter = await contract.num_entries();
+      await contract.reset_log();
+      const endCounter = await contract.num_entries(args={});
       expect(endCounter).toEqual(0);
     });
   });
