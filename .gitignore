@@ -1,5 +1,7 @@
 /contract/target
 /contract/res
+/contract2/target
+/contract2/res
 /neardev
 /.cache
 /dist
