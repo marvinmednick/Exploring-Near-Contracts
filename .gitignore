@@ -2,7 +2,8 @@
 /contract/res
 /contract2/target
 /contract2/res
-/neardev
+/neardev/dev*
+/neardev/shared-test/test-account*
 /.cache
 /dist
 marvfirst.sublime-project
