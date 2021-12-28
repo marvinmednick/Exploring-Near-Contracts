@@ -17,7 +17,7 @@ describe('Token', function () {
   describe('entries', function () {
 
     it('can be initialized', async function() {
-      await contract.new();
+      await contract.new({"args" : {}});
       const endCounter = await contract.num_entries();
       expect(endCounter).toEqual(0);
     });
@@ -27,13 +27,14 @@ describe('Token', function () {
     });
     it('can add entries', async function () {
       const startCounter = await contract.num_entries();
-      await contract.add_entry({ "timestamp" : "Time1","name" : "My Name","message": "My Message"});
+//      await contract.add_entry({ "timestamp" : "Time1","name" : "My Name","message": "My Message"});
+      await contract.add_entry({"args" : { "timestamp" : "Time1","name" : "My Name","message": "My Message"}});
       const endCounter = await contract.num_entries();
       expect(endCounter).toEqual(startCounter + 1);
     });
     it('can be reset', async function () {
-      await contract.reset_log();
-      const endCounter = await contract.num_entries(args={});
+      await contract.reset_log({"args": {}});
+      const endCounter = await contract.num_entries();
       expect(endCounter).toEqual(0);
     });
   });

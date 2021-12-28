@@ -1,27 +1,43 @@
 use near_sdk::{
-    borsh::{self, BorshDeserialize, BorshSerialize},
-    serde::{Deserialize, Serialize},
-    AccountId, PanicOnDefault
+    //borsh::{self, BorshDeserialize, BorshSerialize},
+    //serde::{Deserialize, Serialize},
+    //AccountId, 
+    //  PanicOnDefault,
+    env,
+    near_bindgen,
+    ext_contract,
+    Promise,
 };
-use near_sdk::{env, near_bindgen};
 
-#[near_bindgen]
-#[derive(BorshDeserialize, BorshSerialize,PanicOnDefault)]
-pub struct Contract {
-    owner_id:  AccountId,
+
+
+#[ext_contract(ext_logger)]
+trait LoggerContract {
+    fn add_entry(&self, timestamp: String, name: String, message: String);
+    fn add2();
 }
 
 #[near_bindgen]
-impl Contract {
+struct CallLoggerContract {}
 
-    #[init]
-    pub fn new() -> Self {
-        Self {
-            owner_id: env::current_account_id(),
-        }
-   }
-
+#[near_bindgen]
+impl CallLoggerContract {
+    
+    pub fn indirect_add_entry(&self, timestamp: String, name: String, message: String) -> near_sdk::Promise {
+        ext_logger::add_entry(
+            String::from("indirect ") + &env::block_timestamp().to_string(),
+            String::from("indirect ") + &name,
+            String::from("indirect ") + &message,
+            0, // yocto NEAR to attach
+            5_000_000_000_000 // gas to attach
+        );
+    }
+    
 }
+
+
+
+
 
 /*
  * the rest of this file sets up unit tests
