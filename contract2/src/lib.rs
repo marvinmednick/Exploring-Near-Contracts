@@ -1,9 +1,11 @@
 use near_sdk::{
-    //borsh::{self, BorshDeserialize, BorshSerialize},
+    borsh::{self, BorshDeserialize, BorshSerialize},
     //serde::{Deserialize, Serialize},
+    serde_json::json,
     //AccountId, 
     //  PanicOnDefault,
     env,
+    Gas,
     near_bindgen,
     ext_contract,
     Promise,
@@ -17,20 +19,45 @@ trait LoggerContract {
     fn add2();
 }
 
+
 #[near_bindgen]
-struct CallLoggerContract {}
+#[derive(Default, BorshDeserialize, BorshSerialize)]
+struct CallLoggerContract {
+
+}
 
 #[near_bindgen]
 impl CallLoggerContract {
     
-    pub fn indirect_add_entry(&self, timestamp: String, name: String, message: String) -> near_sdk::Promise {
+    pub fn indirect_add_entry(&self, timestamp: String, name: String, message: String) {
+
+        let _cross_contract_call = Promise::new("dev-1640639075534-62569263574205".to_string().try_into().unwrap()) 
+        .function_call(
+            "add_entry".to_string(),
+            json!({
+                "timestamp" : String::from("indirect ") + &timestamp,
+                "name"      : String::from("indirect ") + &name,
+                "message"   : String::from("indirect ") + &message,
+            }).to_string().into_bytes(),
+            0, // yocto NEAR to attach
+            Gas::from(5_000_000_000_000) // gas to attach
+        );
+    }
+
+    pub fn indirect_add(&self, timestamp: String, name: String, message: String) {
+
         ext_logger::add_entry(
-            String::from("indirect ") + &env::block_timestamp().to_string(),
+            String::from("indirect ") + &timestamp,
             String::from("indirect ") + &name,
             String::from("indirect ") + &message,
+            "dev-1640639075534-62569263574205".to_string().try_into().unwrap(),
             0, // yocto NEAR to attach
-            5_000_000_000_000 // gas to attach
+            Gas::from(5_000_000_000_000) // gas to attach
         );
+    }
+
+    pub fn hello(&self) -> String {
+        String::new("hello")
     }
     
 }
