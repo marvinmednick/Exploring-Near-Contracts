@@ -2,13 +2,16 @@ use near_sdk::{
     borsh::{self, BorshDeserialize, BorshSerialize},
     //serde::{Deserialize, Serialize},
     serde_json::json,
-    //AccountId, 
-    //  PanicOnDefault,
+    AccountId, 
+    PanicOnDefault,
     env,
     Gas,
     near_bindgen,
     ext_contract,
-    Promise,
+    Promise, 
+	PromiseResult,
+	//json_types::U128,
+    log,
 };
 
 
@@ -16,22 +19,39 @@ use near_sdk::{
 #[ext_contract(ext_logger)]
 trait LoggerContract {
     fn add_entry(&self, timestamp: String, name: String, message: String);
-    fn add2();
+    fn num_entries();
 }
 
+#[ext_contract(ext_self)]
+pub trait MyContract {
+    fn num_entries_callback(&self) -> u64;
+}
 
 #[near_bindgen]
-#[derive(Default, BorshDeserialize, BorshSerialize)]
+#[derive(BorshDeserialize, BorshSerialize,PanicOnDefault)]
 struct CallLoggerContract {
-
+	log_contract_id : AccountId
 }
 
 #[near_bindgen]
 impl CallLoggerContract {
     
+	#[init]
+    pub fn new(log_contract : String) -> Self {
+        log!("Init Log_contract: {}", log_contract);
+        Self {
+//          log_contract_id : log_contract.try_into().unwrap(),
+            log_contract_id : "dev-1639974321121-47529844872022".to_string().try_into().unwrap(),
+        } 
+    }
+
+    pub fn update_log_contract(&mut self, log_contract: String) {
+        self.log_contract_id = log_contract.try_into().unwrap();
+    }
+
     pub fn indirect_add_entry(&self, timestamp: String, name: String, message: String) {
 
-        let _cross_contract_call = Promise::new("dev-1640639075534-62569263574205".to_string().try_into().unwrap()) 
+        let _cross_contract_call = Promise::new(self.log_contract_id.clone())
         .function_call(
             "add_entry".to_string(),
             json!({
@@ -56,11 +76,39 @@ impl CallLoggerContract {
         );
     }
 
-    pub fn hello(&self) -> String {
-        String::new("hello")
-    }
-    
+
+	pub fn indirect_num_entries() -> Promise {
+		ext_logger::num_entries(
+            "dev-1640639075534-62569263574205".to_string().try_into().unwrap(),
+            0, // yocto NEAR to attach
+            Gas::from(5_000_000_000_000) // gas to attach
+		).then(ext_self::num_entries_callback(
+			env::current_account_id(), // this contract's account id
+			0, // yocto NEAR to attach to the callback
+			Gas::from(5_000_000_000_000) // gas to attach to the callback
+			)
+		) 
+	}
+
+	pub fn num_entries_callback(&self)  -> u64 {
+	  assert_eq!(
+		  env::promise_results_count(),
+		  1,
+		  "This is a callback method"
+	  );
+
+	  // handle the result from the cross contract call this method is a callback for
+	  match env::promise_result(0) {
+		PromiseResult::NotReady => 0,
+		PromiseResult::Failed => { 0 },
+		PromiseResult::Successful(result) => {
+			let count = near_sdk::serde_json::from_slice::<u64>(&result).unwrap();
+			count
+		},
+	  }
+	}
 }
+    
 
 
 
