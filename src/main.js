@@ -33,17 +33,30 @@ async function connect(nearConfig) {
 function errorHelper(err) {
   // if there's a cryptic error, provide more helpful feedback and instructions here
   // TODO: as soon as we get the error codes propagating back, use those
+  let disp_err = "Error during processing";
   if (err.message.includes('Cannot deserialize the contract state')) {
+    disp_err = 'Cannot deserialize the contract state';
     console.warn('NEAR Warning: the contract/account seems to have state that is not (or no longer) compatible.\n' +
         'This may require deleting and recreating the NEAR account as shown here:\n' +
         'https://stackoverflow.com/a/60767144/711863');
   }
   if (err.message.includes('Cannot deserialize the contract state')) {
+    disp_err = 'Cannot deserialize the contract state';
     console.warn('NEAR Warning: the contract/account seems to have state that is not (or no longer) compatible.\n' +
         'This may require deleting and recreating the NEAR account as shown here:\n' +
         'https://stackoverflow.com/a/60767144/711863');
   }
+  console.log("Err:",err.message,typeof(err.message));
+  if (err.message.includes('The contract is not initialized')) {
+    disp_err = 'Contract is not initialized';
+    console.warn('NEAR Warning: the contract/accountis not yet initialized.'); 
+  }
+   // err_string = JSON.stringify(error_info,null,2);
+   //console.log(error_info, err_string)
   console.error(err);
+  document.querySelector('#error_status').innerText = "ERROR: " + disp_err;
+  document.querySelector('#error_status').style.setProperty('display', 'block')
+
 }
 
 // Variables used tp size the columns of data and headers in display all entries
@@ -107,6 +120,8 @@ function update_current_info() {
   
 
 function updateUI() {
+  document.querySelector('#error_status').style.setProperty('display', 'none')
+
   let cur_account = window.walletConnection.getAccountId();
   document.querySelector('#cur_login_id').innerText = cur_account;
 

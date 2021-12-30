@@ -14,6 +14,7 @@ use near_sdk::{
     log,
 };
 
+//use std::result;
 
 
 #[ext_contract(ext_logger)]
@@ -66,20 +67,24 @@ impl CallLoggerContract {
 
     pub fn indirect_add(&self, timestamp: String, name: String, message: String) {
 
+        let test_result = near_sdk::serde_json::to_string(&self.test_ok()).unwrap();
+
         ext_logger::add_entry(
             String::from("indirect ") + &timestamp,
             String::from("indirect ") + &name,
-            String::from("indirect ") + &message,
-            "dev-1640639075534-62569263574205".to_string().try_into().unwrap(),
+            String::from("indirect ") + &message + &test_result,
+            self.log_contract_id.clone(),
+    //        "dev-1640639075534-62569263574205".to_string().try_into().unwrap(),
             0, // yocto NEAR to attach
             Gas::from(5_000_000_000_000) // gas to attach
         );
     }
 
 
-	pub fn indirect_num_entries() -> Promise {
+	pub fn indirect_num_entries(&self) -> Promise {
 		ext_logger::num_entries(
-            "dev-1640639075534-62569263574205".to_string().try_into().unwrap(),
+            self.log_contract_id.clone(),
+            //"dev-1640639075534-62569263574205".to_string().try_into().unwrap(),
             0, // yocto NEAR to attach
             Gas::from(5_000_000_000_000) // gas to attach
 		).then(ext_self::num_entries_callback(
@@ -89,6 +94,11 @@ impl CallLoggerContract {
 			)
 		) 
 	}
+
+
+    fn test_ok(&self) -> Result<u64,&'static str>  {
+        Ok(1)
+    } 
 
 	pub fn num_entries_callback(&self)  -> u64 {
 	  assert_eq!(
