@@ -120,6 +120,7 @@ function update_current_info() {
   
 
 function updateUI() {
+
   document.querySelector('#error_status').style.setProperty('display', 'none')
 
   let cur_account = window.walletConnection.getAccountId();
@@ -155,7 +156,7 @@ document.querySelector('.sign-out .btn').addEventListener('click', () => {
 
 
 
-document.querySelector('.get_entry_count .btn').addEventListener('click', () => {
+document.querySelector('#refresh').addEventListener('click', () => {
   contract.num_entries().then(count => {
       console.log("Count is",count);
       console.log(document.querySelector('#showcount').innerText)

@@ -122,29 +122,35 @@
                 <p><span class="h4">View Commands</span> (available without sigining in)</p>
             </div>
         </div>
-        <div id="current_info" class="row border border-primary">
-            <div class="col-1"></div>
-            <div class="col-10">
+        <div id="current_info" class="row border border-primary" style="padding: 50px;">
+            <div id="mainContract" class="col-6 border border-primary">
                 <br>
+                <div class="row">
+                    <div class="col flex">
+                        <button id="refresh" class="btn btn-primary" style="background-color: #0072CE;">Refresh</button>
+                    </div>
+                    <div class="col flex">
+                        <p>The page automaitcal updates when it initiates a change, but if updates are made (e.g. via near cli) this will force requests to the contract to refresh the information</p>
+                    </div>
+                </div>
                 <div class="row get_entry_count">
                     <div class="col-5">Number of entries in the log: <span id="showcount"></span></div>
-                    <div class="col-2"><button class="btn btn-primary" style="background-color: #0072CE;">Refresh</button></div>
-                    <div class="col-5">
-                        <p>The page updates this information when it creates a change, but this can force a refresh for updates from other instances or via the near cli</p>
-                    </div>
                 </div>
                 <div class="row">
-                    <div class="col-5"><strong>Lastest Entry</strong>`</div>
+                    <div class="col"><strong>Lastest Entry</strong></div>
                 </div>
                 <div class="row get_entry_count">
-                    <div class="col-5">
+                    <div class="col">
                         <pre id="cur_info"></pre>
                     </div>
-                    <div class="col-3"></div>
                 </div>
                 <br>
+            </div>
+            <div id="sub_contract" class="col-6 border border-primary" style="padding: 25px;">
+            </div>
+            <div class="row" style="padding: 25px">
                 <!-- row -->
-                <div class="row">
+                <div class=row>
                     <br>
                     <!-- row -->
                     <div class="row get_entry_list">
@@ -158,28 +164,28 @@
                     <!-- row -->
                     <div class="row">
                         <p></p>
-                        <strong><pre id="entry_list_hdr"></pre></strong>
+                        <strong>
+                            <pre id="entry_list_hdr"></pre></strong>
                     </div>
                     <div class="row get_entry_list">
                         <pre id="showlistdata"></pre>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="after-sign-in" style="display: none;">
+            <div class="after-sign-in" style="display: none;">
                 <br>
                 <p><span class="h4">Call Commands</span> (require sign in, modifiy Contract data)</p>
                 <br>
                 <h4>Add an Entry</h4>
                 <div class="row">
                     <div class="col-1"></div>
-                    <div class="col">
-                        <div id="add_entry_form" class="border border-primary" style="display: block; padding-left: 50px;">
+                    <div class="col-4">
+                        <div id="add_entry_form" class="border border-primary" style="display: block; padding-left: 25px; padding-right: 25px">
                             <form id="add-entry" name="add-entry">
                                 <br>
                                 <div style="display:flex; flex-direction: row">
                                     <label for="Name" class="form-label" style="width: 75px;">Name</label>
-                                    <input type="text" class="form-control" id="name" placeholder="Name?"   name="name">
+                                    <input type="text" class="form-control" id="name" placeholder="Name?" name="name">
                                 </div>
                                 <div style="display:flex; flex-direction: row">
                                     <label for="Msg" class="form-label" style="width: 75px;">Message</label>
@@ -203,7 +209,7 @@
                 </div>
                 <br>
             </div>
-    </div>
+        </div>
 </body>
 <script src="./main.js"></script>
 
