@@ -31,8 +31,18 @@ function allStorage() {
 //  However it seems that the local storage for the web page only seems to support once
 // account logged in at time... 
 window.nearConnections = {
-    mainacct: { near: null, walletConnection: null, contract: null },
-    subacct:  {near: null, walletConnection: null, contract: null },
+    mainacct: { near: null,
+                walletConnection: null, 
+                contract: null ,
+                viewMethods: ['num_entries', 'list_entries', 'get_last'],
+                changeMethods: ['new', 'add_entry', 'reset_log', 'get_info'], 
+              },
+    subacct:  { near: null, 
+                walletConnection: null, 
+                contract: null,
+                viewMethods: ['indirect_num_entries', 'indirect_get_last'],
+                changeMethods: ['new', 'indirect_add', 'reset_log' ],
+              },
 }
 
 
@@ -57,9 +67,9 @@ async function connect(nearConfig, account) {
     // MAIN CONTRACT: Initializing our contract APIs by contract name and configuration.
     connection.contract = await new nearAPI.Contract(connection.walletConnection.account(), nearConfig.contractName, {
         // View methods are read-only – they don't modify the state, but usually return some value
-        viewMethods: ['num_entries', 'list_entries', 'get_last'],
+        viewMethods: connection.viewMethods,
         // Change methods can modify the state, but you don't receive the returned value when called
-        changeMethods: ['new', 'add_entry', 'reset_log', 'get_info'],
+        changeMethods: connection.changeMethods,
         // Sender is the account ID to initialize transactions.
         // getAccountId() will return empty string if user is still unauthorized
         sender: connection.walletConnection.getAccountId()
