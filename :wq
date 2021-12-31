@@ -302,4 +302,4 @@ window.nearInitPromise = connect(nearMainConfig,'mainacct')
     .then(updateSubAccountUI)
     .catch(console.error);
 
-console.log("Reloaded...",new Date());
+console.log("Reloaded...");
