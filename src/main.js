@@ -1,7 +1,12 @@
 import "regenerator-runtime/runtime";
 import * as nearAPI from "near-api-js";
 import getConfig from "./config";
-const nearConfig = getConfig(process.env.NODE_ENV || "development");
+const nearMainConfig = getConfig(process.env.NODE_ENV || "development");
+import getSubAcctConfig from "./subacct_config";
+const  nearSubAcctConfig = getSubAcctConfig(process.env.NODE_ENV || "development");
+
+var mainContract;
+var subAcctContract;
 
 window.nearConnections = {
     mainacct:  {near: null, walletConnection: null, contract: null },
@@ -12,8 +17,8 @@ console.log(nearConnections);
 
 
   // Copied from rust-counter
-async function connect(nearConfg, account) {
-
+async function connect(nearConfig, account) {
+  console.log("Starting connection for ", account, nearConfig);
   let connection = window.nearConnections[account];
 
   // Connects to NEAR and provides `near`, `walletAccount` and `contract` objects in `window` scope
@@ -110,7 +115,7 @@ function formatLogEntry (entry) {
   return(line1 + line2);
 }
 
-function update_current_info() {
+function update_current_info(account) {
 
   let cur_count = 0;
   let update_info = "The log is empty";
@@ -135,7 +140,7 @@ function updateUI() {
 
   document.querySelector('#error_status').style.setProperty('display', 'none');
 
-  document.querySelector('#main_contract_id').innerText = nearConfig.contractName;
+  document.querySelector('#main_contract_id').innerText = nearMainConfig.contractName;
 
   let cur_account = nearConnections.mainacct.walletConnection.getAccountId();
   document.querySelector('#cur_login_id').innerText = cur_account;
@@ -159,21 +164,18 @@ function updateUI() {
 
 
 function updateSubAccountUI() {
-/*
-   document.querySelector('#sub_contract_id').innerText = nearConfig.subcontractName;
+
+   document.querySelector('#sub_contract_id').innerText = nearSubAcctConfig.contractName;
 
 
-  let cur_subaccount = window.walletConnection2.getAccountId();
-  console.log(walletConnection2)
-  document.querySelector('#cur_login_id').innerText = cur_subaccount;
-
-
-  update_current_info();
+  let cur_subaccount = nearConnections.subacct.walletConnection.getAccountId();
+  console.log("update Sub", nearConnections.subacct.walletConnection)
+  document.querySelector('#subacct_login_id').innerText = cur_subaccount;
 
   console.log(cur_subaccount);
   if (!cur_subaccount) {
-    document.querySelector('#cur_login_id').innerText = "";
-    document.querySelector('#cur_login_text').innerText = "You are not currently logged in.";
+    document.querySelector('#subacct_login_id').innerText = "";
+    document.querySelector('#subacct_login_text').innerText = "You are not currently logged in.";
     Array.from(document.querySelectorAll('.sign-in-subacct')).map(it => it.style = 'display: block;');
     Array.from(document.querySelectorAll('.after-sign-in-subacct')).map(it => it.style = 'display: none;');
   } else {
@@ -184,13 +186,13 @@ function updateSubAccountUI() {
 
   }
 
-  */
+ 
 }
 
 
 // Log in user using NEAR Wallet on "Sign In" button click
 document.querySelector('.sign-in-main .btn').addEventListener('click', () => {
-  nearConnections.mainacct.walletConnection.requestSignIn(nearConfig.contractName, 'Marvin First Contract Demo');
+  nearConnections.mainacct.walletConnection.requestSignIn(nearMainConfig.contractName, 'Marvin First Contract Demo');
 });
 
 document.querySelector('.sign-out-main .btn').addEventListener('click', () => {
@@ -288,10 +290,13 @@ function logInfo () {
   console.log(mainContract, nearConnections['main'], nearConnections);
    console.log("logInfo End");
    mainContract = nearConnections.mainacct.contract;
+   subAcctContract = nearConnections.subacct.contract;
 }
 
-let mainContract = nearConnections.mainacct.contract;
-window.nearInitPromise = connect(nearConfig,'mainacct')
+var mainContract;
+var subAcctContract;
+window.nearInitPromise = connect(nearMainConfig,'mainacct')
+    .then(connect(nearSubAcctConfig,'subacct'))
     .then(logInfo)
     .then(updateUI)
     .then(updateSubAccountUI)

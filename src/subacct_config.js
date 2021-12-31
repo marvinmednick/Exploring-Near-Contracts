@@ -1,6 +1,6 @@
 const SUBCONTRACT_NAME = process.env.SUBCONTRACT_NAME || 'subasdf.test'; /* TODO: change this to your account */
 
-console.log(SUBCONTRACT_NAME);
+console.log("subaccout config:",  SUBCONTRACT_NAME);
 
 function getSubAcctConfig (env) {
   switch (env) {

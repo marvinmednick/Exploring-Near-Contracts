@@ -3,6 +3,7 @@
 /contract2/target
 /contract2/res
 /neardev/dev*
+contract2/neardev/dev*
 /neardev/shared-test/test-account*
 /.cache
 /dist
