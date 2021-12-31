@@ -96,186 +96,194 @@
             <p id="error_status" class="text-danger fs-4 fw-bold" style="display: none;"></p>
         </div>
         <!-- row -->
-        <div class="row border border-primary" style="padding: 25px;">
-            <div id="mainContract" class="col-6 border border-primary">
-                <div class="row">
-                    <p class="h3">Main Contract </p>
-                    <p>(deployed on account <span id=main_contract_id></span>)</p>
-                    <p>These functions all make function calls direct to the main contract contract</p>
-                </div>
-                <div class="row">
-                    <div class="viewcommands" style="display: block;">
-                        <br>
-                        <p><span class="h4">View Commands</span> (available without sigining in)</p>
+    </div>
+    <!-- row -->
+    <div class="row border border-primary" style="padding: 25px;">
+        <div id="mainContract" class="col-6 border border-primary">
+            <div class="row">
+                <p class="h3">Main Contract </p>
+                <p>(deployed on account <span id=main_contract_id></span>)</p>
+                <p>These functions all make function calls direct to the main contract contract</p>
+            </div>
+            <!-- main login start -->
+            <div class="row border-top border-bottom border-primary" style="padding-top: 20px; padding-bottom: 20px;">
+                <p>
+                    <span id="cur_login_text"></span><span class="fs-5 fw-bolder text-info" id="cur_login_id"></span>
+                    <span id="contract_owner_text"></span><span class="fs-5 fw-bolder text-info" id="contract_owner_id"></span>
+                </p>
+                <div class="sign-in-main" style="display: none;">
+                    <div class="row">
+                        <div class=col-2>
+                            <button class="btn btn-primary" style="background-color: #0072CE;">Sign In</button>
+                        </div>
+                        <div class=col>
+                            <p>You'll need to sign in to be able to see and access the contract methods that use the call methods and modify data</p>
+                        </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col flex">
-                        <button id="refresh" class="btn btn-primary" style="background-color: #0072CE;">Refresh</button>
+                <div class="sign-out-main after-sign-in-main">
+                    <button class="btn btn-primary" style="background-color: #0072CE;">Sign Out</button>
+                </div>
+            </div>
+            <!-- main login end -->
+            <div class="row">
+                <div class="viewcommands" style="display: block;">
+                    <br>
+                    <p><span class="h4">View Commands</span> (available without sigining in)</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col flex">
+                    <button id="refresh" class="btn btn-primary" style="background-color: #0072CE;">Refresh</button>
+                </div>
+                <div class="col flex">
+                    <p>The page automaitcal updates when it initiates a change, but if updates are made (e.g. via near cli) this will force requests to the contract to refresh the information</p>
+                </div>
+            </div>
+            <div class="row get_entry_count">
+                <div class="col-5">Number of entries in the log: <span id="showcount"></span></div>
+            </div>
+            <div class="row">
+                <div class="col"><strong>Lastest Entry</strong></div>
+            </div>
+            <div class="row get_entry_count">
+                <div class="col">
+                    <pre id="cur_info"></pre>
+                </div>
+            </div>
+            <br>
+            <div class="after-sign-in-main" style="display: none; padding: 25px;">
+                <br>
+                <p><span class="h4">Call Commands </span>(use contract call methods and modify data)</p>
+                <br>
+                <div class="row border-primary border-top border-bottom">
+                    <div id="add_entry_form" style="display: block; padding-left: 10px; padding-right: 25px">
+                        <form id="add-entry" name="add-entry">
+                            <br>
+                            <div class="row">
+                                <div style="display:flex; flex-direction: row">
+                                    <label for="Name" class="form-label" style="width: 75px;">Name</label>
+                                    <input type="text" class="form-control" id="name" placeholder="Name?" name="name">
+                                </div>
+                                <div style="display:flex; flex-direction: row">
+                                    <label for="Msg" class="form-label" style="width: 75px;">Message</label>
+                                    <input type="text" class="form-control" id="Message" placeholder="Message?" name="msg">
+                                </div>
+                            </div>
+                            <div class=row style="padding-top: 20px; padding-bottom: 20px;">
+                                <div class="col-4">
+                                    <button type="submit" class="btn btn-primary" style="background-color: #0072CE;">Add Entry</button>
+                                </div>
+                                <div class="col">
+                                    <span class="fs-5">Add an Entry </span>(Adds an entry to the log.)
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                    <div class="col flex">
-                        <p>The page automaitcal updates when it initiates a change, but if updates are made (e.g. via near cli) this will force requests to the contract to refresh the information</p>
-                    </div>
-                </div>
-                <div class="row get_entry_count">
-                    <div class="col-5">Number of entries in the log: <span id="showcount"></span></div>
-                </div>
-                <div class="row">
-                    <div class="col"><strong>Lastest Entry</strong></div>
-                </div>
-                <div class="row get_entry_count">
-                    <div class="col">
-                        <pre id="cur_info"></pre>
+                    <div class="bg-info text-white">
+                        <h4 id="add_status" style="display: none">Adding Entry</h4>
                     </div>
                 </div>
                 <br>
-                <div class="row border-top border-bottom border-primary" style="padding-top: 20px; padding-bottom: 20px;">
-                    <p>
-                        <span id="cur_login_text"></span><span class="fs-5 fw-bolder text-info" id="cur_login_id"></span>
-                        <span id="contract_owner_text"></span><span class="fs-5 fw-bolder text-info" id="contract_owner_id"></span>
-                    </p>
-                    <div class="sign-in-main" style="display: none;">
-                        <div class="row">
-                            <div class=col-2>
-                                <button class="btn btn-primary" style="background-color: #0072CE;">Sign In</button>
-                            </div>
-                            <div class=col>
-                                <p>You'll need to sign in to be able to see and access the contract methods that use the call methods and modify data</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="sign-out-main after-sign-in-main"><button class="btn btn-primary" style="background-color: #0072CE;">Sign Out</button></div>
-                    <!-- row -->
+                <div class="row log_reset">
+                    <div class="col-4">
+                        <button class="btn btn-primary" style="background-color: #0072CE;">Reset</button></div>
+                    <div class="col"><span class="fs-5"> Clear the log </span>(Reset the log and remove all entries)</div>
                 </div>
-                <div class="after-sign-in-main" style="display: none; padding: 25px;">
-                    <br>
-                    <p><span class="h4">Call Commands </span>(use contract call methods and modify data)</p>
-                    <br>
-                    <div class="row border-primary border-top border-bottom">
-                        <div id="add_entry_form" style="display: block; padding-left: 10px; padding-right: 25px">
-                            <form id="add-entry" name="add-entry">
-                                <br>
-                                <div class="row">
-                                    <div style="display:flex; flex-direction: row">
-                                        <label for="Name" class="form-label" style="width: 75px;">Name</label>
-                                        <input type="text" class="form-control" id="name" placeholder="Name?" name="name">
-                                    </div>
-                                    <div style="display:flex; flex-direction: row">
-                                        <label for="Msg" class="form-label" style="width: 75px;">Message</label>
-                                        <input type="text" class="form-control" id="Message" placeholder="Message?" name="msg">
-                                    </div>
-                                </div>
-                                <div class=row style="padding-top: 20px; padding-bottom: 20px;">
-                                    <div class="col-4">
-                                        <button type="submit" class="btn btn-primary" style="background-color: #0072CE;">Add Entry</button>
-                                    </div>
-                                    <div class="col">
-                                        <span class="fs-5">Add an Entry </span>(Adds an entry to the log.)
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="bg-info text-white">
-                            <h4 id="add_status" style="display: none">Adding Entry</h4>
-                        </div>
-                    </div>
-                    <br>
-                    <div class="row log_reset">
-                        <div class="col-4"><button class="btn btn-primary" style="background-color: #0072CE;">Reset</button></div>
-                        <div class="col"><span class="fs-5"> Clear the log </span>(Reset the log and remove all entries)</div>
-                    </div>
-                    <br>
-                </div>
+                <br>
             </div>
-            <div id="sub_contract" class="col-6 border border-primary" style="padding: 25px;">
-                <div class="row">
-                    <p class="h3">Proxy Contract</p>
-                    <p>(deployed on account <span id=sub_contract_id></span>)</p>
-                    <p>Requests remade via Cross Contract calls to the main contract and data is returned via callbacks</p>
-                </div>
-                <div class="row border-top border-bottom border-primary" style="padding-top: 20px; padding-bottom: 20px;">
-                    <p>
-                        <span id="subacct_login_text"></span><span class="fs-5 fw-bolder text-info" id="subbact_login_id"></span>
-                        <span id="subacct_login_id"></span><span class="fs-5 fw-bolder text-info" id="contract_owner_id"></span>
-                    </p>
-                    <div class="sign-in-subacct" style="display: none;">
-                        <div class="row">
-                            <div class=col-2>
-                                <button class="btn btn-primary" style="background-color: #0072CE;">Sign In</button>
-                            </div>
-                            <div class=col>
-                                <p>You'll need to sign in to be able to see and access the contract methods that use the call methods and modify data</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="sign-out-subacct after-sign-in-subacct"><button class="btn btn-primary" style="display:  none;background-color: #0072CE;">Sign Out</button></div>
-                    <!-- row -->
-                </div>
-                <div class="after-sign-in-subacct" style="display: none; padding: 25px;">
-                    <br>
-                    <p><span class="h4">Call Commands </span>(use contract call methods and modify data)</p>
-                    <br>
-                    <div class="row border-primary border-top border-bottom">
-                        <div id="subacct_add_entry_form" style="display: block; padding-left: 10px; padding-right: 25px">
-                            <form id="add-entry" name="add-entry">
-                                <br>
-                                <div class="row">
-                                    <div style="display:flex; flex-direction: row">
-                                        <label for="Name" class="form-label" style="width: 75px;">Name</label>
-                                        <input type="text" class="form-control" id="name" placeholder="Name?" name="name">
-                                    </div>
-                                    <div style="display:flex; flex-direction: row">
-                                        <label for="Msg" class="form-label" style="width: 75px;">Message</label>
-                                        <input type="text" class="form-control" id="Message" placeholder="Message?" name="msg">
-                                    </div>
-                                </div>
-                                <div class=row style="padding-top: 20px; padding-bottom: 20px;">
-                                    <div class="col-4">
-                                        <button type="submit" class="btn btn-primary" style="background-color: #0072CE;">Add Entry</button>
-                                    </div>
-                                    <div class="col">
-                                        <span class="fs-5">Add an Entry </span>(Adds an entry to the log.)
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="bg-info text-white">
-                            <h4 id="add_status" style="display: none">Adding Entry</h4>
-                        </div>
-                    </div>
-                    <br>
-                    <div class="row log_reset">
-                        <div class="col-4"><button class="btn btn-primary" style="background-color: #0072CE;">Reset</button></div>
-                        <div class="col"><span class="fs-5"> Clear the log </span>(Reset the log and remove all entries)</div>
-                    </div>
-                    <br>
-                </div>
+        </div>
+        <div id="sub_contract" class="col-6 border border-primary">
+            <div class="row">
+                <p class="h3">Proxy Contract</p>
+                <p>(deployed on account <span id=sub_contract_id></span>)</p>
+                <p>Requests remade via Cross Contract calls to the main contract and data is returned via callbacks</p>
             </div>
-            <div class="row" style="padding: 25px">
-                <!-- row -->
-                <div class=row>
-                    <br>
-                    <!-- row -->
-                    <div class="row get_entry_list">
-                        <div class="col-2">
-                            <button id='display_entries' class="btn btn-primary" style="background-color: #0072CE;">Display Entries</button>
-                        </div>
-                        <div class="col-2">
-                            <button id='hide_entries' class="btn btn-primary" style="background-color: #0072CE;">HideEntries</button>
-                        </div>
-                    </div>
-                    <!-- row -->
+            <!-- subacct login start -->
+            <div class="row border-top border-bottom border-primary" style="padding-top: 20px; padding-bottom: 20px;">
+                <p>
+                    <span id="subacct_login_text"></span><span class="fs-5 fw-bolder text-info" id="subacct_login_id"></span>
+                    <span id="subacct_owner_text"></span><span class="fs-5 fw-bolder text-info" id="subacct_owner_id"></span>
+                </p>
+                <div class="sign-in-subacct" style="display: none;">
                     <div class="row">
-                        <p></p>
-                        <strong>
-                            <pre id="entry_list_hdr"></pre></strong>
+                        <div class=col-2>
+                            <button class="btn btn-primary" style="background-color: #0072CE;">Sign In</button>
+                        </div>
+                        <div class=col>
+                            <p>You'll need to sign in to be able to see and access the contract methods that use the call methods and modify data</p>
+                        </div>
                     </div>
-                    <div class="row get_entry_list">
-                        <pre id="showlistdata"></pre>
+                </div>
+                <div class="sign-out-subacct after-sign-in-subacct">
+                    <button class="btn btn-primary" style="background-color: #0072CE;">Sign Out</button>
+                </div>
+            </div>
+            <!-- subacct login end -->
+            <div class="after-sign-in-subacct" style="display: none; padding: 25px;">
+                <p><span class="h4">Call Commands </span>(use contract call methods and modify data)</p>
+                <br>
+                <div class="row border-primary border-top border-bottom">
+                    <div id="subacct_add_entry_form" style="display: block; padding-left: 10px; padding-right: 25px">
+                        <form id="add-entry" name="add-entry">
+                            <br>
+                            <div class="row">
+                                <div style="display:flex; flex-direction: row">
+                                    <label for="Name" class="form-label" style="width: 75px;">Name</label>
+                                    <input type="text" class="form-control" id="name" placeholder="Name?" name="name">
+                                </div>
+                                <div style="display:flex; flex-direction: row">
+                                    <label for="Msg" class="form-label" style="width: 75px;">Message</label>
+                                    <input type="text" class="form-control" id="Message" placeholder="Message?" name="msg">
+                                </div>
+                            </div>
+                            <div class=row style="padding-top: 20px; padding-bottom: 20px;">
+                                <div class="col-4">
+                                    <button type="submit" class="btn btn-primary" style="background-color: #0072CE;">Add Entry</button>
+                                </div>
+                                <div class="col">
+                                    <span class="fs-5">Add an Entry </span>(Adds an entry to the log.)
+                                </div>
+                            </div>
+                        </form>
                     </div>
+                    <div class="bg-info text-white">
+                        <h4 id="add_status" style="display: none">Adding Entry</h4>
+                    </div>
+                </div>
+                <br>
+                <div class="row log_reset">
+                    <div class="col-4"><button class="btn btn-primary" style="background-color: #0072CE;">Reset</button></div>
+                    <div class="col"><span class="fs-5"> Clear the log </span>(Reset the log and remove all entries)</div>
+                </div>
+                <br>
+            </div>
+        </div>
+        <div class="row" style="padding: 25px">
+            <!-- row -->
+            <div class=row>
+                <br>
+                <!-- row -->
+                <div class="row get_entry_list">
+                    <div class="col-2">
+                        <button id='display_entries' class="btn btn-primary" style="background-color: #0072CE;">Display Entries</button>
+                    </div>
+                    <div class="col-2">
+                        <button id='hide_entries' class="btn btn-primary" style="background-color: #0072CE;">HideEntries</button>
+                    </div>
+                </div>
+                <!-- row -->
+                <div class="row">
+                    <p></p>
+                    <strong>
+                        <pre id="entry_list_hdr"></pre></strong>
+                </div>
+                <div class="row get_entry_list">
+                    <pre id="showlistdata"></pre>
                 </div>
             </div>
         </div>
+    </div>
 </body>
 <script src="./main.js"></script>
 
