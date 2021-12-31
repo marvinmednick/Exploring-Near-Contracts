@@ -1,17 +1,15 @@
-const CONTRACT_NAME = process.env.CONTRACT_NAME || 'asdf.test'; /* TODO: change this to your account */
 const SUBCONTRACT_NAME = process.env.SUBCONTRACT_NAME || 'subasdf.test'; /* TODO: change this to your account */
 
 console.log(SUBCONTRACT_NAME);
 
-function getConfig (env) {
+function getSubAcctConfig (env) {
   switch (env) {
     case 'production':
     case 'mainnet':
       return {
         networkId: 'mainnet',
         nodeUrl: 'https://rpc.mainnet.near.org',
-        contractName: CONTRACT_NAME,
-        subcontractName: SUBCONTRACT_NAME,
+        contractName: SUBCONTRACT_NAME,
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://helper.mainnet.near.org'
       }
@@ -20,8 +18,7 @@ function getConfig (env) {
       return {
         networkId: 'testnet',
         nodeUrl: 'https://rpc.testnet.near.org',
-        contractName: CONTRACT_NAME,
-        subcontractName: SUBCONTRACT_NAME,
+        contractName: SUBCONTRACT_NAME,
         walletUrl: 'https://wallet.testnet.near.org',
         helperUrl: 'https://helper.testnet.near.org'
       }
@@ -29,8 +26,7 @@ function getConfig (env) {
       return {
         networkId: 'betanet',
         nodeUrl: 'https://rpc.betanet.near.org',
-        contractName: CONTRACT_NAME,
-        subcontractName: SUBCONTRACT_NAME,
+        contractName: SUBCONTRACT_NAME,
         walletUrl: 'https://wallet.betanet.near.org',
         helperUrl: 'https://helper.betanet.near.org'
       }
@@ -40,24 +36,21 @@ function getConfig (env) {
         nodeUrl: 'http://localhost:3030',
         keyPath: `${process.env.HOME}/.near/validator_key.json`,
         walletUrl: 'http://localhost:4000/wallet',
-        contractName: CONTRACT_NAME,
-        subcontractName: SUBCONTRACT_NAME,
-      }
+        contractName: SUBCONTRACT_NAME,
+    }
     case 'test':
     case 'ci':
       return {
         networkId: 'shared-test',
         nodeUrl: 'https://rpc.ci-testnet.near.org',
-        contractName: CONTRACT_NAME,
-        subcontractName: SUBCONTRACT_NAME,
+        contractName: SUBCONTRACT_NAME,
         masterAccount: 'test.near'
       }
     case 'ci-betanet':
       return {
         networkId: 'shared-test-staging',
         nodeUrl: 'https://rpc.ci-betanet.near.org',
-        contractName: CONTRACT_NAME,
-        subcontractName: SUBCONTRACT_NAME,
+        contractName: SUBCONTRACT_NAME,
         masterAccount: 'test.near'
       }
     default:
@@ -65,4 +58,4 @@ function getConfig (env) {
   }
 }
 
-module.exports = getConfig
+module.exports = getSubAcctConfig
