@@ -56,7 +56,7 @@ async function connect(nearConfig, account) {
     // Initializing connection to the NEAR node.
     connection.near = await nearAPI.connect({
         deps: {
-            keyStore: new nearAPI.keyStores.BrowserLocalStorageKeyStore()
+            keyStore: await new nearAPI.keyStores.BrowserLocalStorageKeyStore()
         },
         ...nearConfig
     });
@@ -64,8 +64,8 @@ async function connect(nearConfig, account) {
     console.log("Before wallet", account,  currentUrl, allStorage());
 
     // Needed to access wallet login
-    connection.walletConnection = new nearAPI.WalletConnection(connection.near, account);
-console.log("after Wallet", account, currentUrl, allStorage());
+    connection.walletConnection = await new nearAPI.WalletConnection(connection.near, account);
+    console.log("after Wallet", account, currentUrl, allStorage());
 
     // Initializing our contract APIs by contract name and configuration.
     connection.contract = await new nearAPI.Contract(connection.walletConnection.account(), nearConfig.contractName, {
@@ -380,6 +380,7 @@ function indirect_add_new_entry(form_info) {
 
 
 function logInfo() {
+    x(2.5);
    // console.log("logInfo")
    // console.log(mainContract, nearConnections['main'], nearConnections);
    // console.log("logInfo End");
@@ -388,12 +389,69 @@ function logInfo() {
     console.log("LOGInfo",window.location)
 }
 
-function x() {
-  console.log("Then",window.location)
+function x(Id) {
+  console.log("Then", Id ,window.location)
+}
+
+async function setupConnections() {
+  x(1)
+  // Save a copy of the incoming URL  --
+  // if this is redirected from the wallet it include the account and key information
+  let incomingURL = new URL(window.location.href);
+
+  //create a URL which is referring to the base page  
+  // note that is currently assumed to be the the root of the server (e.g. localhost:1234/)
+  // (if this were to be deployed at some other offset additional parsing will be needed to
+  //  add in the part of the pathname which is considered the root)
+  let noParameterURL = new URL(window.location.origin);
+
+
+  // Initializing the wallet connection analyzes the current URL
+  // and if it sees an account ID it then assumes we're logging in
+  // so setups up the local storage with the key.
+  //
+  // In our case, we have two possible logins and we want to control
+  // which one is logged in.    This is handled by specifying 
+  // different URLs   (baseURL/mainacct or baseURL/subacct) for the
+  ///'callback' from the NEAR wallet
+  // From there the code saves a copy the original incoming URL
+  // and also creates a new URL with just the root path of the page
+  // 
+  // Somewhere, after the wallet processing (though I haven't found it) the 
+  // windows.local.href is updated to remove the addigional informatoin (acccountId/keys, etc)
+  // so what is done below, we set the window.location to be the base root of the page
+  // initialize the connection for the acct that IS NOT being logged in first
+  // then restore the original URL and setup the connection for the one that is being logged in
+
+  // check if this is call back from the wallet for the main account
+  if (incomingURL.pathname == "/mainacct") {
+      // if so setup the connection without any information from the wallete call back 
+      window.history.replaceState({}, document.title,  noParameterURL.toString());
+      await connect(nearSubAcctConfig,'subacct');
+      // restore the original URL with the account name and keys, then setup
+      // the connection for the main account
+      window.history.replaceState({}, document.title, incomingURL.toString());
+      await connect(nearMainConfig,'mainacct');
+  } else {
+    // not processing a call back for the main account, so this is either
+    // a callback for the subacct OR its not callback at all.
+    // Either way the code will process the mainacct first, with no parameters from the wallet
+    // and then process the subacct with the original URL (which may or may not  have 
+    // and account/keys  -- depending on how we got her)
+    window.history.replaceState({}, document.title,  noParameterURL.toString());
+    await connect(nearMainConfig, 'mainacct');
+    window.history.replaceState({}, document.title, incomingURL.toString());
+    await connect(nearSubAcctConfig,'subacct');
+  }
+  logInfo();
+  x(3);
 }
 
 
-
+window.nearInitPromise = setupConnections()
+    .then(updateUI)
+    .catch(console.error);
+/*
 window.nearInitPromise = connect(nearMainConfig, 'mainacct')
     .then(x)
     .then(connect(nearSubAcctConfig,'subacct'))
@@ -402,4 +460,5 @@ window.nearInitPromise = connect(nearMainConfig, 'mainacct')
     .then(updateUI)
     .catch(console.error);
 
+*/
 console.log("Reloaded...", new Date());
