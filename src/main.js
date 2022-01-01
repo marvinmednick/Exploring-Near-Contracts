@@ -379,22 +379,8 @@ function indirect_add_new_entry(form_info) {
 }
 
 
-function logInfo() {
-    x(2.5);
-   // console.log("logInfo")
-   // console.log(mainContract, nearConnections['main'], nearConnections);
-   // console.log("logInfo End");
-    mainContract = nearConnections.mainacct.contract;
-    subAcctContract = nearConnections.subacct.contract;
-    console.log("LOGInfo",window.location)
-}
-
-function x(Id) {
-  console.log("Then", Id ,window.location)
-}
-
 async function setupConnections() {
-  x(1)
+  
   // Save a copy of the incoming URL  --
   // if this is redirected from the wallet it include the account and key information
   let incomingURL = new URL(window.location.href);
@@ -443,22 +429,16 @@ async function setupConnections() {
     window.history.replaceState({}, document.title, incomingURL.toString());
     await connect(nearSubAcctConfig,'subacct');
   }
-  logInfo();
-  x(3);
+  // restore the URL to main page URL removing the path addded by the wallet callback
+  window.history.replaceState({}, document.title,  noParameterURL.toString());
+
+  // update global shortcuts for contracts
+  mainContract = nearConnections.mainacct.contract;
+  subAcctContract = nearConnections.subacct.contract;
 }
 
 
 window.nearInitPromise = setupConnections()
     .then(updateUI)
     .catch(console.error);
-/*
-window.nearInitPromise = connect(nearMainConfig, 'mainacct')
-    .then(x)
-    .then(connect(nearSubAcctConfig,'subacct'))
-    .then(x)
-    .then(logInfo)
-    .then(updateUI)
-    .catch(console.error);
-
-*/
 console.log("Reloaded...", new Date());
