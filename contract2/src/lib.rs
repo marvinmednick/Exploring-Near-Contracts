@@ -41,8 +41,7 @@ impl CallLoggerContract {
     pub fn new(log_contract : String) -> Self {
         log!("Init Log_contract: {}", log_contract);
         Self {
-//          log_contract_id : log_contract.try_into().unwrap(),
-            log_contract_id : "dev-1639974321121-47529844872022".to_string().try_into().unwrap(),
+          log_contract_id : log_contract.try_into().unwrap(),
         } 
     }
 
@@ -74,7 +73,6 @@ impl CallLoggerContract {
             String::from("indirect ") + &name,
             String::from("indirect ") + &message + &test_result,
             self.log_contract_id.clone(),
-    //        "dev-1640639075534-62569263574205".to_string().try_into().unwrap(),
             0, // yocto NEAR to attach
             Gas::from(5_000_000_000_000) // gas to attach
         );
@@ -84,7 +82,6 @@ impl CallLoggerContract {
 	pub fn indirect_num_entries(&self) -> Promise {
 		ext_logger::num_entries(
             self.log_contract_id.clone(),
-            //"dev-1640639075534-62569263574205".to_string().try_into().unwrap(),
             0, // yocto NEAR to attach
             Gas::from(5_000_000_000_000) // gas to attach
 		).then(ext_self::num_entries_callback(
@@ -95,6 +92,10 @@ impl CallLoggerContract {
 		) 
 	}
 
+	pub fn info(&self) -> String {
+		let result = self.log_contract_id.to_string();
+		result
+	}
 
     fn test_ok(&self) -> Result<u64,&'static str>  {
         Ok(1)

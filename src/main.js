@@ -60,11 +60,14 @@ async function connect(nearConfig, account) {
         },
         ...nearConfig
     });
+    const currentUrl = new URL(window.location.href);
+    console.log("Before wallet", account,  currentUrl, allStorage());
 
     // Needed to access wallet login
     connection.walletConnection = new nearAPI.WalletConnection(connection.near, account);
+console.log("after Wallet", account, currentUrl, allStorage());
 
-    // MAIN CONTRACT: Initializing our contract APIs by contract name and configuration.
+    // Initializing our contract APIs by contract name and configuration.
     connection.contract = await new nearAPI.Contract(connection.walletConnection.account(), nearConfig.contractName, {
         // View methods are read-only – they don't modify the state, but usually return some value
         viewMethods: connection.viewMethods,
@@ -74,7 +77,7 @@ async function connect(nearConfig, account) {
         // getAccountId() will return empty string if user is still unauthorized
         sender: connection.walletConnection.getAccountId()
     });
-    console.log("X", connection.contract);
+    console.log("X", connection.contract, window.location.href);
 }
 
 
@@ -108,8 +111,8 @@ function errorHelper(err) {
 
 // Variables used tp size the columns of data and headers in display all entries
 let col1_size = 4;
-let col2_size = 53;
-let col3_size = 35;
+let col2_size = 55;
+let col3_size = 50;
 
 function formatLogHdr() {
     let spacer = "  "
@@ -128,13 +131,19 @@ function formatLogEntry(entry) {
     let block_iso = block_time.toISOString();
 
 
-    let line1 = entry.entry_id.toString().padEnd(col1_size) +
-        spacer + ("User: ".padEnd(7) + entry.timestamp).padEnd(col2_size, " ") +
-        spacer + entry.account.padEnd(col3_size, " ") +
-        "   " + entry.message + '\n';
+    let line1 = entry.entry_id.toString().padEnd(col1_size) 
+      + spacer + ("User: ".padEnd(7) + entry.timestamp).padEnd(col2_size, " ") 
+      + spacer + entry.account.padEnd(col3_size, " ") +
+      + spacer + entry.message + '\n';
 
-    let line2 = " ".padEnd(col1_size) +
-        spacer + ("Block: ".padStart(7) + block_iso + " (" + entry.block_ts.toString() + ")").padEnd(col2_size, " ") + '\n';
+    let sign_account_info = "";
+    if (entry.signaccount != entry.account) {
+        sign_account_info = "(signed by: " + entry.signaccount + ")";
+    }
+    let line2 = " ".padEnd(col1_size) 
+        + spacer + ("Block: ".padStart(7) + block_iso 
+        + spacer + " (" + entry.block_ts.toString()+ ")").padEnd(col2_size, " ")  
+        + spacer +  sign_account_info.padEnd(col3_size," ") + '\n';
     /*
     let result = entry.entry_id.toString().padEnd(4)
                + spacer + entry.timestamp.padEnd(25," ")
@@ -169,16 +178,19 @@ function update_current_info(account) {
 
 function updateUI() {
 
+    console.log("Beg updateUI",window.location);
     document.querySelector('#error_status').style.setProperty('display', 'none');
 
     document.querySelector('#main_contract_id').innerText = nearMainConfig.contractName;
-    document.querySelector('#sub_contract_id').innerText = nearMainConfig.subcontractName;
+    document.querySelector('#sub_contract_id').innerText = nearSubAcctConfig.contractName;
 
     let cur_account = nearConnections.mainacct.walletConnection.getAccountId();
     document.querySelector('#cur_login_id').innerText = cur_account;
 
     let cur_subaccount = nearConnections.subacct.walletConnection.getAccountId();
     console.log("ACCT", cur_account, "SUBACCT", cur_subaccount);
+
+    console.log("Mid updateUI",window.location);
 
     update_current_info();
 
@@ -213,15 +225,19 @@ function updateUI() {
         Array.from(document.querySelectorAll('.after-sign-in-subacct')).map(it => it.style = 'display: block;');
 
     }
+    console.log("End updateUI",window.location);
 }
 
 
 // Log in user using NEAR Wallet on "Sign In" button click
-document.querySelector('.sign-in-main .btn').addEventListener('click', () => {
-    nearConnections.mainacct.walletConnection.requestSignIn(nearMainConfig.contractName, 'Marvin First Contract Demo');
+document.querySelector('#sign-in-main-button').addEventListener('click', () => {
+    nearConnections.mainacct.walletConnection.requestSignIn(
+        { "contractId": nearMainConfig.contractName,
+          "successUrl": window.location.origin + '/mainacct' }
+    );
 });
 
-document.querySelector('.sign-out-main .btn').addEventListener('click', () => {
+document.querySelector('#sign-out-main-button').addEventListener('click', () => {
     nearConnections.mainacct.walletConnection.signOut();
     // TODO: Move redirect to .signOut() ^^^
     window.location.replace(window.location.origin + window.location.pathname);
@@ -229,11 +245,14 @@ document.querySelector('.sign-out-main .btn').addEventListener('click', () => {
 
 
 // Log in user using NEAR Wallet on "Sign In" button click
-document.querySelector('.sign-in-subacct .btn').addEventListener('click', () => {
-    nearConnections.subacct.walletConnection.requestSignIn(nearMainConfig.contractName, 'Marvin First SubContract Demo');
+document.querySelector('#sign-in-subacct-button').addEventListener('click', () => {
+    nearConnections.subacct.walletConnection.requestSignIn(
+            { "contractId": nearSubAcctConfig.contractName,
+              "successUrl": window.location.origin + '/subacct' }
+    );
 });
 
-document.querySelector('.sign-out-subacct .btn').addEventListener('click', () => {
+document.querySelector('#sign-out-subacct-button').addEventListener('click', () => {
     nearConnections.subacct.walletConnection.signOut();
     // TODO: Move redirect to .signOut() ^^^
     window.location.replace(window.location.origin + window.location.pathname);
@@ -249,7 +268,8 @@ document.querySelector('#refresh').addEventListener('click', () => {
         //console.log(document.querySelector('#showcount').innerText)
         // document.querySelector('#showcount').classList.replace('loader','number');
         document.querySelector('#showcount').innerText = count === undefined ? 'calculating...' : count;
-    }).catch(err => errorHelper(err));
+    }).then(updateUI)
+    .catch(err => errorHelper(err));
 });
 
 
@@ -280,29 +300,63 @@ document.querySelector('#hide_entries').addEventListener('click', () => {
 });
 
 document.querySelector('.log_reset .btn').addEventListener('click', () => {
-    mainContract.reset_log({}).then(listdata => {
-        console.log("retrieved", listdata);
-    }).catch(err => errorHelper(err));
-
-    console.log("CONTRACT IS:", typeof mainContract);
+    mainContract.reset_log({})
+      .then(listdata => {
+          console.log("retrieved", listdata);
+      })
+      .then(updateUI)
+      .catch(err => errorHelper(err));
 });
 
 
-document.querySelector('#add-entry').onsubmit = function() {
+document.querySelector('#main-add-entry-form').onsubmit = function() {
     // prevent further default processing from occuring (i.e. don't POST the result/refresh page)
     event.preventDefault();
 
     // process the form data
-    add_new_entry(this);
+    add_new_entry(this, mainContract);
 
 };
+
+document.querySelector('#subacct-add-entry-form').onsubmit = function() {
+    // prevent further default processing from occuring (i.e. don't POST the result/refresh page)
+    event.preventDefault();
+
+    // process the form data
+    indirect_add_new_entry(this);
+
+};
+
 
 function post_add_entry() {
     $("inprocess_modal").modal("hide")
 }
 
 
-function add_new_entry(form_info) {
+function add_new_entry(form_info,contract) {
+    const d = new Date();
+    //console.log("Date type is", typeof(d), d)
+
+    let args = {
+        timestamp: d,
+        name: form_info.elements['name'].value,
+        message: form_info.elements['msg'].value
+    }
+    $('inprocess_modal').modal('show');
+    $("main-add_status").style = "display:block;";
+    document.querySelector('#main-add-status').style = "display: block;";
+    document.querySelector('#main-add-entry-form').style = "display: none;";
+        mainContract.add_entry(args).then(result => {
+        console.log("Add Entry", result);
+        form_info.reset();
+        document.querySelector('#main-add-status').style = "display: none;";
+        document.querySelector('#main-add-entry-form').style = "display: block;";
+    }).then(updateUI).catch(err => errorHelper(err));
+
+}
+
+
+function indirect_add_new_entry(form_info) {
     const d = new Date();
     //console.log("Date type is", typeof(d), d)
 
@@ -313,13 +367,13 @@ function add_new_entry(form_info) {
     }
     $('inprocess_modal').modal('show');
     $("add_status").style = "display:block;";
-    document.querySelector('#add_status').style = "display: block;";
-    document.querySelector('#add_entry_form').style = "display: none;";
-    mainContract.add_entry(args).then(result => {
+    document.querySelector('#subacct-add-status').style = "display: block;";
+    document.querySelector('#subacct-add-entry-form').style = "display: none;";
+        subAcctContract.indirect_add(args).then(result => {
         console.log("Add Entry", result);
         form_info.reset();
-        document.querySelector('#add_status').style = "display: none;";
-        document.querySelector('#add_entry_form').style = "display: block;";
+        document.querySelector('#subacct-add-status').style = "display: none;";
+        document.querySelector('#subacct-add-entry-form').style = "display: block;";
     }).then(updateUI).catch(err => errorHelper(err));
 
 }
@@ -331,11 +385,19 @@ function logInfo() {
    // console.log("logInfo End");
     mainContract = nearConnections.mainacct.contract;
     subAcctContract = nearConnections.subacct.contract;
+    console.log("LOGInfo",window.location)
+}
+
+function x() {
+  console.log("Then",window.location)
 }
 
 
+
 window.nearInitPromise = connect(nearMainConfig, 'mainacct')
+    .then(x)
     .then(connect(nearSubAcctConfig,'subacct'))
+    .then(x)
     .then(logInfo)
     .then(updateUI)
     .catch(console.error);

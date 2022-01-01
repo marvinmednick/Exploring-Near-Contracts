@@ -56,6 +56,7 @@ pub struct LogEntry {
     timestamp: String,
     block_ts: u64,
     account: AccountId,
+    signaccount: AccountId,
     name: String,
     message: String,
     used_gas: u64
@@ -87,6 +88,7 @@ impl Contract {
             timestamp : timestamp, 
             block_ts:   u64::from(env::block_timestamp()),
             account : env::predecessor_account_id(),
+            signaccount: env::signer_account_id(), 
             name    : name,
             message   : message,
             used_gas :  u64::from(env::used_gas())
@@ -119,17 +121,15 @@ impl Contract {
     
 		  let entry = self.mylog.get(len-1);
 		  let x = match entry {
-			// If there was an entry, add it to the result
 			Some(x) => { near_sdk::serde_json::to_string(&x).unwrap() }
 			None => { String::new() }
 		  };    
 		   result = x;
         };
-        //result += r#"] }"#;
-
 		result
 	}
 
+    // list_entries 
     pub fn list_entries(&self) -> String {
         let mut count = 0;
         let mut result = String::new();
@@ -158,6 +158,7 @@ impl Contract {
         result
         
     }
+
 
 }
 
