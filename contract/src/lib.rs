@@ -5,7 +5,7 @@ use near_sdk::{
 //    serde::ser::SerializeSeq,
     AccountId, PanicOnDefault
 };
-use near_sdk::{env, near_bindgen};
+use near_sdk::{env, near_bindgen,log};
 //use chrono::{DateTime, Utc, Local};
 //use serde::{Deserialize, Serialize};
 
@@ -81,6 +81,7 @@ impl Contract {
         }
    }
 
+    #[payable]
     pub fn add_entry (&mut self, timestamp: String, name: String, message: String) {
 	                                  
         let new_entry = LogEntry {
@@ -174,7 +175,7 @@ impl Contract {
 mod tests {
     use super::*;
     use near_sdk::test_utils::{get_logs, VMContextBuilder};
-    use near_sdk::{testing_env, AccountId};
+    use near_sdk::{testing_env, AccountId, Contract, log};
 
     // part of writing unit tests is setting up a mock context
     // provide a `predecessor` here, it'll modify the default context

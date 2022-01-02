@@ -1,12 +1,16 @@
 import "regenerator-runtime/runtime";
 import * as nearAPI from "near-api-js";
+const { utils } = require("near-api-js");
 import getConfig from "./config";
+import Big from 'big.js';
 const nearMainConfig = getConfig(process.env.NODE_ENV || "development");
 import getSubAcctConfig from "./subacct_config";
 const  nearSubAcctConfig = getSubAcctConfig(process.env.NODE_ENV || "development");
 
 var mainContract;
 var subAcctContract;
+
+const BOATLOAD_OF_GAS = Big(3).times(10 ** 13).toFixed();
 
   
 function allStorage() {
@@ -41,7 +45,7 @@ window.nearConnections = {
                 walletConnection: null, 
                 contract: null,
                 viewMethods: ['indirect_num_entries', 'indirect_get_last'],
-                changeMethods: ['new', 'indirect_add', 'reset_log' ],
+                changeMethods: ['new', 'indirect_add', 'indirect_add_entry', 'reset_log' ],
               },
 }
 
@@ -323,7 +327,7 @@ document.querySelector('#subacct-add-entry-form').onsubmit = function() {
     event.preventDefault();
 
     // process the form data
-    indirect_add_new_entry(this);
+    indirect_add_new_entry(this,1);
 
 };
 
@@ -356,24 +360,30 @@ function add_new_entry(form_info,contract) {
 }
 
 
-function indirect_add_new_entry(form_info) {
+function indirect_add_new_entry(form_info,transfer_amount) {
     const d = new Date();
     //console.log("Date type is", typeof(d), d)
-
+    console.log("Indirect Add Amt:",transfer_amount);
+    var nearamt = utils.format.parseNearAmount("1")
+    console.log(nearamt);
     let args = {
         timestamp: d,
         name: form_info.elements['name'].value,
-        message: form_info.elements['msg'].value
-    }
+        message: form_info.elements['msg'].value,
+        transfer_amount: utils.format.parseNearAmount("10"),
+    };
+    console.log("indirect add entry args:", args)
     $('inprocess_modal').modal('show');
     $("add_status").style = "display:block;";
     document.querySelector('#subacct-add-status').style = "display: block;";
     document.querySelector('#subacct-add-entry-form').style = "display: none;";
-        subAcctContract.indirect_add(args).then(result => {
-        console.log("Add Entry", result);
-        form_info.reset();
-        document.querySelector('#subacct-add-status').style = "display: none;";
-        document.querySelector('#subacct-add-entry-form').style = "display: block;";
+        subAcctContract.indirect_add_entry(args)
+        // subAcctContract.indirect_add(args, Big(10).times(10 ** 24).toFixed(),BOATLOAD_OF_GAS)
+        .then(result => {
+            console.log("Add Entry", result);
+            form_info.reset();
+            document.querySelector('#subacct-add-status').style = "display: none;";
+            document.querySelector('#subacct-add-entry-form').style = "display: block;";
     }).then(updateUI).catch(err => errorHelper(err));
 
 }

@@ -10,7 +10,7 @@ use near_sdk::{
     ext_contract,
     Promise, 
 	PromiseResult,
-	//json_types::U128,
+	json_types::U128,
     log,
 };
 
@@ -39,7 +39,7 @@ impl CallLoggerContract {
     
 	#[init]
     pub fn new(log_contract : String) -> Self {
-        log!("Init Log_contract: {}", log_contract);
+    //    log!("Init Log_contract: {}", log_contract);
         Self {
           log_contract_id : log_contract.try_into().unwrap(),
         } 
@@ -49,19 +49,21 @@ impl CallLoggerContract {
         self.log_contract_id = log_contract.try_into().unwrap();
     }
 
-    pub fn indirect_add_entry(&self, timestamp: String, name: String, message: String) {
+    pub fn indirect_add_entry(&self, timestamp: String, name: String, message: String, transfer_amount: U128) {
 
+		let amount = u128::from(transfer_amount);
         let _cross_contract_call = Promise::new(self.log_contract_id.clone())
         .function_call(
             "add_entry".to_string(),
             json!({
-                "timestamp" : String::from("indirect ") + &timestamp,
+                "timestamp" : timestamp,
                 "name"      : String::from("indirect ") + &name,
                 "message"   : String::from("indirect ") + &message,
             }).to_string().into_bytes(),
-            0, // yocto NEAR to attach
+            amount, // yocto NEAR to attach
             Gas::from(5_000_000_000_000) // gas to attach
         );
+        env::log_str("indirect_entry_add completed");
     }
 
     pub fn indirect_add(&self, timestamp: String, name: String, message: String) {
@@ -136,7 +138,7 @@ impl CallLoggerContract {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use near_sdk::test_utils::{VMContextBuilder};
+    use near_sdk::test_utils::{get_logs, VMContextBuilder};
     use near_sdk::{testing_env, AccountId};
 
     // part of writing unit tests is setting up a mock context
@@ -149,9 +151,19 @@ mod tests {
 
      #[test]
     fn dummy_test() {
+        let account = AccountId::new_unchecked("mmednick.testnet".to_string());
+        let mainaccount = AccountId::new_unchecked("mmednicktoss.testnet".to_string());
+        let context = get_context(account);
+        testing_env!(context.build());
 
-        assert_eq!(2,2);
+		let transfer_amount = u128::from("1000000000000000000000000".to_string());
+        let mut contract = CallLoggerContract::new("mmednicktoss.testnet".to_string());
+        println!("{:?}",get_logs());
+        contract.indirect_add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string(),transfer_amount);
+        println!("{:?}",get_logs());
+        assert_eq!(get_logs(), ["indirect_entry_add completed"], "Exec.");
 
-    }
+
+        }
 
 }
