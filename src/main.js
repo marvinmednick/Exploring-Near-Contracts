@@ -11,7 +11,7 @@ var mainContract;
 var subAcctContract;
 
 const BOATLOAD_OF_GAS = Big(3).times(10 ** 13).toFixed();
-
+const TOKEN_AMOUNT = Big(7).times(10**24).toFixed();
   
 function allStorage() {
 
@@ -176,6 +176,7 @@ function update_current_info(account) {
             document.querySelector('#cur_info').innerText = update_info;
         }).catch(err => errorHelper(err));
     }).catch(err => errorHelper(err));
+    console.log("BUNCH OF GAS",BOATLOAD_OF_GAS, "TOKEN_AMOUNT",TOKEN_AMOUNT);
 }
 
 
@@ -350,7 +351,7 @@ function add_new_entry(form_info,contract) {
     $("main-add_status").style = "display:block;";
     document.querySelector('#main-add-status').style = "display: block;";
     document.querySelector('#main-add-entry-form').style = "display: none;";
-        mainContract.add_entry(args).then(result => {
+        mainContract.add_entry(args,BOATLOAD_OF_GAS,TOKEN_AMOUNT).then(result => {
         console.log("Add Entry", result);
         form_info.reset();
         document.querySelector('#main-add-status').style = "display: none;";
@@ -377,8 +378,8 @@ function indirect_add_new_entry(form_info,transfer_amount) {
     $("add_status").style = "display:block;";
     document.querySelector('#subacct-add-status').style = "display: block;";
     document.querySelector('#subacct-add-entry-form').style = "display: none;";
-        subAcctContract.indirect_add_entry(args)
-        // subAcctContract.indirect_add(args, Big(10).times(10 ** 24).toFixed(),BOATLOAD_OF_GAS)
+//        subAcctContract.indirect_add_entry(args)
+          subAcctContract.indirect_add(args, BOATLOAD_OF_GAS, TOKEN_AMOUNT)
         .then(result => {
             console.log("Add Entry", result);
             form_info.reset();

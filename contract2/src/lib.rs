@@ -11,7 +11,7 @@ use near_sdk::{
     Promise, 
 	PromiseResult,
 	json_types::U128,
-    log,
+//    log,
 };
 
 //use std::result;
@@ -49,7 +49,8 @@ impl CallLoggerContract {
         self.log_contract_id = log_contract.try_into().unwrap();
     }
 
-    pub fn indirect_add_entry(&self, timestamp: String, name: String, message: String, transfer_amount: U128) {
+	#[payable]
+    pub fn indirect_add_entry(&mut self, timestamp: String, name: String, message: String, transfer_amount: U128) {
 
 		let amount = u128::from(transfer_amount);
         let _cross_contract_call = Promise::new(self.log_contract_id.clone())
@@ -66,14 +67,16 @@ impl CallLoggerContract {
         env::log_str("indirect_entry_add completed");
     }
 
-    pub fn indirect_add(&self, timestamp: String, name: String, message: String) {
+	#[payable]
+    pub fn indirect_add(&mut self, timestamp: String, name: String, message: String) {
 
-        let test_result = near_sdk::serde_json::to_string(&self.test_ok()).unwrap();
+        //let test_result = near_sdk::serde_json::to_string(&self.test_ok()).unwrap();
 
+        let deposit_str = env::attached_deposit().to_string();
         ext_logger::add_entry(
             String::from("indirect ") + &timestamp,
             String::from("indirect ") + &name,
-            String::from("indirect ") + &message + &test_result,
+            String::from("indirect ") + &message + &": " + &deposit_str,
             self.log_contract_id.clone(),
             0, // yocto NEAR to attach
             Gas::from(5_000_000_000_000) // gas to attach
