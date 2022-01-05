@@ -11,7 +11,7 @@ var mainContract;
 var subAcctContract;
 
 const BOATLOAD_OF_GAS = Big(3).times(10 ** 13).toFixed();
-const TOKEN_AMOUNT = Big(7).times(10**24).toFixed();
+const TOKEN_AMOUNT = Big(1).times(10**24).toFixed();
   
 function allStorage() {
 

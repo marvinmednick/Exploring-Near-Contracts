@@ -1,10 +1,15 @@
 /contract/target
 /contract/res
+/contract/out
 /contract2/target
 /contract2/res
+/contract2/out
 /neardev/dev*
+contract/neardev/dev*
+contract/neardev/shared-test/test-account*
 contract2/neardev/dev*
 /neardev/shared-test/test-account*
+contract2/neardev/shared-test/test-account*
 /.cache
 /dist
 marvfirst.sublime-project
@@ -12,3 +17,5 @@ marvfirst.sublime-workspace
 /node_modules
 /out
 yarn-error.log
+/saved
+devconfig

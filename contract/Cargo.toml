@@ -1,5 +1,5 @@
 [package]
-name = "marvfirst"
+name = "marvfirst_main"
 version = "0.1.0"
 authors = ["Marvin Mednick <mmednick@gmail.com>"]
 edition = "2021"
