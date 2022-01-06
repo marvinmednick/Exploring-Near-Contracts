@@ -19,3 +19,15 @@ marvfirst.sublime-workspace
 yarn-error.log
 /saved
 devconfig
+/contracts/target
+/contracts/out
+/contracts/marvfirst_main/target
+/contracts/marvfirst_sub/target
+contracts/marvfirst_main/neardev/dev*
+contracts/marvfirst_main/neardev/shared-test/test-account*
+contracts/marvfirst_sub/neardev/dev*
+contracts/marvfirst_sub/neardev/shared-test/test-account*
+/contracts/marvfirst_main/res
+/contracts/marvfirst_sub/res
+/contracts/marvfirst_main/out
+/contracts/marvfirst_sub/out
