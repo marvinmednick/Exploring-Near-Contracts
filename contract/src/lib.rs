@@ -130,6 +130,8 @@ impl Contract {
 		result
 	}
 
+
+
     // list_entries 
     pub fn list_entries(&self) -> String {
         let mut count = 0;
@@ -175,7 +177,7 @@ impl Contract {
 mod tests {
     use super::*;
     use near_sdk::test_utils::{get_logs, VMContextBuilder};
-    use near_sdk::{testing_env, AccountId, Contract, log};
+    use near_sdk::{testing_env, AccountId,serde_json};
 
     // part of writing unit tests is setting up a mock context
     // provide a `predecessor` here, it'll modify the default context
@@ -185,15 +187,18 @@ mod tests {
         builder
     }
 
-     #[test]
-    fn check_add_entry() {
+    fn setup_contract() -> Contract {
         let account = AccountId::new_unchecked("mmednick.testnet".to_string());
         let context = get_context(account);
         testing_env!(context.build());
 
-        let mut contract = Contract::new();
-        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string());
-        
+        let contract = Contract::new();
+        contract
+     
+    }
+
+    fn check_add_entry(contract: &mut Contract) {
+        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string());    
         assert_eq!(get_logs(), ["Entry Added!"], "Exec.");
 
         assert_eq!(contract.num_entries(),1);
@@ -201,8 +206,41 @@ mod tests {
         contract.add_entry("dateAndTime1".to_string(),"My Name is".to_string(),"My Message is".to_string());
         assert_eq!(contract.num_entries(),2);
 
-        contract.list_entries();
-
     }
+
+    fn check_list(contract: &mut Contract) {
+    #[derive(Deserialize, Debug, Clone)]
+        pub struct Parent {
+         //   #[serde(deserialize_with = "string_or_seq_string")]
+            pub strings: Vec<String>,
+        }
+
+
+        let entries = contract.list_entries();
+//        let deserialized: [staring]] = serde_json::from_str(&serialized).unwrap();
+
+        println!("entries: {:?}", entries);
+        let list_of_strings: Parent = near_sdk::serde_json::from_str(&entries.to_string()).unwrap();
+        println!("list of strings: {:?}", list_of_strings);
+
+        assert_eq!(entries,"something");
+    }
+
+     #[test]
+    fn check_contract() {
+        /*
+        let account = AccountId::new_unchecked("mmednick.testnet".to_string());
+        let context = get_context(account);
+        testing_env!(context.build());
+
+        let mut contract = Contract::new();
+        */
+        let mut contract = setup_contract();
+        check_add_entry(&mut contract);
+        check_list(&mut contract);
+     
+    }
+
+
 
 }
