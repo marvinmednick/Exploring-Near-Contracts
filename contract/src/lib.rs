@@ -5,7 +5,7 @@ use near_sdk::{
 //    serde::ser::SerializeSeq,
     AccountId, PanicOnDefault
 };
-use near_sdk::{env, near_bindgen,log};
+use near_sdk::{env, near_bindgen};
 //use chrono::{DateTime, Utc, Local};
 //use serde::{Deserialize, Serialize};
 
@@ -49,7 +49,7 @@ impl MyTimestamp {
 
 }
 
-#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug)]
+#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
 #[serde(crate = "near_sdk::serde")]
 pub struct LogEntry {
     entry_id:  u64,
@@ -197,7 +197,9 @@ mod tests {
      
     }
 
-    fn check_add_entry(contract: &mut Contract) {
+	#[test]
+    fn check_add_entry() {
+        let mut contract = setup_contract();
         contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string());    
         assert_eq!(get_logs(), ["Entry Added!"], "Exec.");
 
@@ -208,39 +210,44 @@ mod tests {
 
     }
 
-    fn check_list(contract: &mut Contract) {
-    #[derive(Deserialize, Debug, Clone)]
-        pub struct Parent {
-         //   #[serde(deserialize_with = "string_or_seq_string")]
-            pub strings: Vec<String>,
+	#[test]
+    fn check_list() {
+        let mut contract = setup_contract();
+
+        let entries_json = contract.list_entries();
+		let loglist = serde_json::from_str::<LogList>(&entries_json).unwrap();
+        assert_eq!(loglist.log_entries.len(),0);
+        println!("entries: {:?}", loglist);
+
+        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string());    
+        contract.add_entry("dateAndTime1".to_string(),"My Name is".to_string(),"My Message is".to_string());
+        assert_eq!(contract.num_entries(),2);
+
+		#[derive(Deserialize, Debug, Clone)]
+        pub struct LogList {
+            pub log_entries: Vec<LogEntry>,
         }
 
 
-        let entries = contract.list_entries();
-//        let deserialized: [staring]] = serde_json::from_str(&serialized).unwrap();
+        let entries_json = contract.list_entries();
+		let loglist = serde_json::from_str::<LogList>(&entries_json).unwrap();
+        println!("entries: {:?}", loglist);
 
-        println!("entries: {:?}", entries);
-        let list_of_strings: Parent = near_sdk::serde_json::from_str(&entries.to_string()).unwrap();
-        println!("list of strings: {:?}", list_of_strings);
-
-        assert_eq!(entries,"something");
+        assert_eq!(loglist.log_entries[0].entry_id,1);
+        assert_eq!(loglist.log_entries[1].entry_id,2);
+        assert_eq!(loglist.log_entries[0].timestamp,"dateAndTime");
+        assert_eq!(loglist.log_entries[1].timestamp,"dateAndTime1");
+        assert_eq!(loglist.log_entries.len(),2);
     }
 
-     #[test]
-    fn check_contract() {
-        /*
-        let account = AccountId::new_unchecked("mmednick.testnet".to_string());
-        let context = get_context(account);
-        testing_env!(context.build());
-
-        let mut contract = Contract::new();
-        */
+	#[test]
+    fn check_reset() {
         let mut contract = setup_contract();
-        check_add_entry(&mut contract);
-        check_list(&mut contract);
-     
-    }
-
-
+        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string());    
+        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string());    
+        assert_eq!(contract.num_entries(),2);
+		contract.reset_log();
+        assert_eq!(contract.num_entries(),0);
+	}
 
 }

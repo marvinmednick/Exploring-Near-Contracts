@@ -70,15 +70,16 @@ impl CallLoggerContract {
 	#[payable]
     pub fn indirect_add(&mut self, timestamp: String, name: String, message: String) {
 
-        //let test_result = near_sdk::serde_json::to_string(&self.test_ok()).unwrap();
+        let add_info = " - PP: ".to_string() + &u64::from(env::prepaid_gas()).to_string() + &"Used: " + &u64::from(env::used_gas()).to_string();
 
-        let deposit_str = env::attached_deposit().to_string();
+
         ext_logger::add_entry(
             String::from("indirect ") + &timestamp,
             String::from("indirect ") + &name,
-            String::from("indirect ") + &message + &": " + &deposit_str,
+            String::from("indirect ") + &message + & add_info,
             self.log_contract_id.clone(),
-            0, // yocto NEAR to attach
+            // take any attached deposit and send it on as to the main contract
+            env::attached_deposit(), // yocto NEAR to attach
             Gas::from(5_000_000_000_000) // gas to attach
         );
     }
