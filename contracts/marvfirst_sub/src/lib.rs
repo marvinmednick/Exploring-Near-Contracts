@@ -160,7 +160,8 @@ mod tests {
         let context = get_context(account);
         testing_env!(context.build());
 
-		let transfer_amount = u128::from("1000000000000000000000000".to_string());
+		let amount : u128 = 1_000_000_000_000_000_000_000_000;
+        let transfer_amount = U128::from(amount);
         let mut contract = CallLoggerContract::new("mmednicktoss.testnet".to_string());
         println!("{:?}",get_logs());
         contract.indirect_add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string(),transfer_amount);

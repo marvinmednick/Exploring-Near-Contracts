@@ -7,6 +7,7 @@
               "subwasm" : "marvfirst_sub.wasm" },
   "scripts": {
     "build": "cd contracts && cargo build --all --target wasm32-unknown-unknown --release",
+    "build:dev": "cd contracts && cargo build --all --target wasm32-unknown-unknown",
     "build:c1": "cd contracts && cargo build --package marvfirst_main --target wasm32-unknown-unknown --release",
     "build:c2": "cd contracts && cargo build --package marvfirst_main --target wasm32-unknown-unknown --release",
     "postbuild:c1": "mkdir -p ./contracts/out && cp ./contracts/target/wasm32-unknown-unknown/release/$npm_package_config_mainwasm ./contracts/out",
