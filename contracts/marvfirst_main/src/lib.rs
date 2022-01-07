@@ -65,13 +65,13 @@ pub struct LogEntry {
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize,PanicOnDefault)]
-pub struct Contract {
+pub struct LogContract {
     owner_id:  AccountId,
     mylog:  Vector<LogEntry>
 }
 
 #[near_bindgen]
-impl Contract {
+impl LogContract {
 
     #[init]
     pub fn new() -> Self {
@@ -187,12 +187,12 @@ mod tests {
         builder
     }
 
-    fn setup_contract() -> Contract {
+    fn setup_contract() -> LogContract {
         let account = AccountId::new_unchecked("mmednick.testnet".to_string());
         let context = get_context(account);
         testing_env!(context.build());
 
-        let contract = Contract::new();
+        let contract = LogContract::new();
         contract
      
     }

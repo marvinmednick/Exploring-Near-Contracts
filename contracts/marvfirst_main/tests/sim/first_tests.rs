@@ -3,7 +3,7 @@ use near_sdk_sim::DEFAULT_GAS;
 use near_sdk_sim::UserAccount;
 
 //use crate::utils::init;
-mod utils
+mod utils;
 
 #[test]
 fn simulate_some_view_function() {

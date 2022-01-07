@@ -1,20 +1,19 @@
-use near_sdk_sim::{init_simulator, to_yocto, STORAGE_AMOUNT, UserAccount};
+use near_sdk_sim::{init_simulator, to_yocto, STORAGE_AMOUNT, UserAccount, ContractAccount};
+use near_sdk_sim::types::AccountId;
+use marvfirst_main::LogContractContract;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
-    CONTRACT_WASM_BYTES => "contracts/target/wasm32-unknown-unknown/debug/marvfirst_main.wasm",
+    CONTRACT_WASM_BYTES => "../target/wasm32-unknown-unknown/debug/marvfirst_main.wasm",
 }
 
 
-const CONTRACT_ID: &str = "contract";
-
 pub fn init() -> (UserAccount, UserAccount, UserAccount) {
-    println!("Starting Init")
     // Use `None` for default genesis configuration; more info below
     let root = init_simulator(None);
 
-    let contract = root.deploy(
+    let contract = ContractAccount<LogContractContract>.deploy(
         &CONTRACT_WASM_BYTES,
-        CONTRACT_ID.to_string(),
+        "contract".to_string(),
         STORAGE_AMOUNT // attached deposit
     );
 
