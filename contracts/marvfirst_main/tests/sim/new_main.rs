@@ -1,10 +1,30 @@
-use near_sdk_sim::{view, call, DEFAULT_GAS};
+use near_sdk_sim::{view, call, init_simulator, deploy, UserAccount, ContractAccount, DEFAULT_GAS};
 use near_sdk::serde_json::json;
-use crate::utils::init;
+use marvfirst_main::LogContractContract;
+
+near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
+    CONTRACT_WASM_BYTES => "../target/wasm32-unknown-unknown/release/marvfirst_main.wasm",
+}
+
+pub fn init() -> (UserAccount, ContractAccount<LogContractContract>) {
+    let _root = init_simulator(None);
+
+    let contract : ContractAccount<LogContractContract> = deploy!(
+        contract: LogContractContract,
+        contract_id: "contract".to_string(),
+		bytes: &CONTRACT_WASM_BYTES,
+		signer_account:  _root,
+    );
+
+    (_root, contract)
+}
+
+
 
 #[test]
-fn simulate_basic_operation() {
+fn simulate_some_view_function() {
 	let (root, contract) = init();
+	call!(root, contract.new()).assert_success();
 	let actual : u64 = view!(contract.num_entries()).unwrap_json();
 	assert_eq!(actual, 0);
 	call!(root, contract

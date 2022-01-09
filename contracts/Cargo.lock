@@ -1414,6 +1414,7 @@ name = "marvfirst_sub"
 version = "0.1.0"
 dependencies = [
  "near-sdk",
+ "near-sdk-sim",
  "serde",
 ]
 
