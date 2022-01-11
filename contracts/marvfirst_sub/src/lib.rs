@@ -11,7 +11,7 @@ use near_sdk::{
     Promise, 
 	PromiseResult,
 	json_types::U128,
-//    log,
+    log,
 };
 
 //use std::result;
@@ -31,17 +31,20 @@ pub trait MyContract {
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize,PanicOnDefault)]
 struct CallLoggerContract {
-	log_contract_id : AccountId
+	log_contract_id : AccountId,
+    counter : u64 
 }
+
 
 #[near_bindgen]
 impl CallLoggerContract {
     
 	#[init]
     pub fn new(log_contract : String) -> Self {
-    //    log!("Init Log_contract: {}", log_contract);
+        log!("Init Log_contract: {}", log_contract);
         Self {
           log_contract_id : log_contract.try_into().unwrap(),
+          counter : 0,
         } 
     }
 
@@ -86,7 +89,8 @@ impl CallLoggerContract {
 
 
 	pub fn indirect_num_entries(&self) -> Promise {
-		ext_logger::num_entries(
+        log!("In num was called:" );
+		ext_logger::num_entries(  
             self.log_contract_id.clone(),
             0, // yocto NEAR to attach
             Gas::from(5_000_000_000_000) // gas to attach
@@ -99,16 +103,22 @@ impl CallLoggerContract {
 	}
 
 	pub fn info(&self) -> String {
-		let result = self.log_contract_id.to_string();
-		result
+        
+        let result = self.log_contract_id.to_string() + &" ".to_string() + &self.counter.to_string();
+        result
 	}
 
     fn test_ok(&self) -> Result<u64,&'static str>  {
         Ok(1)
     } 
 
-	pub fn num_entries_callback(&self)  -> u64 {
-	  assert_eq!(
+	pub fn num_entries_callback(&mut self)  -> u64 {
+        
+        self.counter += 1;
+        log!("Num entries callback was called {} {}", self.counter, 1);
+        
+
+	    assert_eq!(
 		  env::promise_results_count(),
 		  1,
 		  "This is a callback method"
@@ -166,7 +176,7 @@ mod tests {
         println!("{:?}",get_logs());
         contract.indirect_add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string(),transfer_amount);
         println!("{:?}",get_logs());
-        assert_eq!(get_logs(), ["indirect_entry_add completed"], "Exec.");
+        assert_eq!(get_logs(), ["Init Log_contract: mmednicktoss.testnet", "indirect_entry_add completed"], "Exec.");
 
 
         }

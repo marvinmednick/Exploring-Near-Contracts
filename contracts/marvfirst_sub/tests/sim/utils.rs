@@ -1,7 +1,8 @@
 use near_sdk_sim::{call, init_simulator, deploy, UserAccount, ContractAccount};
 //use near_sdk_sim::types::AccountId;
 use marvfirst_sub::CallLoggerContractContract;
-use marvfirst_main::LogContractContract;
+
+use crate::marvfirst_main::LogContractContract;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
     SUBCONTRACT_WASM_BYTES => "../target/wasm32-unknown-unknown/release/marvfirst_sub.wasm",
@@ -16,7 +17,7 @@ pub fn init() -> (UserAccount, ContractAccount<LogContractContract>, ContractAcc
     let root = init_simulator(None);
 
     let contract : ContractAccount<LogContractContract> = deploy!(
-        contract: LogontractContract,
+        contract: LogContractContract,
         contract_id: "main_contract".to_string(),
 		bytes: &CONTRACT_WASM_BYTES,
 		signer_account:  root,
@@ -32,12 +33,13 @@ pub fn init() -> (UserAccount, ContractAccount<LogContractContract>, ContractAcc
 
 
 
-	call!(root, contract.new("wwww".to_string())).assert_success();
+	call!(root, contract.new()).assert_success();
+	call!(root, sub_contract.new("main_contract".to_string())).assert_success();
 
 //    let alice = root.create_user(
  //       "alice".parse().unwrap(),
   //      to_yocto("100") // initial balance
    // );
 
-    (root, contract, subcontract)
+    (root, contract, sub_contract)
 }
