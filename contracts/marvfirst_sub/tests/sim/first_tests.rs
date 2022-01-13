@@ -1,25 +1,28 @@
 use near_sdk_sim::{view, call, DEFAULT_GAS};
-use near_sdk::serde_json::json;
+use near_sdk::serde_json::{json, from_str};
 use crate::utils::init;
 
+use crate::marvfirst_main::LogEntry;
 
+#[test]
+fn simluate_initial_setup() {
+	println!("Starting");
+	let (root, contract, subcontract) = init();
+	
+	let actual :u64 = view!(contract.num_entries()).unwrap_json();
+	assert_eq!(actual, 0);
+
+	let x : String = view!(subcontract.info()).unwrap_json();
+	assert_eq!(x,contract.account_id().to_string());
+
+}
 
 #[test]
 fn simulate_basic_operation() {
-	println!("Starting");
 	let (root, contract, subcontract) = init();
-	println!("After Init");
-	// call the main contract directly
-	let y  = view!(contract.num_entries());
-	println!("After first main  call {:?}",y);
-	let main_actual : u64 = y.unwrap_json();
-	println!("After first main  call {:?}",main_actual);
-	let x : String = view!(subcontract.info()).unwrap_json();
-	println!("After Info {:?}",x);
-
-	println!("After first main  call {:?}",main_actual);
-	// let z = view!(subcontract.indirect_num_entries());
-	let z = root.call(
+	
+	// use non-macro call to check num entries from subcontract 
+	let actual : u64 = root.call(
         subcontract.account_id(),
         "indirect_num_entries",
         &json!({})
@@ -27,31 +30,35 @@ fn simulate_basic_operation() {
             .into_bytes(),
         DEFAULT_GAS,
         0, // attached deposit
-    );
-
-	println!("After Info {:?}",z);
-	let actual : u64 = z.unwrap_json();
-	println!("After Unwrap {}", actual);
+    ).unwrap_json();
 	assert_eq!(actual, 0);
+
+	// use the call macro to add a entry
 	call!(root, subcontract
 		.indirect_add( "Now".to_string(), "Me".to_string(), "My Message".to_string())
-		).assert_success();
+	).assert_success();
 
-// Now use the non-macro approach to increment the number.
+		// use the call macro to add a entry
+	let ret : String = call!(root, contract.get_last()).unwrap_json();
+	let deserialized: LogEntry = near_sdk::serde_json::from_str(&ret).unwrap();
+	assert_eq!(deserialized.name,"indirect Me");
+	assert_eq!(deserialized.message,"indirect My Message");
+	assert_eq!(deserialized.timestamp,"indirect Now");
+	// Now use the non-macro approach to add an entry 
     root.call(
         subcontract.account_id(),
         "indirect_add",
-        &json!({"timestamp": "Now".to_string(), "name": "Me".to_string(), "message": "My Message".to_string()})
+        &json!({"timestamp": "Now".to_string(), "name": "Me".to_string(), "message": "My Message1".to_string()})
             .to_string()
             .into_bytes(),
         DEFAULT_GAS,
         0, // attached deposit
     ).assert_success();
 
-
-	let actual : u64 = view!(contract.num_entries()).unwrap_json();
-	assert_eq!(actual, 2);
-	let x = root.call(
+    // check the number of entries reported both directly and indirectly
+	let actual1 : u64 = view!(contract.num_entries()).unwrap_json();
+	
+	let actual2 : u64= root.call(
         subcontract.account_id(),
         "indirect_num_entries",
         &json!({})
@@ -59,15 +66,10 @@ fn simulate_basic_operation() {
             .into_bytes(),
         DEFAULT_GAS,
         0, // attached deposit
-    );
-    println!("After 2 adds {:?}", x);
-    let actual : u64 = x.unwrap_json();
-	assert_eq!(actual, 2);
-	
-	let x : String = view!(subcontract.info()).unwrap_json();
-	println!("At End {:?}",x);
-
-	
+    ).unwrap_json();
+    
+    assert_eq!(actual1, actual2);
+    assert_eq!(actual1, 2);
 
 }
 

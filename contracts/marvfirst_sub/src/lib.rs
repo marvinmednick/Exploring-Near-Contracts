@@ -21,11 +21,13 @@ use near_sdk::{
 trait LoggerContract {
     fn add_entry(&self, timestamp: String, name: String, message: String);
     fn num_entries();
+    fn get_last();
 }
 
 #[ext_contract(ext_self)]
 pub trait MyContract {
     fn num_entries_callback(&self) -> u64;
+    fn get_last_callback(&self) -> String;
 }
 
 #[near_bindgen]
@@ -73,13 +75,13 @@ impl CallLoggerContract {
 	#[payable]
     pub fn indirect_add(&mut self, timestamp: String, name: String, message: String) {
 
-        let add_info = " - PP: ".to_string() + &u64::from(env::prepaid_gas()).to_string() + &"Used: " + &u64::from(env::used_gas()).to_string();
+        // let add_info = " - PP: ".to_string() + &u64::from(env::prepaid_gas()).to_string() + &"Used: " + &u64::from(env::used_gas()).to_string();
 
 
         ext_logger::add_entry(
             String::from("indirect ") + &timestamp,
             String::from("indirect ") + &name,
-            String::from("indirect ") + &message + & add_info,
+            String::from("indirect ") + &message,
             self.log_contract_id.clone(),
             // take any attached deposit and send it on as to the main contract
             env::attached_deposit(), // yocto NEAR to attach
@@ -89,7 +91,6 @@ impl CallLoggerContract {
 
 
 	pub fn indirect_num_entries(&self) -> Promise {
-        log!("In num was called:" );
 		ext_logger::num_entries(  
             self.log_contract_id.clone(),
             0, // yocto NEAR to attach
@@ -102,9 +103,24 @@ impl CallLoggerContract {
 		) 
 	}
 
+    pub fn indirect_get_last(&self) -> Promise {
+        ext_logger::get_last(  
+            self.log_contract_id.clone(),
+            0, // yocto NEAR to attach
+            Gas::from(5_000_000_000_000) // gas to attach
+        ).then(ext_self::get_last_callback(
+            env::current_account_id(), // this contract's account id
+            0, // yocto NEAR to attach to the callback
+            Gas::from(5_000_000_000_000) // gas to attach to the callback
+            )
+        ) 
+    }
+
+
+
 	pub fn info(&self) -> String {
         
-        let result = self.log_contract_id.to_string() + &" ".to_string() + &self.counter.to_string();
+        let result = self.log_contract_id.to_string();
         result
 	}
 
@@ -166,7 +182,7 @@ mod tests {
      #[test]
     fn dummy_test() {
         let account = AccountId::new_unchecked("mmednick.testnet".to_string());
-        let mainaccount = AccountId::new_unchecked("mmednicktoss.testnet".to_string());
+        let _mainaccount = AccountId::new_unchecked("mmednicktoss.testnet".to_string());
         let context = get_context(account);
         testing_env!(context.build());
 

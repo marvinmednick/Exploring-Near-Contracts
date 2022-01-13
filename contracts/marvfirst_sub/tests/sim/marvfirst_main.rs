@@ -1,4 +1,9 @@
-use near_sdk::near_bindgen;
+use near_sdk::{near_bindgen,
+                borsh::{self, BorshDeserialize, BorshSerialize},
+                    serde::{Deserialize, Serialize}
+           };
+
+use near_sdk::AccountId;
     
 #[allow(dead_code)]
 #[near_bindgen]
@@ -24,3 +29,16 @@ impl LogContract {
     pub fn reset_log (&mut self)  { }
 }
 
+
+#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct LogEntry {
+    pub entry_id:  u64,
+    pub timestamp: String,
+    block_ts: u64,
+    pub account: AccountId,
+    signaccount: AccountId,
+    pub name: String,
+    pub message: String,
+    used_gas: u64
+}
