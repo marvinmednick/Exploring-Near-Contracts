@@ -64,8 +64,9 @@ fn simulate_basic_operation() {
     let actual : u64 = x.unwrap_json();
 	assert_eq!(actual, 2);
 	
-	let x : String = view!(subcontract.info()).unwrap_json();
-	println!("At End {:?}",x);
+	let x : u64 = call!(root, subcontract.indirect_num_entries()).unwrap_json();
+	println!("After view num_entries At End {:?}",x);
+
 
 	
 
