@@ -131,8 +131,6 @@ impl CallLoggerContract {
 	pub fn num_entries_callback(&mut self)  -> u64 {
         
         self.counter += 1;
-        log!("Num entries callback was called {} {}", self.counter, 1);
-        
 
 	    assert_eq!(
 		  env::promise_results_count(),
