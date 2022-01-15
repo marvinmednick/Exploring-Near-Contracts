@@ -4,6 +4,7 @@ describe('Token', function () {
   let accountId;
 
   beforeAll(async function () {
+    debugger;
     console.log('nearConfig', nearConfig);
     near = await nearlib.connect(nearConfig);
     accountId = nearConfig.contractName;

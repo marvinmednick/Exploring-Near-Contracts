@@ -23,9 +23,13 @@
     "deploy:dev:c1": "yarn build:c1 && cd contracts/marvfirst_main && near dev-deploy ../out/$npm_package_config_mainwasm",
     "deploy:dev:c2": "yarn build:c2 && cd contracts/marvfirst_sub && near dev-deploy ../out/$npm_package_config_subwasm",
     "dev": "yarn deploy:dev && yarn start:dev",
+    "clrdev": "yarn clrdev:c1 && yarn clrdev:c2",
+    "clrdev:c1": "rm contracts/marvfirst_main/neardev/dev*",
+    "clrdev:c2": "rm contracts/marvfirst_sub/neardev/dev*",
     "init:c1": "near deploy --accountId $CONTRACT_NAME --wasmFile contracts/out/$npm_package_config_mainwasm --initFunction new --initArgs \"{}\"",
     "init:c2": "near deploy --accountId $SUBCONTRACT_NAME --wasmFile contracts/out/$npm_package_config_subwasm --initFunction new --initArgs \"{\\\"log_contract\\\" : \\\"$CONTRACT_NAME\\\"}\"",
-    "update:c2": "near call $SUBCONTRACT_NAME update_log_contract \"{\\\"log_contract\\\" : \\\"$CONTRACT_NAME\\\"}\" --accountId  $SUBCONTRACT_NAME",
+    "update:c2" :  "updateSubContractConfig.sh",
+    "update:c2a": "near call $SUBCONTRACT_NAME update_log_contract \"{\\\"log_contract\\\" : \\\"$CONTRACT_NAME\\\"}\" --accountId  $SUBCONTRACT_NAME",
     "info:c2": "near view $SUBCONTRACT_NAME info",
     "prestart": "yarn build && yarn deploy:contract",
     "start": "parcel src/index.html",
@@ -34,11 +38,10 @@
     "test:cargo": "cd contracts && cargo test -- --nocapture",
     "test": "yarn build && yarn test:cargo && jest",
     "envconfig": "setupdevcfg.sh",
-    "xyz": "echo $npm_package_config_mainwasm $npm_package_config_subwasm",
     "jest": "jest"
   },
   "jest": {
-    "testEnvironment": "near-cli/test_environment"
+    "testEnvironment": "./src/test_environment"
   },
   "devDependencies": {
     "env-cmd": "^10.1.0",
