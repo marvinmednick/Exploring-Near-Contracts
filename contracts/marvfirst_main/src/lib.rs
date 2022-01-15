@@ -59,7 +59,8 @@ pub struct LogEntry {
     signaccount: AccountId,
     name: String,
     message: String,
-    used_gas: u64
+    used_gas: u64,
+    transfer_amount: u128
 }
 
 
@@ -92,10 +93,11 @@ impl LogContract {
             signaccount: env::signer_account_id(), 
             name    : name,
             message   : message,
-            used_gas :  u64::from(env::used_gas())
+            used_gas :  u64::from(env::used_gas()),
+            transfer_amount: env::attached_deposit(),
         };
         self.mylog.push(&new_entry);
-        env::log_str("Entry Added!");
+        env::log_str(&("Entry Added! ".to_owned() + &env::attached_deposit().to_string()));
     }
     pub fn num_entries(&self) -> u64 {
        self.mylog.len()

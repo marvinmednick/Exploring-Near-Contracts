@@ -102,13 +102,15 @@
         <div id="mainContract" class="col-6 border border-primary">
             <div class="row">
                 <p class="h3">Main Contract </p>
-                <p>(deployed on account <span id=main_contract_id></span>)</p>
+                <p>Deployed on account <span id=main_contract_id class="fs-5 fw-bolder"></span></p>
+                <p style="margin-left: 30px;">Available Balance: <span id="main_acct_balance"></span></p>
                 <p>These functions all make function calls direct to the main contract contract</p>
-            </div>
+            </div>      
             <!-- main login start -->
             <div class="row border-top border-bottom border-primary" style="padding-top: 20px; padding-bottom: 20px;">
                 <p>
-                    <span id="cur_login_text"></span><span class="fs-5 fw-bolder text-info" id="cur_login_id"></span>
+                    <span id="main_login_text"></span><span class="fs-5 fw-bolder text-info" id="main_login_id"></span>
+                    <p style="margin-left: 30px;">Available Balance:<span id="main_login_balance"></span></p>
                     <span id="contract_owner_text"></span><span class="fs-5 fw-bolder text-info" id="contract_owner_id"></span>
                 </p>
                 <div class="sign-in-main" style="display: none;">
@@ -203,13 +205,15 @@
         <div id="sub_contract" class="col-6 border border-primary">
             <div class="row">
                 <p class="h3">Proxy Contract</p>
-                <p>(deployed on account <span id=sub_contract_id></span>)</p>
+                <p>Deployed on account <span id=sub_contract_id class="fs-5 fw-bolder"></span></p>
+                <p style="margin-left: 30px;">Available Balance: <span id="sub_acct_balance"></span></p>
                 <p>Requests remade via Cross Contract calls to the main contract and data is returned via callbacks</p>
             </div>
             <!-- subacct login start -->
             <div class="row border-top border-bottom border-primary" style="padding-top: 20px; padding-bottom: 20px;">
                 <p>
                     <span id="subacct_login_text"></span><span class="fs-5 fw-bolder text-info" id="subacct_login_id"></span>
+                    <p style="margin-left: 30px;">Available Balance:<span id="sub_login_balance"></span></p>
                     <span id="subacct_owner_text"></span><span class="fs-5 fw-bolder text-info" id="subacct_owner_id"></span>
                 </p>
                 <div class="sign-in-subacct" style="display: none;">
@@ -237,6 +241,9 @@
                         <form id="subacct-add-entry-form" name="subacct-add-entry-form">
                             <br>
                             <div class="row">
+                                <p><span class="fs-5">Add an Entry </span>(Adds an entry to the log.)</p>
+                            </div>
+                            <div class="row">
                                 <div style="display:flex; flex-direction: row">
                                     <label for="Name" class="form-label" style="width: 75px;">Name</label>
                                     <input type="text" class="form-control" id="name" placeholder="Name?" name="name">
@@ -247,12 +254,22 @@
                                 </div>
                             </div>
                             <div class=row style="padding-top: 20px; padding-bottom: 20px;">
-                                <div class="col-4">
+                                <div class="col-2">
                                     <button type="submit" class="btn btn-primary" style="background-color: #0072CE;">Add Entry</button>
                                 </div>
-                                <div class="col">
-                                    <span class="fs-5">Add an Entry </span>(Adds an entry to the log.)
+                                <div class="col-2">
+                                    <label for="Tip" class="form-label" style="width: 100px;">Transfer Amount</label>
                                 </div>
+                                <div class="col-3">
+                                    <input type="text" class="form-control" id="amount" placeholder="0" name="amount">
+                                    <span id="transfer_errmsg" class="fs-6 text-danger" style="display: none">Invalid Entry</span>
+                                </div>
+                                <div class="col-3">
+                                    <select id="denomination" class="form-select fs-6" autocomplete="off" aria-label="Tip range">
+                                        <option value="yacto" selected>Million YactoNEAR</option>
+                                        <option value="near"> NEAR</option>
+                                    </select>
+                                </div>  
                             </div>
                         </form>
                     </div>

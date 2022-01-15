@@ -36,12 +36,16 @@ function allStorage() {
 // account logged in at time... 
 window.nearConnections = {
     mainacct: { near: null,
+                login_account: null,
+                contract_account: null,
                 walletConnection: null, 
                 contract: null ,
                 viewMethods: ['num_entries', 'list_entries', 'get_last'],
                 changeMethods: ['new', 'add_entry', 'reset_log', 'get_info'], 
               },
     subacct:  { near: null, 
+                login_account: null,
+                contract_account: null,
                 walletConnection: null, 
                 contract: null,
                 viewMethods: ['indirect_num_entries', 'indirect_get_last'],
@@ -81,6 +85,9 @@ async function connect(nearConfig, account) {
         // getAccountId() will return empty string if user is still unauthorized
         sender: connection.walletConnection.getAccountId()
     });
+
+    connection.login_account = await connection.near.account(connection.walletConnection.getAccountId());
+    connection.contract_account = await connection.near.account(nearConfig.contractName);
     console.log("X", connection.contract, window.location.href);
 }
 
@@ -180,39 +187,96 @@ function update_current_info(account) {
 }
 
 
+var prevBalances = { 
+        main_login_balance:  { "available" : "Not Available" },
+        sub_login_balance: { "available" : "Not Available" },
+        main_acct_balance: { "available" : "Not Available" },
+        sub_acct_balance:  { "available" : "Not Available" },
+ };
 
-function updateUI() {
+ var curBalances = {
+        main_login_balance: { "available" : "Not Available" },
+        sub_login_balance:  { "available" : "Not Available" },
+        main_acct_balance:  { "available" : "Not Available" },
+        sub_acct_balance:   { "available" : "Not Available" },
+ };
+
+
+function updatePrevBalances () {
+    prevBalances = JSON.parse(JSON.stringify(curBalances));
+    console.log("updateBal:", prevBalances, curBalances);   
+};
+
+
+function updateLogins() {
+
+};
+
+
+async function updateCurBalances() {
+    console.log("update1");
+    curBalances.main_acct_balance = await nearConnections.mainacct.contract_account.getAccountBalance();
+    console.log("update2");
+    curBalances.sub_acct_balance = await nearConnections.subacct.contract_account.getAccountBalance();
+    console.log("update3");
+    
+    if (nearConnections.mainacct.walletConnection.isSignedIn()) {
+        curBalances.main_login_balance = await nearConnections.mainacct.login_account.getAccountBalance();
+    }
+    console.log("update4");
+    if (nearConnections.subacct.walletConnection.isSignedIn()) {
+        curBalances.sub_login_balance = await  nearConnections.subacct.login_account.getAccountBalance();
+    }
+    console.log("update5");
+ 
+    document.querySelector('#main_acct_balance').innerText = curBalances.main_acct_balance.available;
+    document.querySelector('#sub_acct_balance').innerText =  curBalances.sub_acct_balance.available;
+    
+    
+    console.log("update6");
+
+};
+
+
+async function updateUI() {
 
     console.log("Beg updateUI",window.location);
     document.querySelector('#error_status').style.setProperty('display', 'none');
 
-    document.querySelector('#main_contract_id').innerText = nearMainConfig.contractName;
-    document.querySelector('#sub_contract_id').innerText = nearSubAcctConfig.contractName;
+    document.querySelector('#main_contract_id').innerText = 
+    nearMainConfig.contractName ;
+    document.querySelector('#sub_contract_id').innerText = 
+    nearSubAcctConfig.contractName;
+    
 
     let cur_account = nearConnections.mainacct.walletConnection.getAccountId();
-    document.querySelector('#cur_login_id').innerText = cur_account;
-
+    document.querySelector('#main_login_id').innerText = cur_account;
+    
     let cur_subaccount = nearConnections.subacct.walletConnection.getAccountId();
-    console.log("ACCT", cur_account, "SUBACCT", cur_subaccount);
 
-    console.log("Mid updateUI",window.location);
+    console.log("Here");
+    await  updateCurBalances();
+    console.log("THere");
+      
 
     update_current_info();
 
     if (!cur_account) {
-        document.querySelector('#cur_login_id').innerText = "";
-        document.querySelector('#cur_login_text').innerText = "You are not currently logged in.";
+        document.querySelector('#main_login_id').innerText = "";
+        document.querySelector('#main_login_text').innerText = "You are not currently logged in.";
         Array.from(document.querySelectorAll('.sign-in-main')).map(it => it.style = 'display: block;');
         Array.from(document.querySelectorAll('.after-sign-in-main')).map(it => it.style = 'display: none;');
         Array.from(document.querySelectorAll('.sign-in-subacct')).map(it => it.style = 'display: block;');
         Array.from(document.querySelectorAll('.after-sign-in-subacct')).map(it => it.style = 'display: none;');
+        document.querySelector('#main_login_balance').innerText = "---";
     } else {
-        document.querySelector('#cur_login_text').innerText = "You current are logged in as "
-        document.querySelector('#cur_login_id').innerText = cur_account;
+        document.querySelector('#main_login_text').innerText = "You current are logged in as ";
+        document.querySelector('#main_login_id').innerText = cur_account;
         Array.from(document.querySelectorAll('.sign-in-main')).map(it => it.style = 'display: none;');
         Array.from(document.querySelectorAll('.after-sign-in-main')).map(it => it.style = 'display: block;');
         Array.from(document.querySelectorAll('.sign-in-subacct')).map(it => it.style = 'display: none;');
         Array.from(document.querySelectorAll('.after-sign-in-subacct')).map(it => it.style = 'display: block;');
+        document.querySelector('#main_login_balance').innerText = curBalances.main_login_balance.available;
 
     }
 
@@ -223,11 +287,13 @@ function updateUI() {
         document.querySelector('#subacct_login_text').innerText = "You are not currently logged in.";
         Array.from(document.querySelectorAll('.sign-in-subacct')).map(it => it.style = 'display: block;');
         Array.from(document.querySelectorAll('.after-sign-in-subacct')).map(it => it.style = 'display: none;');
+        document.querySelector('#sub_login_balance').innerText =  "---";
     } else {
         document.querySelector('#subacct_login_text').innerText = "You current are logged in as "
         document.querySelector('#subacct_login_id').innerText = cur_subaccount;
         Array.from(document.querySelectorAll('.sign-in-subacct')).map(it => it.style = 'display: none;');
         Array.from(document.querySelectorAll('.after-sign-in-subacct')).map(it => it.style = 'display: block;');
+        document.querySelector('#sub_login_balance').innerText =  curBalances.sub_login_balance.available;
 
     }
     console.log("End updateUI",window.location);
@@ -311,6 +377,7 @@ document.querySelector('.log_reset .btn').addEventListener('click', () => {
       })
       .then(updateUI)
       .catch(err => errorHelper(err));
+      updatePrevBalances();
 });
 
 
@@ -332,10 +399,11 @@ document.querySelector('#subacct-add-entry-form').onsubmit = function() {
 
 };
 
-
+/*
 function post_add_entry() {
     $("inprocess_modal").modal("hide")
 }
+*/
 
 
 function add_new_entry(form_info,contract) {
@@ -347,7 +415,7 @@ function add_new_entry(form_info,contract) {
         name: form_info.elements['name'].value,
         message: form_info.elements['msg'].value
     }
-    $('inprocess_modal').modal('show');
+  //  $('inprocess_modal').modal('show');
     $("main-add_status").style = "display:block;";
     document.querySelector('#main-add-status').style = "display: block;";
     document.querySelector('#main-add-entry-form').style = "display: none;";
@@ -358,28 +426,54 @@ function add_new_entry(form_info,contract) {
         document.querySelector('#main-add-entry-form').style = "display: block;";
     }).then(updateUI).catch(err => errorHelper(err));
 
+    updatePrevBalances();
 }
 
 
-function indirect_add_new_entry(form_info,transfer_amount) {
+function indirect_add_new_entry(form_info) {
     const d = new Date();
-    //console.log("Date type is", typeof(d), d)
-    console.log("Indirect Add Amt:",transfer_amount);
-    var nearamt = utils.format.parseNearAmount("1")
-    console.log(nearamt);
+
+    var amount_str = "0";
+    var transfer_amount = Big(0);
+
+    // remove any commas or _ from input string 
+    if (form_info['amount'].value)  {
+        amount_str = (form_info['amount'].value).replace(/,|_/g,"");
+    }
+
+      
+    document.querySelector('#transfer_errmsg').style = "display:none";
+    try {
+        transfer_amount = Big(amount_str);
+    } catch (error) {
+        console.error("Bad transfer amount", amount_str);
+        document.querySelector('#transfer_errmsg').style = "display:block";
+        return(false)
+    }
+            
+ 
+    var nearamt;
+    if (form_info.elements['denomination'].value == "near") {
+        nearamt = transfer_amount.times(10**24).toFixed();    
+    } else {
+        nearamt = transfer_amount.times(10**6).toFixed();
+    }
+ 
+ 
     let args = {
         timestamp: d,
         name: form_info.elements['name'].value,
         message: form_info.elements['msg'].value,
-        transfer_amount: utils.format.parseNearAmount("10"),
+        transfer_amount: nearamt,
     };
-    console.log("indirect add entry args:", args)
-    $('inprocess_modal').modal('show');
+
+    //console.log("indirect add entry args:", args)
+   // $('inprocess_modal').modal('show');
     $("add_status").style = "display:block;";
     document.querySelector('#subacct-add-status').style = "display: block;";
     document.querySelector('#subacct-add-entry-form').style = "display: none;";
-//        subAcctContract.indirect_add_entry(args)
-          subAcctContract.indirect_add(args, BOATLOAD_OF_GAS, TOKEN_AMOUNT)
+ 
+    subAcctContract.indirect_add(args, BOATLOAD_OF_GAS, nearamt)
         .then(result => {
             console.log("Add Entry", result);
             form_info.reset();
@@ -387,6 +481,8 @@ function indirect_add_new_entry(form_info,transfer_amount) {
             document.querySelector('#subacct-add-entry-form').style = "display: block;";
     }).then(updateUI).catch(err => errorHelper(err));
 
+
+    updatePrevBalances();
 }
 
 

@@ -124,10 +124,6 @@ impl CallLoggerContract {
         result
 	}
 
-    fn test_ok(&self) -> Result<u64,&'static str>  {
-        Ok(1)
-    } 
-
 	pub fn num_entries_callback(&mut self)  -> u64 {
         
         self.counter += 1;
