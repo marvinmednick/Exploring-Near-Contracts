@@ -11,6 +11,7 @@ use near_sdk::{
     Promise, 
 	PromiseResult,
 	json_types::U128,
+    json_types::U64,
     log,
 };
 
@@ -19,7 +20,7 @@ use near_sdk::{
 
 #[ext_contract(ext_logger)]
 trait LoggerContract {
-    fn add_entry(&self, timestamp: String, name: String, message: String);
+    fn add_entry(&self, timestamp: String, name: String, message: String, cc_used_gas: U64);
     fn num_entries();
     fn get_last();
 }
@@ -56,15 +57,16 @@ impl CallLoggerContract {
 
 	#[payable]
     pub fn indirect_add_entry(&mut self, timestamp: String, name: String, message: String, transfer_amount: U128) {
-
-		let amount = u128::from(transfer_amount);
+		
+        let amount = u128::from(transfer_amount);
         let _cross_contract_call = Promise::new(self.log_contract_id.clone())
         .function_call(
             "add_entry".to_string(),
             json!({
                 "timestamp" : timestamp,
-                "name"      : String::from("indirect ") + &name,
-                "message"   : String::from("indirect ") + &message,
+                "name"      : name,
+                "message"   : message,
+                "cc_used_gas" : U64::from(u64::from(env::used_gas())),
             }).to_string().into_bytes(),
             amount, // yocto NEAR to attach
             Gas::from(5_000_000_000_000) // gas to attach
@@ -75,13 +77,11 @@ impl CallLoggerContract {
 	#[payable]
     pub fn indirect_add(&mut self, timestamp: String, name: String, message: String) {
 
-        // let add_info = " - PP: ".to_string() + &u64::from(env::prepaid_gas()).to_string() + &"Used: " + &u64::from(env::used_gas()).to_string();
-
-
         ext_logger::add_entry(
-            String::from("indirect ") + &timestamp,
-            String::from("indirect ") + &name,
-            String::from("indirect ") + &message,
+            timestamp,
+            name,
+            message,
+            U64::from(u64::from(env::used_gas())),
             self.log_contract_id.clone(),
             // take any attached deposit and send it on as to the main contract
             env::attached_deposit(), // yocto NEAR to attach

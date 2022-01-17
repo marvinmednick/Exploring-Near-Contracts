@@ -41,14 +41,14 @@ fn simulate_basic_operation() {
 		// use the call macro to add a entry
 	let ret : String = call!(root, contract.get_last()).unwrap_json();
 	let deserialized: LogEntry = near_sdk::serde_json::from_str(&ret).unwrap();
-	assert_eq!(deserialized.name,"indirect Me");
-	assert_eq!(deserialized.message,"indirect My Message");
-	assert_eq!(deserialized.timestamp,"indirect Now");
+	assert_eq!(deserialized.name,"Me");
+	assert_eq!(deserialized.message,"My Message");
+	assert_eq!(deserialized.timestamp,"Now");
 	// Now use the non-macro approach to add an entry 
     root.call(
         subcontract.account_id(),
         "indirect_add",
-        &json!({"timestamp": "Now".to_string(), "name": "Me".to_string(), "message": "My Message1".to_string()})
+        &json!({"timestamp": "Now".to_string(), "name": "Me".to_string(), "message": "My Message1".to_string(), "cc_used_gas" : 1})
             .to_string()
             .into_bytes(),
         DEFAULT_GAS,

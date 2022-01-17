@@ -45,7 +45,7 @@ describe('Token', function () {
       expect(startCounter).toEqual(0);
     });
     it('main contract can add entries', async function () {
-      await contract.add_entry({"args" : { "timestamp" : "Time1","name" : "My Name","message": "My Message"}});
+      await contract.add_entry({"args" : { "timestamp" : "Time1","name" : "My Name","message": "My Message", "cc_used_gas": "0"}});
       counter = await contract.num_entries({"args": {}});
       expect(counter).toEqual(startCounter + 1);
     });
@@ -60,13 +60,13 @@ describe('Token', function () {
       expect(endCounter).toEqual(startCounter + 1);
     },15000);
     it('get last data is valid', async function () {
-      await subcontract.indirect_add_entry({"args" : { "timestamp" : "Time3","name" : "Luke","message": "Your father", "transfer_amount" : "0"}});
+      await subcontract.indirect_add_entry({"args" : { "timestamp" : "Time3","name" : "Luke","message": "Your father", "transfer_amount" : "0", }});
       var last_data = await contract.get_last({"args": {}});
       var last_entry = JSON.parse(last_data);
-	  expect(last_entry.name).toEqual("indirect Luke");
-	  expect(last_entry.message).toEqual("indirect Your father");
+	  expect(last_entry.name).toEqual("Luke");
+	  expect(last_entry.message).toEqual("Your father");
 
-      await contract.add_entry({"args" : { "timestamp" : "Time1","name" : "R2D2","message": "Beep, boop"}});
+      await contract.add_entry({"args" : { "timestamp" : "Time1","name" : "R2D2","message": "Beep, boop","cc_used_gas": "0"}});
       last_data = await contract.get_last({"args": {}});
       last_entry = JSON.parse(last_data);
 	  expect(last_entry.name).toEqual("R2D2");

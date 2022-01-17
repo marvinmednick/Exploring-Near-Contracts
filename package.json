@@ -26,6 +26,7 @@
     "clrdev": "yarn clrdev:c1 && yarn clrdev:c2",
     "clrdev:c1": "rm contracts/marvfirst_main/neardev/dev*",
     "clrdev:c2": "rm contracts/marvfirst_sub/neardev/dev*",
+	"initcontracts": "yarn init:c1 && yarn init:c2",
     "init:c1": "near deploy --accountId $CONTRACT_NAME --wasmFile contracts/out/$npm_package_config_mainwasm --initFunction new --initArgs \"{}\"",
     "init:c2": "near deploy --accountId $SUBCONTRACT_NAME --wasmFile contracts/out/$npm_package_config_subwasm --initFunction new --initArgs \"{\\\"log_contract\\\" : \\\"$CONTRACT_NAME\\\"}\"",
     "update:c2" :  "updateSubContractConfig.sh",

@@ -5,6 +5,7 @@ use near_sdk::{
 //    serde::ser::SerializeSeq,
     AccountId, PanicOnDefault
 };
+use near_sdk::json_types::U64;
 use near_sdk::{env, near_bindgen};
 //use chrono::{DateTime, Utc, Local};
 //use serde::{Deserialize, Serialize};
@@ -60,7 +61,9 @@ pub struct LogEntry {
     name: String,
     message: String,
     used_gas: u64,
-    transfer_amount: u128
+    cc_used_gas: u64,
+    transfer_amount: u128,
+ 
 }
 
 
@@ -83,7 +86,7 @@ impl LogContract {
    }
 
     #[payable]
-    pub fn add_entry (&mut self, timestamp: String, name: String, message: String) {
+    pub fn add_entry (&mut self, timestamp: String, name: String, message: String, cc_used_gas: U64) {
 	                                  
         let new_entry = LogEntry {
             entry_id : self.mylog.len()+1,
@@ -93,8 +96,10 @@ impl LogContract {
             signaccount: env::signer_account_id(), 
             name    : name,
             message   : message,
-            used_gas :  u64::from(env::used_gas()),
+            used_gas :   u64::from(env::used_gas()),
+            cc_used_gas: u64::from(cc_used_gas),
             transfer_amount: env::attached_deposit(),
+
         };
         self.mylog.push(&new_entry);
         env::log_str(&("Entry Added! ".to_owned() + &env::attached_deposit().to_string()));
@@ -202,12 +207,12 @@ mod tests {
 	#[test]
     fn check_add_entry() {
         let mut contract = setup_contract();
-        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string());    
-        assert_eq!(get_logs(), ["Entry Added!"], "Exec.");
+        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string(),U64::from(0));    
+        assert_eq!(get_logs(), ["Entry Added! 0"], "Exec.");
 
         assert_eq!(contract.num_entries(),1);
 
-        contract.add_entry("dateAndTime1".to_string(),"My Name is".to_string(),"My Message is".to_string());
+        contract.add_entry("dateAndTime1".to_string(),"My Name is".to_string(),"My Message is".to_string(),U64::from(0));
         assert_eq!(contract.num_entries(),2);
 
     }
@@ -221,8 +226,8 @@ mod tests {
         assert_eq!(loglist.log_entries.len(),0);
         println!("entries: {:?}", loglist);
 
-        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string());    
-        contract.add_entry("dateAndTime1".to_string(),"My Name is".to_string(),"My Message is".to_string());
+        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string(),U64::from(0));    
+        contract.add_entry("dateAndTime1".to_string(),"My Name is".to_string(),"My Message is".to_string(),U64::from(0));
         assert_eq!(contract.num_entries(),2);
 
 		#[derive(Deserialize, Debug, Clone)]
@@ -245,8 +250,8 @@ mod tests {
 	#[test]
     fn check_reset() {
         let mut contract = setup_contract();
-        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string());    
-        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string());    
+        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string(),U64::from(0));    
+        contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string(),U64::from(0));    
         assert_eq!(contract.num_entries(),2);
 		contract.reset_log();
         assert_eq!(contract.num_entries(),0);

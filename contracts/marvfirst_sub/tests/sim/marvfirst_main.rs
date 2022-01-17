@@ -1,7 +1,10 @@
 use near_sdk::{near_bindgen,
-                borsh::{self, BorshDeserialize, BorshSerialize},
-                    serde::{Deserialize, Serialize}
-           };
+               borsh::{self, BorshDeserialize, BorshSerialize},
+               serde::{Deserialize, Serialize},
+               };
+
+
+use near_sdk::json_types::U64;           
 
 use near_sdk::AccountId;
     
@@ -16,7 +19,7 @@ impl LogContract {
     #[allow(unused_variables, dead_code)]    
     pub fn new() {}
     #[allow(unused_variables, dead_code)]   
-    pub fn add_entry (&mut self, timestamp: String, name: String, message: String) {}
+    pub fn add_entry (&mut self, timestamp: String, name: String, message: String, cc_used_gas: U64) {}
     #[allow(unused_variables, dead_code)]
     pub fn num_entries(&self) -> u64 { 0 }
     #[allow(unused_variables, dead_code)]
@@ -40,5 +43,7 @@ pub struct LogEntry {
     signaccount: AccountId,
     pub name: String,
     pub message: String,
-    used_gas: u64
+    used_gas: u64,
+    cc_used_gas: u64,
+    transfer_amount: u128
 }
