@@ -1,7 +1,3 @@
-const SUBCONTRACT_NAME = process.env.SUBCONTRACT_NAME || 'subasdf.test'; /* TODO: change this to your account */
-
-console.log("subaccout config:",  SUBCONTRACT_NAME);
-
 function getSubAcctConfig (env) {
   switch (env) {
     case 'production':
@@ -9,7 +5,6 @@ function getSubAcctConfig (env) {
       return {
         networkId: 'mainnet',
         nodeUrl: 'https://rpc.mainnet.near.org',
-        contractName: SUBCONTRACT_NAME,
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://helper.mainnet.near.org'
       }
@@ -18,7 +13,6 @@ function getSubAcctConfig (env) {
       return {
         networkId: 'testnet',
         nodeUrl: 'https://rpc.testnet.near.org',
-        contractName: SUBCONTRACT_NAME,
         walletUrl: 'https://wallet.testnet.near.org',
         helperUrl: 'https://helper.testnet.near.org'
       }
@@ -26,7 +20,6 @@ function getSubAcctConfig (env) {
       return {
         networkId: 'betanet',
         nodeUrl: 'https://rpc.betanet.near.org',
-        contractName: SUBCONTRACT_NAME,
         walletUrl: 'https://wallet.betanet.near.org',
         helperUrl: 'https://helper.betanet.near.org'
       }
@@ -36,21 +29,18 @@ function getSubAcctConfig (env) {
         nodeUrl: 'http://localhost:3030',
         keyPath: `${process.env.HOME}/.near/validator_key.json`,
         walletUrl: 'http://localhost:4000/wallet',
-        contractName: SUBCONTRACT_NAME,
     }
     case 'test':
     case 'ci':
       return {
         networkId: 'shared-test',
         nodeUrl: 'https://rpc.ci-testnet.near.org',
-        contractName: SUBCONTRACT_NAME,
         masterAccount: 'test.near'
       }
     case 'ci-betanet':
       return {
         networkId: 'shared-test-staging',
         nodeUrl: 'https://rpc.ci-betanet.near.org',
-        contractName: SUBCONTRACT_NAME,
         masterAccount: 'test.near'
       }
     default:

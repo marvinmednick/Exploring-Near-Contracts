@@ -1,5 +1,3 @@
-const CONTRACT_NAME = process.env.CONTRACT_NAME || 'asdf.test'; /* TODO: change this to your account */
-
 function getConfig (env) {
   switch (env) {
     case 'production':
@@ -7,7 +5,6 @@ function getConfig (env) {
       return {
         networkId: 'mainnet',
         nodeUrl: 'https://rpc.mainnet.near.org',
-        contractName: CONTRACT_NAME,
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://helper.mainnet.near.org'
       }
@@ -16,7 +13,6 @@ function getConfig (env) {
       return {
         networkId: 'testnet',
         nodeUrl: 'https://rpc.testnet.near.org',
-        contractName: CONTRACT_NAME,
         walletUrl: 'https://wallet.testnet.near.org',
         helperUrl: 'https://helper.testnet.near.org'
       }
@@ -24,7 +20,6 @@ function getConfig (env) {
       return {
         networkId: 'betanet',
         nodeUrl: 'https://rpc.betanet.near.org',
-        contractName: CONTRACT_NAME,
         walletUrl: 'https://wallet.betanet.near.org',
         helperUrl: 'https://helper.betanet.near.org'
       }
@@ -34,21 +29,18 @@ function getConfig (env) {
         nodeUrl: 'http://localhost:3030',
         keyPath: `${process.env.HOME}/.near/validator_key.json`,
         walletUrl: 'http://localhost:4000/wallet',
-        contractName: CONTRACT_NAME,
       }
     case 'test':
     case 'ci':
       return {
         networkId: 'shared-test',
         nodeUrl: 'https://rpc.ci-testnet.near.org',
-        contractName: CONTRACT_NAME,
         masterAccount: 'test.near'
       }
     case 'ci-betanet':
       return {
         networkId: 'shared-test-staging',
         nodeUrl: 'https://rpc.ci-betanet.near.org',
-        contractName: CONTRACT_NAME,
         masterAccount: 'test.near'
       }
     default:

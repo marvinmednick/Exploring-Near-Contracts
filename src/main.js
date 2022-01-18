@@ -2,6 +2,7 @@ import "regenerator-runtime/runtime";
 import * as nearAPI from "near-api-js";
 const { utils } = require("near-api-js");
 import getConfig from "./config";
+import {CONTRACT_NAME, SUBCONTRACT_NAME}  from "./contract_names"
 import Big from 'big.js';
 const nearMainConfig = getConfig(process.env.NODE_ENV || "development");
 import getSubAcctConfig from "./subacct_config";
@@ -37,6 +38,7 @@ function allStorage() {
 window.nearConnections = {
     mainacct: { near: null,
                 login_account: null,
+                contract_name: null,
                 contract_account: null,
                 walletConnection: null,
                 contract: null,
@@ -45,6 +47,7 @@ window.nearConnections = {
               },
     subacct:  { near: null,
                 login_account: null,
+                contract_name: null,
                 contract_account: null,
                 walletConnection: null,
                 contract: null,
@@ -56,8 +59,7 @@ window.nearConnections = {
 
 
 // Copied from rust-counter
-async function connect(nearConfig, account) {
-    // console.log("Starting connection for ", account, nearConfig);
+async function connect(nearConfig, account, contractName) {
     let connection = window.nearConnections[account];
 
     // Connects to NEAR and provides `near`, `walletAccount` and `contract` objects in `window` scope
@@ -71,12 +73,12 @@ async function connect(nearConfig, account) {
     const currentUrl = new URL(window.location.href);
 
 
-    // Needed to access wallet login
+    // Needed to access wallet loginf
     connection.walletConnection = await new nearAPI.WalletConnection(connection.near, account);
 
 
     // Initializing our contract APIs by contract name and configuration.
-    connection.contract = await new nearAPI.Contract(connection.walletConnection.account(), nearConfig.contractName, {
+    connection.contract = await new nearAPI.Contract(connection.walletConnection.account(), contractName, {
         // View methods are read-only – they don't modify the state, but usually return some value
         viewMethods: connection.viewMethods,
         // Change methods can modify the state, but you don't receive the returned value when called
@@ -87,7 +89,8 @@ async function connect(nearConfig, account) {
     });
 
     connection.login_account = await connection.near.account(connection.walletConnection.getAccountId());
-    connection.contract_account = await connection.near.account(nearConfig.contractName);
+    connection.contract_name = contractName;
+    connection.contract_account = await connection.near.account(contractName);
 }
 
 
@@ -151,6 +154,12 @@ function formatLogEntry(entry) {
     }
 
 
+    var rowtype = "entry_row_odd";
+    if (entry.entry_id % 2 == 0) {
+        rowtype = "entry_row_even"
+    }
+
+    let formatStart = '<div class="'+ rowtype +'"><pre>' 
     let line1 = entry.entry_id.toString().padEnd(col1_size)
       + spacer + ("User: ".padEnd(7) + entry.timestamp).padEnd(col2_size, " ")
       + spacer + entry.account.padEnd(col3_size, " ")
@@ -165,8 +174,8 @@ function formatLogEntry(entry) {
         + spacer + " (" + entry.block_ts.toString()+ ")").padEnd(col2_size, " ")
         + spacer +  sign_account_info.padEnd(col3_size," ")
         + spacer + "".padEnd(col4_size)
-        + spacer + ("CC: ".padEnd(7) + entry.cc_used_gas).padEnd(col5_size)
-        + '\n';
+        + spacer + ("CC: ".padEnd(7) + entry.cc_used_gas).padEnd(col5_size);
+    let formatEnd = '</pre></div>';
     /*
     let result = entry.entry_id.toString().padEnd(4)
                + spacer + entry.timestamp.padEnd(25," ")
@@ -175,7 +184,7 @@ function formatLogEntry(entry) {
                + "   " + entry.message+ '\n';
     */
 
-    return (line1 + line2);
+    return (formatStart + line1 + line2 + formatEnd);
 }
 
 function update_current_info(account) {
@@ -252,12 +261,12 @@ async function updateCurBalances() {
 async function updateUI() {
 
 
-    document.querySelector('#error_status').style.setProperty('display', 'none');
+    document.querySelector('#error_status').style.setProperty('display', 'none');   
 
     document.querySelector('#main_contract_id').innerText =
-    nearMainConfig.contractName ;
+    nearConnections.mainacct.contract_name;
     document.querySelector('#sub_contract_id').innerText =
-    nearSubAcctConfig.contractName;
+    nearConnections.subacct.contract_name;
 
 
     let cur_account = nearConnections.mainacct.walletConnection.getAccountId();
@@ -311,7 +320,7 @@ async function updateUI() {
 // Log in user using NEAR Wallet on "Sign In" button click
 document.querySelector('#sign-in-main-button').addEventListener('click', () => {
     nearConnections.mainacct.walletConnection.requestSignIn(
-        { "contractId": nearMainConfig.contractName,
+        { "contractId": nearConnections.mainacct.contract_name,
           "successUrl": window.location.origin + '/mainacct' }
     );
 });
@@ -325,7 +334,7 @@ document.querySelector('#sign-out-main-button').addEventListener('click', () => 
 // Log in user using NEAR Wallet on "Sign In" button click
 document.querySelector('#sign-in-subacct-button').addEventListener('click', () => {
     nearConnections.subacct.walletConnection.requestSignIn(
-            { "contractId": nearSubAcctConfig.contractName,
+            { "contractId": nearConnections.subacct.contract_name,
               "successUrl": window.location.origin + '/subacct' }
     );
 });
@@ -362,12 +371,13 @@ document.querySelector('#display_entries').addEventListener('click', () => {
         const obj = JSON.parse(listdata);
         //console.log("retrieved", obj);
         let finaldata = "";
+        // obj.log_entries.forEach(element => document.querySelector('#showlistdata').appendChild(formatLogEntry(element));
         obj.log_entries.forEach(element => finaldata += formatLogEntry(element));
         //console.log(finaldata)
         //console.log(finaldata.length)
         //console.log(document.querySelector('#showlistdata').innerText);
         // document.querySelector('#showcount').classList.replace('loader','number');
-        document.querySelector('#showlistdata').innerText = finaldata;
+         document.querySelector('#showlistdata').innerHTML = finaldata;
     }).catch(err => errorHelper(err));
 });
 
@@ -522,11 +532,11 @@ async function setupConnections() {
   if (incomingURL.pathname == "/mainacct") {
       // if so setup the connection without any information from the wallete call back
       window.history.replaceState({}, document.title,  noParameterURL.toString());
-      await connect(nearSubAcctConfig,'subacct');
+      await connect(nearSubAcctConfig,'subacct',SUBCONTRACT_NAME);
       // restore the original URL with the account name and keys, then setup
       // the connection for the main account
       window.history.replaceState({}, document.title, incomingURL.toString());
-      await connect(nearMainConfig,'mainacct');
+      await connect(nearMainConfig,'mainacct',CONTRACT_NAME);
   } else {
     // not processing a call back for the main account, so this is either
     // a callback for the subacct OR its not callback at all.
@@ -534,9 +544,10 @@ async function setupConnections() {
     // and then process the subacct with the original URL (which may or may not  have
     // and account/keys  -- depending on how we got her)
     window.history.replaceState({}, document.title,  noParameterURL.toString());
-    await connect(nearMainConfig, 'mainacct');
+    await connect(nearMainConfig, 'mainacct',CONTRACT_NAME);
+
     window.history.replaceState({}, document.title, incomingURL.toString());
-    await connect(nearSubAcctConfig,'subacct');
+    await connect(nearSubAcctConfig,'subacct',SUBCONTRACT_NAME);
   }
   // restore the URL to main page URL removing the path addded by the wallet callback
   window.history.replaceState({}, document.title,  noParameterURL.toString());
