@@ -13,4 +13,3 @@ near-sdk-sim = "4.0.0-pre.5"
 [dependencies]
 near-sdk = "4.0.0-pre.5"
 serde = { version = "1.0", features = ['derive'] }
-

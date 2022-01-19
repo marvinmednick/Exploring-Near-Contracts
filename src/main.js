@@ -13,7 +13,7 @@ var subAcctContract;
 
 const BOATLOAD_OF_GAS = Big(3).times(10 ** 13).toFixed();
 const TOKEN_AMOUNT = Big(1).times(10**24).toFixed();
-  
+
 function allStorage() {
 
     var values = [],
@@ -33,23 +33,23 @@ function allStorage() {
 
 // Define Object to hold separate connnections and wallets to allow multiple signin accounts
 //  However it seems that the local storage for the web page only seems to support once
-// account logged in at time... 
+// account logged in at time...
 window.nearConnections = {
     mainacct: { near: null,
                 login_account: null,
                 contract_account: null,
-                walletConnection: null, 
-                contract: null ,
+                walletConnection: null,
+                contract: null,
                 viewMethods: ['num_entries', 'list_entries', 'get_last'],
-                changeMethods: ['new', 'add_entry', 'reset_log', 'get_info'], 
+                changeMethods: ['new', 'add_entry', 'reset_log', 'get_info'],
               },
-    subacct:  { near: null, 
+    subacct:  { near: null,
                 login_account: null,
                 contract_account: null,
-                walletConnection: null, 
+                walletConnection: null,
                 contract: null,
                 viewMethods: ['indirect_num_entries', 'indirect_get_last'],
-                changeMethods: ['new', 'indirect_add', 'indirect_add_entry', 'reset_log' ],
+                changeMethods: ['new', 'indirect_add_entry', 'reset_log' ],
               },
 }
 
@@ -69,11 +69,11 @@ async function connect(nearConfig, account) {
         ...nearConfig
     });
     const currentUrl = new URL(window.location.href);
-    
+
 
     // Needed to access wallet login
     connection.walletConnection = await new nearAPI.WalletConnection(connection.near, account);
-    
+
 
     // Initializing our contract APIs by contract name and configuration.
     connection.contract = await new nearAPI.Contract(connection.walletConnection.account(), nearConfig.contractName, {
@@ -92,8 +92,9 @@ async function connect(nearConfig, account) {
 
 
 function errorHelper(err) {
-    // if there's a cryptic error, provide more helpful feedback and instructions here
-    // TODO: as soon as we get the error codes propagating back, use those
+    /* if there's a cryptic error, provide more helpful feedback and instructions here
+     * as soon as we get the error codes propagating back, use those
+    */
     let disp_err = "Error during processing";
     if (err.message.includes('Cannot deserialize the contract state')) {
         disp_err = 'Cannot deserialize the contract state';
@@ -111,7 +112,7 @@ function errorHelper(err) {
         disp_err = 'Contract is not initialized';
         console.warn('NEAR Warning: the contract/accountis not yet initialized.');
     }
-    
+
     console.error(err);
     document.querySelector('#error_status').innerText = "ERROR: " + disp_err;
     document.querySelector('#error_status').style.setProperty('display', 'block')
@@ -127,9 +128,9 @@ let col5_size = 25;
 
 function formatLogHdr() {
     let spacer = "  "
-    let result = "#".padEnd(col1_size) 
-        + spacer + "Timestamps".padEnd(col2_size, " ") 
-        + spacer + "Account".padEnd(col3_size, " ") 
+    let result = "#".padEnd(col1_size)
+        + spacer + "Timestamps".padEnd(col2_size, " ")
+        + spacer + "Account".padEnd(col3_size, " ")
         + spacer + "CC".padEnd(col4_size)
         + spacer + "Gas used".padEnd(col5_size)
         + spacer + "Message\n"
@@ -142,7 +143,7 @@ function formatLogEntry(entry) {
     let block_time = new Date(entry.block_ts / 1e6);
     let block_iso = block_time.toISOString();
     let is_cross_contract = "No".padEnd(col4_size)
- 
+
     let sign_account_info = "";
     if (entry.signaccount != entry.account) {
         sign_account_info = "(signed by: " + entry.signaccount + ")";
@@ -150,21 +151,21 @@ function formatLogEntry(entry) {
     }
 
 
-    let line1 = entry.entry_id.toString().padEnd(col1_size) 
-      + spacer + ("User: ".padEnd(7) + entry.timestamp).padEnd(col2_size, " ") 
-      + spacer + entry.account.padEnd(col3_size, " ") 
+    let line1 = entry.entry_id.toString().padEnd(col1_size)
+      + spacer + ("User: ".padEnd(7) + entry.timestamp).padEnd(col2_size, " ")
+      + spacer + entry.account.padEnd(col3_size, " ")
       + spacer + is_cross_contract
-      + spacer + ("Main: ".padEnd(7) + entry.used_gas).padEnd(col5_size) 
-      + spacer + entry.message 
+      + spacer + ("Main: ".padEnd(7) + entry.used_gas).padEnd(col5_size)
+      + spacer + entry.message
       + '\n';
 
-    
-    let line2 = " ".padEnd(col1_size) 
-        + spacer + ("Block: ".padStart(7) + block_iso 
-        + spacer + " (" + entry.block_ts.toString()+ ")").padEnd(col2_size, " ")  
-        + spacer +  sign_account_info.padEnd(col3_size," ") 
+
+    let line2 = " ".padEnd(col1_size)
+        + spacer + ("Block: ".padStart(7) + block_iso
+        + spacer + " (" + entry.block_ts.toString()+ ")").padEnd(col2_size, " ")
+        + spacer +  sign_account_info.padEnd(col3_size," ")
         + spacer + "".padEnd(col4_size)
-        + spacer + ("CC: ".padEnd(7) + entry.cc_used_gas).padEnd(col5_size) 
+        + spacer + ("CC: ".padEnd(7) + entry.cc_used_gas).padEnd(col5_size)
         + '\n';
     /*
     let result = entry.entry_id.toString().padEnd(4)
@@ -197,7 +198,7 @@ function update_current_info(account) {
 }
 
 
-var prevBalances = { 
+var prevBalances = {
         main_login_balance:  { "available" : "Not Available" },
         sub_login_balance: { "available" : "Not Available" },
         main_acct_balance: { "available" : "Not Available" },
@@ -213,10 +214,12 @@ var prevBalances = {
 
 
 function updatePrevBalances () {
-    // TODO -- this keeps the copy, but since the page reloads wheen interface with the wallet
-    // the variables get reset -- need to move this data to cookies?
+    /*
+     * This keeps the copy, but since the page reloads wheen interface with the wallet
+     * the variables get reset -- need to move this data to cookies?
+     */
     prevBalances = JSON.parse(JSON.stringify(curBalances));
-    console.log("updateBal:", prevBalances, curBalances);   
+    console.log("updateBal:", prevBalances, curBalances);
 };
 
 
@@ -226,44 +229,43 @@ function updateLogins() {
 
 
 async function updateCurBalances() {
-    
+
     curBalances.main_acct_balance = await nearConnections.mainacct.contract_account.getAccountBalance();
-    
+
     curBalances.sub_acct_balance = await nearConnections.subacct.contract_account.getAccountBalance();
-    
-    
+
+
     if (nearConnections.mainacct.walletConnection.isSignedIn()) {
         curBalances.main_login_balance = await nearConnections.mainacct.login_account.getAccountBalance();
     }
-    
+
     if (nearConnections.subacct.walletConnection.isSignedIn()) {
         curBalances.sub_login_balance = await  nearConnections.subacct.login_account.getAccountBalance();
     }
-     
+
     document.querySelector('#main_acct_balance').innerText = curBalances.main_acct_balance.available;
     document.querySelector('#sub_acct_balance').innerText =  curBalances.sub_acct_balance.available;
-    
-        
+
 };
 
 
 async function updateUI() {
 
-   
+
     document.querySelector('#error_status').style.setProperty('display', 'none');
 
-    document.querySelector('#main_contract_id').innerText = 
+    document.querySelector('#main_contract_id').innerText =
     nearMainConfig.contractName ;
-    document.querySelector('#sub_contract_id').innerText = 
+    document.querySelector('#sub_contract_id').innerText =
     nearSubAcctConfig.contractName;
-    
+
 
     let cur_account = nearConnections.mainacct.walletConnection.getAccountId();
     document.querySelector('#main_login_id').innerText = cur_account;
-    
+
     let cur_subaccount = nearConnections.subacct.walletConnection.getAccountId();
 
-    await  updateCurBalances();  
+    await  updateCurBalances();
 
     update_current_info();
 
@@ -302,7 +304,7 @@ async function updateUI() {
         document.querySelector('#sub_login_balance').innerText =  curBalances.sub_login_balance.available;
 
     }
-   
+
 }
 
 
@@ -316,8 +318,7 @@ document.querySelector('#sign-in-main-button').addEventListener('click', () => {
 
 document.querySelector('#sign-out-main-button').addEventListener('click', () => {
     nearConnections.mainacct.walletConnection.signOut();
-    // TODO: Move redirect to .signOut() ^^^
-    window.location.replace(window.location.origin + window.location.pathname);
+     window.location.replace(window.location.origin + window.location.pathname);
 });
 
 
@@ -331,7 +332,6 @@ document.querySelector('#sign-in-subacct-button').addEventListener('click', () =
 
 document.querySelector('#sign-out-subacct-button').addEventListener('click', () => {
     nearConnections.subacct.walletConnection.signOut();
-    // TODO: Move redirect to .signOut() ^^^
     window.location.replace(window.location.origin + window.location.pathname);
 });
 
@@ -442,12 +442,12 @@ function indirect_add_new_entry(form_info) {
     var amount_str = "0";
     var transfer_amount = Big(0);
 
-    // remove any commas or _ from input string 
+    // remove any commas or _ from input string
     if (form_info['amount'].value)  {
         amount_str = (form_info['amount'].value).replace(/,|_/g,"");
     }
 
-      
+
     document.querySelector('#transfer_errmsg').style = "display:none";
     try {
         transfer_amount = Big(amount_str);
@@ -456,16 +456,15 @@ function indirect_add_new_entry(form_info) {
         document.querySelector('#transfer_errmsg').style = "display:block";
         return(false)
     }
-            
- 
+
     var nearamt;
     if (form_info.elements['denomination'].value == "near") {
-        nearamt = transfer_amount.times(10**24).toFixed();    
+        nearamt = transfer_amount.times(10**24).toFixed();
     } else {
         nearamt = transfer_amount.times(10**6).toFixed();
     }
- 
- 
+
+
     let args = {
         timestamp: d,
         name: form_info.elements['name'].value,
@@ -476,8 +475,8 @@ function indirect_add_new_entry(form_info) {
     $("add_status").style = "display:block;";
     document.querySelector('#subacct-add-status').style = "display: block;";
     document.querySelector('#subacct-add-entry-form').style = "display: none;";
- 
-    subAcctContract.indirect_add(args, BOATLOAD_OF_GAS, nearamt)
+
+    subAcctContract.indirect_add_entry(args, BOATLOAD_OF_GAS, nearamt)
         .then(result => {
             form_info.reset();
             document.querySelector('#subacct-add-status').style = "display: none;";
@@ -490,12 +489,12 @@ function indirect_add_new_entry(form_info) {
 
 
 async function setupConnections() {
-  
+
   // Save a copy of the incoming URL  --
   // if this is redirected from the wallet it include the account and key information
   let incomingURL = new URL(window.location.href);
 
-  //create a URL which is referring to the base page  
+  //create a URL which is referring to the base page
   // note that is currently assumed to be the the root of the server (e.g. localhost:1234/)
   // (if this were to be deployed at some other offset additional parsing will be needed to
   //  add in the part of the pathname which is considered the root)
@@ -507,13 +506,13 @@ async function setupConnections() {
   // so setups up the local storage with the key.
   //
   // In our case, we have two possible logins and we want to control
-  // which one is logged in.    This is handled by specifying 
+  // which one is logged in.    This is handled by specifying
   // different URLs   (baseURL/mainacct or baseURL/subacct) for the
   ///'callback' from the NEAR wallet
   // From there the code saves a copy the original incoming URL
   // and also creates a new URL with just the root path of the page
-  // 
-  // Somewhere, after the wallet processing (though I haven't found it) the 
+  //
+  // Somewhere, after the wallet processing (though I haven't found it) the
   // windows.local.href is updated to remove the addigional informatoin (acccountId/keys, etc)
   // so what is done below, we set the window.location to be the base root of the page
   // initialize the connection for the acct that IS NOT being logged in first
@@ -521,7 +520,7 @@ async function setupConnections() {
 
   // check if this is call back from the wallet for the main account
   if (incomingURL.pathname == "/mainacct") {
-      // if so setup the connection without any information from the wallete call back 
+      // if so setup the connection without any information from the wallete call back
       window.history.replaceState({}, document.title,  noParameterURL.toString());
       await connect(nearSubAcctConfig,'subacct');
       // restore the original URL with the account name and keys, then setup
@@ -532,7 +531,7 @@ async function setupConnections() {
     // not processing a call back for the main account, so this is either
     // a callback for the subacct OR its not callback at all.
     // Either way the code will process the mainacct first, with no parameters from the wallet
-    // and then process the subacct with the original URL (which may or may not  have 
+    // and then process the subacct with the original URL (which may or may not  have
     // and account/keys  -- depending on how we got her)
     window.history.replaceState({}, document.title,  noParameterURL.toString());
     await connect(nearMainConfig, 'mainacct');

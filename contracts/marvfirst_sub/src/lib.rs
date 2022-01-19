@@ -1,23 +1,14 @@
 use near_sdk::{
+    AccountId, PanicOnDefault, near_bindgen, ext_contract,
+    Promise, PromiseResult,
+    env, Gas, log, require,
     borsh::{self, BorshDeserialize, BorshSerialize},
-    //serde::{Deserialize, Serialize},
     serde_json::json,
-    AccountId, 
-    PanicOnDefault,
-    env,
-    Gas,
-    near_bindgen,
-    ext_contract,
-    Promise, 
-	PromiseResult,
-	json_types::U128,
-    json_types::U64,
-    log,
+    json_types::{U64},
+    
 };
 
-//use std::result;
-
-
+/// External definitions for Cross Contract Calls to Logger
 #[ext_contract(ext_logger)]
 trait LoggerContract {
     fn add_entry(&self, timestamp: String, name: String, message: String, cc_used_gas: U64);
@@ -25,55 +16,74 @@ trait LoggerContract {
     fn get_last();
 }
 
+/// External definitions for Cross Contract callbacks
 #[ext_contract(ext_self)]
 pub trait MyContract {
     fn num_entries_callback(&self) -> u64;
     fn get_last_callback(&self) -> String;
 }
 
+/// Sub contract data structures
+///
+/// Contains the configuration for the address the contract that this contract 
+/// will call to log data
+///
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize,PanicOnDefault)]
 struct CallLoggerContract {
+    /// AccountId of the contract for Cross contract call for logging
 	log_contract_id : AccountId,
-    counter : u64 
+    /// Admin account allowed to update logging contract
+    admin_user: AccountId
 }
 
-
+/// Sub contract implmentation
 #[near_bindgen]
 impl CallLoggerContract {
     
+    /// Initialization of contract requires address of contract to log to
 	#[init]
-    pub fn new(log_contract : String) -> Self {
-        log!("Init Log_contract: {}", log_contract);
+    pub fn new(log_contract : String, admin : String) -> Self {
+        log!("Init Subcongtract -  Log_contract: {} admin = {}", log_contract, admin);
         Self {
           log_contract_id : log_contract.try_into().unwrap(),
-          counter : 0,
+          admin_user : admin.try_into().unwrap()
         } 
     }
 
+    /// Update logging contrct 
+    ///
+    /// Since initialization is only done one once (unless using 'init(ignore_state)' )
     pub fn update_log_contract(&mut self, log_contract: String) {
+        require!(env::predecessor_account_id() == self.admin_user,"Admin account method");
         self.log_contract_id = log_contract.try_into().unwrap();
     }
 
+    /// non-macro method for a cross contract call to add_entry
+    ///
+    /// Is payable and transfer amount if provide is transfered to the logging 
 	#[payable]
-    pub fn indirect_add_entry(&mut self, timestamp: String, name: String, message: String, transfer_amount: U128) {
+    pub fn indirect_add_entry(&mut self, timestamp: String, name: String, message: String) {
 		
-        let amount = u128::from(transfer_amount);
-        let _cross_contract_call = Promise::new(self.log_contract_id.clone())
-        .function_call(
-            "add_entry".to_string(),
-            json!({
-                "timestamp" : timestamp,
-                "name"      : name,
-                "message"   : message,
-                "cc_used_gas" : U64::from(u64::from(env::used_gas())),
-            }).to_string().into_bytes(),
-            amount, // yocto NEAR to attach
-            Gas::from(5_000_000_000_000) // gas to attach
-        );
+        let _cross_contract_call = 
+            Promise::new(self.log_contract_id.clone()).function_call(
+                "add_entry".to_string(),
+                json!({
+                    "timestamp" : timestamp,
+                    "name"      : name,
+                    "message"   : message,
+                    "cc_used_gas" : U64::from(u64::from(env::used_gas())),
+                }).to_string().into_bytes(),
+                env::attached_deposit(), // yocto NEAR to attach, // yocto NEAR to attach
+                Gas::from(5_000_000_000_000) // gas to attach
+            );
         env::log_str("indirect_entry_add completed");
     }
 
+/*
+    /// macro implementat method for a cross contract call to add_entry
+    ///
+    /// Is payable and transfer amount if provide is transfered to the logging 
 	#[payable]
     pub fn indirect_add(&mut self, timestamp: String, name: String, message: String) {
 
@@ -89,7 +99,9 @@ impl CallLoggerContract {
         );
     }
 
+*/
 
+    /// Read the number of entries via a cross contract call
 	pub fn indirect_num_entries(&self) -> Promise {
 		ext_logger::num_entries(  
             self.log_contract_id.clone(),
@@ -103,6 +115,29 @@ impl CallLoggerContract {
 		) 
 	}
 
+    /// Callback routine for indirect_num_entries promise
+    pub fn num_entries_callback(&mut self)  -> u64 {
+        
+        assert_eq!(
+          env::promise_results_count(),
+          1,
+          "This is a callback method"
+        );
+
+      // handle the result from the cross contract call this method is a callback for
+      match env::promise_result(0) {
+        PromiseResult::NotReady => 0,
+        PromiseResult::Failed => { 0 },
+        PromiseResult::Successful(result) => {
+            let count = near_sdk::serde_json::from_slice::<u64>(&result).unwrap();
+            count
+        },
+      }
+    }
+
+
+
+    /// Read the last entry via a cross contract call
     pub fn indirect_get_last(&self) -> Promise {
         ext_logger::get_last(  
             self.log_contract_id.clone(),
@@ -117,33 +152,42 @@ impl CallLoggerContract {
     }
 
 
+    /// Callback routine for indirect_get_last promise
+    pub fn get_last_callback(&mut self)  -> String {
+    
+        assert_eq!(
+          env::promise_results_count(),
+          1,
+          "This is a callback method"
+        );
 
+      // handle the result from the cross contract call this method is a callback for
+      match env::promise_result(0) {
+        PromiseResult::NotReady => "Not Ready".to_string(),
+        PromiseResult::Failed => { "Failed".to_string() },
+        PromiseResult::Successful(result) => {
+            let result = near_sdk::serde_json::from_slice::<String>(&result).unwrap();
+            result
+        },
+      }
+    }
+
+
+    /// Return the configured information for this contract
+    ///
+    /// return JSON structure with the logging account and the admin user
 	pub fn info(&self) -> String {
         
         let result = self.log_contract_id.to_string();
+
+        json!({
+                "log_contract" : self.log_contract_id.to_string(),
+                "admin"      : self.admin_user.to_string(),
+            }).to_string();
         result
 	}
 
-	pub fn num_entries_callback(&mut self)  -> u64 {
-        
-        self.counter += 1;
 
-	    assert_eq!(
-		  env::promise_results_count(),
-		  1,
-		  "This is a callback method"
-	  );
-
-	  // handle the result from the cross contract call this method is a callback for
-	  match env::promise_result(0) {
-		PromiseResult::NotReady => 0,
-		PromiseResult::Failed => { 0 },
-		PromiseResult::Successful(result) => {
-			let count = near_sdk::serde_json::from_slice::<u64>(&result).unwrap();
-			count
-		},
-	  }
-	}
 }
     
 
@@ -153,10 +197,10 @@ impl CallLoggerContract {
 
 /*
  * the rest of this file sets up unit tests
- * to run these, the command will be:
- * cargo test --package rust-template -- --nocapture
- * Note: 'rust-template' comes from Cargo.toml's 'name' key
- */
+ * to be run as part of cargo test
+ * to run these separately, the command will be:
+ * cargo test --package <xxx> -- --nocapture
+  */
 
 // use the attribute below for unit tests
 #[cfg(test)]
@@ -174,21 +218,20 @@ mod tests {
     }
 
      #[test]
-    fn dummy_test() {
-        let account = AccountId::new_unchecked("mmednick.testnet".to_string());
-        let _mainaccount = AccountId::new_unchecked("mmednicktoss.testnet".to_string());
+    fn basic_test() {
+        let account = AccountId::new_unchecked("andre".to_string());
+        let _mainaccount = AccountId::new_unchecked("barbara".to_string());
         let context = get_context(account);
         testing_env!(context.build());
 
-		let amount : u128 = 1_000_000_000_000_000_000_000_000;
-        let transfer_amount = U128::from(amount);
-        let mut contract = CallLoggerContract::new("mmednicktoss.testnet".to_string());
+        let mut contract = CallLoggerContract::new("devacct".to_string(),"mmednicktoss.testnet".to_string());
         println!("{:?}",get_logs());
-        contract.indirect_add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string(),transfer_amount);
+        contract.indirect_add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string());
         println!("{:?}",get_logs());
-        assert_eq!(get_logs(), ["Init Log_contract: mmednicktoss.testnet", "indirect_entry_add completed"], "Exec.");
-
-
+        assert_eq!(get_logs(), ["Init Subcongtract -  Log_contract: devacct admin = mmednicktoss.testnet", "indirect_entry_add completed"], "Exec.");
+        let info = contract.info();
+        println!("{:?}",info);
+        
         }
 
 }

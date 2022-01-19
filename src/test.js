@@ -8,10 +8,13 @@ describe('Token', function () {
 
   beforeAll(async function () {
     debugger;
+    console.log("Starting beforeAll");
     near = await nearlib.connect(nearConfig);
     near1 = await nearlib.connect(nearConfig1);
+    near2 = await nearlib.connect(nearConfig2);
     accountId = nearConfig.contractName;
     subAccountId = nearConfig1.contractName;
+    admin_user = "admin";
     contract = await near.loadContract(nearConfig.contractName, {
       viewMethods: ['num_entries'],
       changeMethods: ['new','add_entry', 'reset_log', 'get_last'],
@@ -30,16 +33,22 @@ describe('Token', function () {
 	var counter;
 	var startCounter;
 
+    console.log("Starting subcontract jest test")
     it('main contract can be initialized', async function() {
       await contract.new({"args" : {}});
       const counter = await contract.num_entries({"args": {}});
       expect(counter).toEqual(0);
     });
     it('subcontract can be initialized', async function() {
-      await subcontract.new({"args" : {"log_contract" : accountId}});
-      const counter = await subcontract.indirect_num_entries({"args" : {}});
-      expect(counter).toEqual(0);
+      await subcontract.new({"args" : {"log_contract" : accountId, 'admin' : admin_user}});
+      const info = await subcontract.info({"args" : {}});
+      expect.stringMatching(".*log_contract.*")
     },10000);
+    it('subcontract can be read count', async function() {
+      const counter = await subcontract.indirect_num_entries({"args" : {}});
+      expect(counter).toEqual(0)
+    },10000);
+
     it('count can be accessed', async function() {
       startCounter = await contract.num_entries({"args": {}});
       expect(startCounter).toEqual(0);
@@ -55,12 +64,15 @@ describe('Token', function () {
     });
     it('sub contract can add entries', async function () {
       const startCounter = await contract.num_entries({"args": {}});
-      await subcontract.indirect_add_entry({"args" : { "timestamp" : "Time2","name" : "Joe","message": "Cool", "transfer_amount" : "0"}});
+      console.log("A");
+      await subcontract.indirect_add_entry({"args" : { "timestamp" : "Time2","name" : "Joe","message": "Cool" }});
+      console.log("B");
       const endCounter = await subcontract.indirect_num_entries({"args": {}});
+      console.log("C");
       expect(endCounter).toEqual(startCounter + 1);
     },15000);
     it('get last data is valid', async function () {
-      await subcontract.indirect_add_entry({"args" : { "timestamp" : "Time3","name" : "Luke","message": "Your father", "transfer_amount" : "0", }});
+      await subcontract.indirect_add_entry({"args" : { "timestamp" : "Time3","name" : "Luke","message": "Your father" }});
       var last_data = await contract.get_last({"args": {}});
       var last_entry = JSON.parse(last_data);
 	  expect(last_entry.name).toEqual("Luke");

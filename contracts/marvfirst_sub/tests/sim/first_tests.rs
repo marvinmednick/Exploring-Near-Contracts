@@ -35,7 +35,7 @@ fn simulate_basic_operation() {
 
 	// use the call macro to add a entry
 	call!(root, subcontract
-		.indirect_add( "Now".to_string(), "Me".to_string(), "My Message".to_string())
+		.indirect_add_entry( "Now".to_string(), "Me".to_string(), "My Message".to_string())
 	).assert_success();
 
 		// use the call macro to add a entry
@@ -47,7 +47,7 @@ fn simulate_basic_operation() {
 	// Now use the non-macro approach to add an entry 
     root.call(
         subcontract.account_id(),
-        "indirect_add",
+        "indirect_add_entry",
         &json!({"timestamp": "Now".to_string(), "name": "Me".to_string(), "message": "My Message1".to_string(), "cc_used_gas" : 1})
             .to_string()
             .into_bytes(),

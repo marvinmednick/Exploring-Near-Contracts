@@ -34,7 +34,7 @@ pub fn init() -> (UserAccount, ContractAccount<LogContractContract>, ContractAcc
 
 
 	call!(root, contract.new()).assert_success();
-	call!(root, sub_contract.new("main_contract".to_string())).assert_success();
+	call!(root, sub_contract.new("main_contract".to_string(),"admin".to_string())).assert_success();
 
 //    let alice = root.create_user(
  //       "alice".parse().unwrap(),

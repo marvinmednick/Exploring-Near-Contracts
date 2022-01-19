@@ -1,14 +1,10 @@
-use near_sdk::collections::{Vector};
 use near_sdk::{
+    AccountId, PanicOnDefault, env, near_bindgen, log, require,
     borsh::{self, BorshDeserialize, BorshSerialize},
-   serde::{Deserialize, Serialize},
-//    serde::ser::SerializeSeq,
-    AccountId, PanicOnDefault
+    collections::{Vector},
+    json_types::U64,
+    serde::{Deserialize, Serialize},
 };
-use near_sdk::json_types::U64;
-use near_sdk::{env, near_bindgen};
-//use chrono::{DateTime, Utc, Local};
-//use serde::{Deserialize, Serialize};
 
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug)]
 #[serde(crate = "near_sdk::serde")]
@@ -17,38 +13,6 @@ pub struct MyTimestamp {
 	value : u64
 }
     
-    
-impl MyTimestamp {
-
-    /*
-    pub fn new(secs: u32 ,nanosecs: u32) -> MyTimestamp {
-        let result = MyTimestamp { 
-			secs: secs ,
-			nsecs:  nanosecs ,
-		};
-		result
-    }
-
-*/
-    pub fn new(nanosecs : u64) -> MyTimestamp {
-        let result = MyTimestamp {
-            value : nanosecs
-        };
-        result
-
-    }
-
-    pub fn as_secs(&self) -> u64 {
-        let result = self.value / (1e9 as u64);
-        result
-    }
-
-    pub fn as_msec(&self) -> u64 {
-        let result = self.value / (1e6 as u64);
-        result
-    }
-
-}
 
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
 #[serde(crate = "near_sdk::serde")]
@@ -79,10 +43,12 @@ impl LogContract {
 
     #[init]
     pub fn new() -> Self {
+        log!("Log Contract Init - owner: {}",env::current_account_id());
         Self {
             owner_id: env::current_account_id(),
             mylog: Vector::new(b"c"),        
         }
+
    }
 
     #[payable]
@@ -102,7 +68,8 @@ impl LogContract {
 
         };
         self.mylog.push(&new_entry);
-        env::log_str(&("Entry Added! ".to_owned() + &env::attached_deposit().to_string()));
+        log!("Entry {} Added.  Attached Depost: {}",self.mylog.len(), env::attached_deposit().to_string());
+        //env::log_str(&("Entry Added! ".to_owned() + "Deposit: " + &env::attached_deposit().to_string()));
     }
     pub fn num_entries(&self) -> u64 {
        self.mylog.len()
@@ -152,9 +119,8 @@ impl LogContract {
             }
             //let line = format!("Entry #{} TS: {} NAME: {} ACCT: {} MSG: {}",count, entry.timestamp, entry.name, entry.account, entry.message);
             let serialized = near_sdk::serde_json::to_string(&entry).unwrap();
-            result += &serialized;
-    
-//            println!("{}",&result);
+            result += &serialized;    
+
         }
         result += r#"] }"#;
 
@@ -163,12 +129,14 @@ impl LogContract {
     }
 
     pub fn reset_log (&mut self) -> String {
-        let result = env::current_account_id().to_string() + " " + &env::predecessor_account_id().to_string();
+        let reset_acct = env::predecessor_account_id().to_string();
+        log!("Reset log requested by {}",&reset_acct);
+      //  require!(env::predecessor_account_id() == self.owner_id, "Owner's method");
+        let result = env::current_account_id().to_string() + " " + &reset_acct;
         self.mylog.clear();
         result
         
     }
-
 
 }
 
@@ -208,7 +176,7 @@ mod tests {
     fn check_add_entry() {
         let mut contract = setup_contract();
         contract.add_entry("dateAndTime".to_string(),"NameofSam".to_string(),"My Message is".to_string(),U64::from(0));    
-        assert_eq!(get_logs(), ["Entry Added! 0"], "Exec.");
+        assert_eq!(get_logs(), ["Log Contract Init - owner: alice.near", "Entry 1 Added.  Attached Depost: 0"], "Exec.");
 
         assert_eq!(contract.num_entries(),1);
 
