@@ -15,7 +15,7 @@ class LocalTestEnvironment extends NodeEnvironment {
     async setupContract(config,wasmFile='./out/main.asm', id="") {
 
 
-        console.log("Start Setup Contract with id:",id,config.a_contractName, config);       
+        console.log("Start Setup Contract with id:",id,config.accountId, config);       
         const now = Date.now();
 
         // create random number with at least 7 digits
@@ -24,7 +24,7 @@ class LocalTestEnvironment extends NodeEnvironment {
             id = id + "-";
         }
         config = Object.assign(config, {
-            a_contractName: 'test-account-' + id + now + '-' + randomNumber,
+            // a_contractName: 'test-account-' + id + now + '-' + randomNumber,
             accountId: 'test-account-' + id + now + '-' + randomNumber
         });
         
@@ -41,14 +41,14 @@ class LocalTestEnvironment extends NodeEnvironment {
         const masterAccount = await near.account(testAccountName);
         const randomKey = await nearAPI.KeyPair.fromRandom('ed25519');
         const data = [...fs.readFileSync(wasmFile)];
-        await config.deps.keyStore.setKey(config.networkId, config.a_contractName, randomKey);
-        await masterAccount.createAndDeployContract(config.a_contractName, randomKey.getPublicKey(), data, INITIAL_BALANCE);
+        await config.deps.keyStore.setKey(config.networkId, config.accountId, randomKey);
+        await masterAccount.createAndDeployContract(config.accountId, randomKey.getPublicKey(), data, INITIAL_BALANCE);
 
-        console.log("End Setup Contract with id:",id,config.a_contractName, config);
-        return(config.a_contractName);
+        console.log("End Setup Contract with id:",id,config.accountId, config);
+        return(config.accountId);
     }
 
-    async setupAccount(config,id, wasmFile='./test.asm') {
+    async setupAccount(config,id) {
 
         console.log("Settting up account", id, config);
         const now = Date.now();
@@ -60,7 +60,7 @@ class LocalTestEnvironment extends NodeEnvironment {
         }
        
         config = Object.assign(config, {
-            a_contractName: 'test-account-' + id + now + '-' + randomNumber,
+            // accountId: 'test-account-' + id + now + '-' + randomNumber,
             accountId: 'test-account-' + id + now + '-' + randomNumber
         });
         delete config.contractName;
@@ -74,12 +74,12 @@ class LocalTestEnvironment extends NodeEnvironment {
 
         const masterAccount = await near.account(testAccountName);
         const randomKey = await nearAPI.KeyPair.fromRandom('ed25519');
-        const data = [...fs.readFileSync(wasmFile)];
-        await config.deps.keyStore.setKey(config.networkId, config.a_contractName, randomKey);
-        await masterAccount.createAccount(config.a_contractName, randomKey.getPublicKey(), INITIAL_BALANCE);
+        // const data = [...fs.readFileSync(wasmFile)];
+        await config.deps.keyStore.setKey(config.networkId, config.accountId, randomKey);
+        await masterAccount.createAccount(config.accountId, randomKey.getPublicKey(), INITIAL_BALANCE);
 
-        console.log("Setup Contract with id:",id,config.a_contractName, config);
-        return(config.a_contractName);
+        console.log("Setup Contract with id:",id,config.accountId, config);
+        return(config.accountId);
 
     }
 
@@ -90,24 +90,25 @@ class LocalTestEnvironment extends NodeEnvironment {
         this.global.nearAPI = require('near-api-js');
         this.global.window = {};
         let config = require('near-cli/get-config')();
-        let config1 = require('near-cli/get-config')();
-        let config2 = require('near-cli/get-config')();
-        this.global.testSettings = this.global.nearConfig = config;
-        this.global.nearConfig1 = config;
-        this.global.nearConfig2 = config;
 
-        let main_contract_name = await this.setupContract(config,'./contracts/out/marvfirst_main.wasm','main');
-        let sub_contract_name = await this.setupContract(config1,'./contracts/out/marvfirst_sub.wasm','sub');
-        this.global.acct1 = "acct1";
-        let other_account_name = await this.setupAccount(config2,this.global.acct1,'./contracts/out/marvfirst_sub.wasm');
+        // check to see if contractName is defined in the config (which is its by default)
+        // and go ahead and delete it to avoid any confusion as its not going to be used in this enviorment
+        if (config.contractName) {
+            delete config.contractName;
+        }
+        this.global.testSettings = this.global.nearConfig = config;
+
+        let main_contract_id = await this.setupContract(config,'./contracts/out/marvfirst_main.wasm','main');
+        let sub_contract_id = await this.setupContract(config,'./contracts/out/marvfirst_sub.wasm','sub');
+        let user1_account_id = await this.setupAccount(config,"user1");
 
         console.log("CONFIGS");
-        console.log("1",config,"2", config1, "3", config2);
+        console.log("1",config); //(,"2", config1, "3", config2);
 
         this.global.testAccounts = {
-                main_contract :  config.accountId,
-                sub_contract  :  config1.accountId,
-                acct1         :  config2.accountId,
+                main_contract :  main_contract_id,
+                sub_contract  :  sub_contract_id,
+                user_acct1    :  user1_account_id,
         }
 
         await super.setup();

@@ -9,30 +9,33 @@ describe('Token', function () {
   beforeAll(async function () {
     debugger;
     console.log("Starting beforeAll");
-    console.log("NEAR Configs",nearConfig,nearConfig1,nearConfig2);
+    console.log("NEAR Configs",nearConfig); 
     console.log("Test accounts", testAccounts);
     near = await nearlib.connect(nearConfig);
-    //near1 = await nearlib.connect(nearConfig1);
-    //near2 = await nearlib.connect(nearConfig2);
     console.log("NEAR Vars",near); // ,near1,near2);
-    accountId = nearConfig.a_contractName;
-    subAccountId = nearConfig1.a_contractName;
     admin_user = "admin";
+
+    // base configuration with view and changes methods for the main contract
 
     var mainContractConfig = {
       viewMethods: ['num_entries'],
       changeMethods: ['new','add_entry', 'reset_log', 'get_last'],
-      sender: accountId
+      sender: testAccounts.main_contract
     };
 
     var subContractConfig = {
       viewMethods: [],
       changeMethods: ['new', 'indirect_num_entries','indirect_add_entry', 'info'],
-      sender: accountId
+      sender: testAccounts.sub_contract
     }
 
+  
     contract = await near.loadContract(testAccounts.main_contract, mainContractConfig);
     subcontract = await near.loadContract(testAccounts.sub_contract, subContractConfig);
+   
+    var user1Config = Object.assign(mainContractConfig,{sender : testAccounts.user1_acct})
+    test1sub =  await near.loadContract(testAccounts.sub_contract, user1Config);
+
   });
 
 
@@ -48,7 +51,7 @@ describe('Token', function () {
       expect(counter).toEqual(0);
     });
     it('subcontract can be initialized', async function() {
-      await subcontract.new({"args" : {"log_contract" : accountId, 'admin' : admin_user}});
+      await subcontract.new({"args" : {"log_contract" : testAccounts.main_contract, 'admin' : admin_user}});
       const info = await subcontract.info({"args" : {}});
       expect.stringMatching(".*log_contract.*")
     },10000);
@@ -68,7 +71,7 @@ describe('Token', function () {
     });
     it('sub account config is can be read', async function() {
       const cfg_contract = await subcontract.info({"args" : {}});
-      expect(cfg_contract).toEqual(accountId);
+      expect(cfg_contract).toEqual(testAccounts.main_contract);
     });
     it('sub contract can add entries', async function () {
       const startCounter = await contract.num_entries({"args": {}});
