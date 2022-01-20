@@ -4,4 +4,5 @@
   nearConfig.contractName = params.get('contractName') || nearConfig.contractName;
   keyStore.setKey(nearConfig.networkId, nearConfig.contractName, nearlib.KeyPair.fromString(params.get('privateKey')));
   nearConfig.deps = { keyStore };
+  console.log("Test-setup" nearConfig)
 })();

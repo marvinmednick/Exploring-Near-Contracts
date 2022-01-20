@@ -9,25 +9,33 @@ describe('Token', function () {
   beforeAll(async function () {
     debugger;
     console.log("Starting beforeAll");
+    console.log("NEAR Configs",nearConfig,nearConfig1,nearConfig2);
+    console.log("Test accounts", testAccounts);
     near = await nearlib.connect(nearConfig);
-    near1 = await nearlib.connect(nearConfig1);
-    near2 = await nearlib.connect(nearConfig2);
-    accountId = nearConfig.contractName;
-    subAccountId = nearConfig1.contractName;
+    //near1 = await nearlib.connect(nearConfig1);
+    //near2 = await nearlib.connect(nearConfig2);
+    console.log("NEAR Vars",near); // ,near1,near2);
+    accountId = nearConfig.a_contractName;
+    subAccountId = nearConfig1.a_contractName;
     admin_user = "admin";
-    contract = await near.loadContract(nearConfig.contractName, {
+
+    var mainContractConfig = {
       viewMethods: ['num_entries'],
       changeMethods: ['new','add_entry', 'reset_log', 'get_last'],
       sender: accountId
-    });
-    subcontract = await near.loadContract(nearConfig1.contractName, {
+    };
+
+    var subContractConfig = {
       viewMethods: [],
       changeMethods: ['new', 'indirect_num_entries','indirect_add_entry', 'info'],
       sender: accountId
-    });
+    }
+
+    contract = await near.loadContract(testAccounts.main_contract, mainContractConfig);
+    subcontract = await near.loadContract(testAccounts.sub_contract, subContractConfig);
   });
 
-  
+
   describe('init', function () {
 
 	var counter;
