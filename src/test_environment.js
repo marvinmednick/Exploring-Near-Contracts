@@ -15,8 +15,7 @@ class LocalTestEnvironment extends NodeEnvironment {
     async setupContract(config,wasmFile='./out/main.asm', id="") {
 
 
-        console.log("Start Setup Contract with id:",id,config.accountId, config);       
-        const now = Date.now();
+         const now = Date.now();
 
         // create random number with at least 7 digits
         const randomNumber = Math.floor(Math.random() * (9999999 - 1000000) + 1000000);
@@ -29,7 +28,7 @@ class LocalTestEnvironment extends NodeEnvironment {
         });
         
         delete config.contractName;
-        console.log("MOD_CONFIG",config);
+        
 
         const keyStore = new nearAPI.keyStores.UnencryptedFileSystemKeyStore(PROJECT_KEY_DIR);
         config.deps = Object.assign(config.deps || {}, {
@@ -44,13 +43,11 @@ class LocalTestEnvironment extends NodeEnvironment {
         await config.deps.keyStore.setKey(config.networkId, config.accountId, randomKey);
         await masterAccount.createAndDeployContract(config.accountId, randomKey.getPublicKey(), data, INITIAL_BALANCE);
 
-        console.log("End Setup Contract with id:",id,config.accountId, config);
         return(config.accountId);
     }
 
     async setupAccount(config,id) {
 
-        console.log("Settting up account", id, config);
         const now = Date.now();
 
         // create random number with at least 7 digits
@@ -78,14 +75,14 @@ class LocalTestEnvironment extends NodeEnvironment {
         await config.deps.keyStore.setKey(config.networkId, config.accountId, randomKey);
         await masterAccount.createAccount(config.accountId, randomKey.getPublicKey(), INITIAL_BALANCE);
 
-        console.log("Setup Contract with id:",id,config.accountId, config);
+        
         return(config.accountId);
 
     }
 
 
     async setup() {
-        console.log("Starting Setup")
+        
         this.global.nearlib = require('near-api-js');
         this.global.nearAPI = require('near-api-js');
         this.global.window = {};
@@ -102,8 +99,6 @@ class LocalTestEnvironment extends NodeEnvironment {
         let sub_contract_id = await this.setupContract(config,'./contracts/out/marvfirst_sub.wasm','sub');
         let user1_account_id = await this.setupAccount(config,"user1");
 
-        console.log("CONFIGS");
-        console.log("1",config); //(,"2", config1, "3", config2);
 
         this.global.testAccounts = {
                 main_contract :  main_contract_id,

@@ -8,17 +8,13 @@ describe('Token', function () {
 
   beforeAll(async function () {
     debugger;
-    console.log("Starting beforeAll");
-    console.log("NEAR Configs",nearConfig); 
-    console.log("Test accounts", testAccounts);
     near = await nearlib.connect(nearConfig);
-    console.log("NEAR Vars",near); // ,near1,near2);
     admin_user = "admin";
 
     // base configuration with view and changes methods for the main contract
 
     var mainContractConfig = {
-      viewMethods: ['num_entries'],
+      viewMethods: ['num_entries', 'info'],
       changeMethods: ['new','add_entry', 'reset_log', 'get_last'],
       sender: testAccounts.main_contract
     };
@@ -44,12 +40,16 @@ describe('Token', function () {
 	var counter;
 	var startCounter;
 
-    console.log("Starting subcontract jest test")
+//    console.log("Starting subcontract jest test")
     it('main contract can be initialized', async function() {
-      await contract.new({"args" : {}});
+      await contract.new({"args" : {"admin" : admin_user }});
+      const info_json = await contract.info({"args" : {}});
+      const info = JSON.parse(info_json);
+      expect(info.admin).toEqual("admin");
       const counter = await contract.num_entries({"args": {}});
       expect(counter).toEqual(0);
     });
+
     it('subcontract can be initialized', async function() {
       await subcontract.new({"args" : {"log_contract" : testAccounts.main_contract, 'admin' : admin_user}});
       const info = await subcontract.info({"args" : {}});
@@ -70,16 +70,17 @@ describe('Token', function () {
       expect(counter).toEqual(startCounter + 1);
     });
     it('sub account config is can be read', async function() {
-      const cfg_contract = await subcontract.info({"args" : {}});
-      expect(cfg_contract).toEqual(testAccounts.main_contract);
+      const cfg_contract = JSON.parse(await subcontract.info({"args" : {}} ));
+      expect(cfg_contract.log_contract).toEqual(testAccounts.main_contract);
+      expect(cfg_contract.admin).toEqual(admin_user);
     });
     it('sub contract can add entries', async function () {
       const startCounter = await contract.num_entries({"args": {}});
-      console.log("A");
+     
       await subcontract.indirect_add_entry({"args" : { "timestamp" : "Time2","name" : "Joe","message": "Cool" }});
-      console.log("B");
+     
       const endCounter = await subcontract.indirect_num_entries({"args": {}});
-      console.log("C");
+     
       expect(endCounter).toEqual(startCounter + 1);
     },15000);
     it('get last data is valid', async function () {

@@ -17,7 +17,7 @@ pub struct LogContract {
 impl LogContract {
 
     #[allow(unused_variables, dead_code)]    
-    pub fn new() {}
+    pub fn new(admin : String) {}
     #[allow(unused_variables, dead_code)]   
     pub fn add_entry (&mut self, timestamp: String, name: String, message: String, cc_used_gas: U64) {}
     #[allow(unused_variables, dead_code)]

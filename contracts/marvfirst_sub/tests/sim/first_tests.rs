@@ -1,19 +1,32 @@
 use near_sdk_sim::{view, call, DEFAULT_GAS};
-use near_sdk::serde_json::{json, from_str};
+use near_sdk::{
+	serde_json::{json, from_str},
+	serde::{Deserialize, Serialize},
+	borsh::{self, BorshDeserialize, BorshSerialize}
+};
 use crate::utils::init;
 
 use crate::marvfirst_main::LogEntry;
 
 #[test]
 fn simluate_initial_setup() {
+
+     #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
+     #[serde(crate = "near_sdk::serde")]
+     struct ContractInfo {
+               log_contract:  String,
+               admin: String,
+     }
+
 	println!("Starting");
-	let (root, contract, subcontract) = init();
+	let (_root, contract, subcontract) = init();
 	
 	let actual :u64 = view!(contract.num_entries()).unwrap_json();
 	assert_eq!(actual, 0);
 
-	let x : String = view!(subcontract.info()).unwrap_json();
-	assert_eq!(x,contract.account_id().to_string());
+	let x_json : String = view!(subcontract.info()).unwrap_json();
+	let x = near_sdk::serde_json::from_str::<ContractInfo>(&x_json).unwrap();
+	assert_eq!(x.log_contract,contract.account_id().to_string());
 
 }
 

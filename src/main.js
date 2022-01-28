@@ -42,8 +42,8 @@ window.nearConnections = {
                 contract_account: null,
                 walletConnection: null,
                 contract: null,
-                viewMethods: ['num_entries', 'list_entries', 'get_last'],
-                changeMethods: ['new', 'add_entry', 'reset_log', 'get_info'],
+                viewMethods: ['num_entries', 'list_entries', 'get_last', 'info', 'get_info'],
+                changeMethods: ['new', 'add_entry', 'reset_log', ],
               },
     subacct:  { near: null,
                 login_account: null,
@@ -94,32 +94,82 @@ async function connect(nearConfig, account, contractName) {
 }
 
 
-function errorHelper(err) {
-    /* if there's a cryptic error, provide more helpful feedback and instructions here
-     * as soon as we get the error codes propagating back, use those
-    */
+function processJSONErrObject(errObject) {
+
+    console.log("Processing Object")
+    var retval = "Error during processing";
+
+    if ('kind' in errObject && 'ExecutionError' in errObject.kind) {
+       if (errObject.kind.ExecutionError.includes('Only contract or admin can reset')) {
+            console.error("Reset Authorization Error");
+            document.querySelector('#reset_error').innerText = "Sorry. Only the admin is allowed to reset the log";
+            document.querySelector('#reset_error').style.setProperty('display', 'block');  
+            retval = false;
+        }
+        else {
+            retval += " : " + errObject;
+        }
+    }
+    return retval;
+}
+
+
+function processStringErrMessage(message) {
+
+    console.log("Processing Message")
     let disp_err = "Error during processing";
-    if (err.message.includes('Cannot deserialize the contract state')) {
+
+    if (message.includes('Cannot deserialize the contract state')) {
         disp_err = 'Cannot deserialize the contract state';
         console.warn('NEAR Warning: the contract/account seems to have state that is not (or no longer) compatible.\n' +
             'This may require deleting and recreating the NEAR account as shown here:\n' +
             'https://stackoverflow.com/a/60767144/711863');
     }
-    if (err.message.includes('Cannot deserialize the contract state')) {
+    if (message.includes('Cannot deserialize the contract state')) {
         disp_err = 'Cannot deserialize the contract state';
         console.warn('NEAR Warning: the contract/account seems to have state that is not (or no longer) compatible.\n' +
             'This may require deleting and recreating the NEAR account as shown here:\n' +
             'https://stackoverflow.com/a/60767144/711863');
     }
-    if (err.message.includes('The contract is not initialized')) {
+    if (message.includes('The contract is not initialized')) {
         disp_err = 'Contract is not initialized';
         console.warn('NEAR Warning: the contract/accountis not yet initialized.');
     }
 
-    console.error(err);
-    document.querySelector('#error_status').innerText = "ERROR: " + disp_err;
-    document.querySelector('#error_status').style.setProperty('display', 'block')
+    return disp_err
+}
 
+function errorHelper(err) {
+    /* if there's a cryptic error, provide more helpful feedback and instructions here
+     * as soon as we get the error codes propagating back, use those
+    */
+    console.log("ERROR INFO",err.message,typeof(err.message));
+
+    var disp_err;
+    var isObject = false;
+    var err_detail;
+
+    try {
+        err_detail = JSON.parse(err.message);
+  
+        if (err_detail && typeof(err_detail) === "object") {
+            isObject = true;
+        }
+        console.log("ERR DETAIL:",err_detail,isObject)
+    }
+    catch (e) {};
+
+    if (isObject) {
+         disp_err = processJSONErrObject(err_detail);
+    }
+    else {
+        disp_err = processStringErrMessage(err.message);
+    }
+
+   if (disp_err) {
+       document.querySelector('#error_status').innerText = "ERROR: " + disp_err;
+       document.querySelector('#error_status').style.setProperty('display', 'block');
+   }
 }
 
 // Variables used tp size the columns of data and headers in display all entries
@@ -159,7 +209,7 @@ function formatLogEntry(entry) {
         rowtype = "entry_row_even"
     }
 
-    let formatStart = '<div class="'+ rowtype +'"><pre>' 
+    let formatStart = '<div class="'+ rowtype +'"><pre>'
     let line1 = entry.entry_id.toString().padEnd(col1_size)
       + spacer + ("User: ".padEnd(7) + entry.timestamp).padEnd(col2_size, " ")
       + spacer + entry.account.padEnd(col3_size, " ")
@@ -187,28 +237,40 @@ function formatLogEntry(entry) {
     return (formatStart + line1 + line2 + formatEnd);
 }
 
-function update_current_info(account) {
+
+// query the contract to get current info about admin, number of entries and last entry
+async function update_current_info(account) {
 
     let cur_count = 0;
     let update_info = "The log is empty";
 
-    mainContract.num_entries().then(count => {
-        cur_count = count;
-        document.querySelector('#showcount').innerText = cur_count;
-        mainContract.get_last().then(last_info => {
-            var lastEntry;
-            if (cur_count > 0) {
-                lastEntry = JSON.parse(last_info);
-                update_info = JSON.stringify(lastEntry, null, 2);
-            }
-            document.querySelector('#cur_info').innerText = update_info;
-        }).catch(err => errorHelper(err));
-    }).catch(err => errorHelper(err));
+    let main_info = JSON.parse(await mainContract.info({"args" : {}}));
+    document.querySelector('#main_contract_admin').innerText = main_info.admin;
+
+    cur_count = await mainContract.num_entries();
+    document.querySelector('#showcount').innerText = cur_count;
+
+    if (cur_count > 0) {
+        let lastEntry = JSON.parse(await mainContract.get_last());
+        update_info = JSON.stringify(lastEntry, null, 2);
+    }
+    document.querySelector('#cur_info').innerText = update_info;
+
+
 }
 
 
+
+
+/*  NOT CURRENTLY USED -- was intend to keep track of balance so it would be 
+ * easy to see/visualize the changes are gas and transfere were made, 
+ * but since page is reloaded with the transition to the wallet and back
+ * these vars get reset on page load, so not useful for the history
+ * this data would need to be stored elsewhere to be useful
+ */
+
 var prevBalances = {
-        main_login_balance:  { "available" : "Not Available" },
+        main_login_balance:{ "available" : "Not Available" },
         sub_login_balance: { "available" : "Not Available" },
         main_acct_balance: { "available" : "Not Available" },
         sub_acct_balance:  { "available" : "Not Available" },
@@ -223,8 +285,8 @@ var prevBalances = {
 
 
 function updatePrevBalances () {
-    /*
-     * This keeps the copy, but since the page reloads wheen interface with the wallet
+    /*  NOT CURRENTLY USED
+     * This was to keep the copy, but since the page reloads wheen interface with the wallet
      * the variables get reset -- need to move this data to cookies?
      */
     prevBalances = JSON.parse(JSON.stringify(curBalances));
@@ -262,6 +324,7 @@ async function updateUI() {
 
 
     document.querySelector('#error_status').style.setProperty('display', 'none');   
+    document.querySelector('#reset_error').style.setProperty('display', 'none');  
 
     document.querySelector('#main_contract_id').innerText =
     nearConnections.mainacct.contract_name;
@@ -276,7 +339,7 @@ async function updateUI() {
 
     await  updateCurBalances();
 
-    update_current_info();
+    await update_current_info();
 
     if (!cur_account) {
         document.querySelector('#main_login_id').innerText = "";

@@ -17,12 +17,7 @@ pub fn init() -> (UserAccount, ContractAccount<LogContractContract>) {
 		bytes: &CONTRACT_WASM_BYTES,
 		signer_account:  root,
      );
-	call!(root, contract.new()).assert_success();
-
-//    let alice = root.create_user(
- //       "alice".parse().unwrap(),
-  //      to_yocto("100") // initial balance
-   // );
+	call!(root, contract.new("admin".to_string())).assert_success();
 
     (root, contract)
 }

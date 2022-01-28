@@ -178,9 +178,7 @@ impl CallLoggerContract {
     /// return JSON structure with the logging account and the admin user
 	pub fn info(&self) -> String {
         
-        let result = self.log_contract_id.to_string();
-
-        json!({
+        let result = json!({
                 "log_contract" : self.log_contract_id.to_string(),
                 "admin"      : self.admin_user.to_string(),
             }).to_string();

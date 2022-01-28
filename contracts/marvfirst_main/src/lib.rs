@@ -2,6 +2,7 @@ use near_sdk::{
     AccountId, PanicOnDefault, env, near_bindgen, log, require,
     borsh::{self, BorshDeserialize, BorshSerialize},
     collections::{Vector},
+    serde_json::json,
     json_types::U64,
     serde::{Deserialize, Serialize},
 };
@@ -35,6 +36,7 @@ pub struct LogEntry {
 #[derive(BorshDeserialize, BorshSerialize,PanicOnDefault)]
 pub struct LogContract {
     owner_id:  AccountId,
+    admin: AccountId,
     mylog:  Vector<LogEntry>
 }
 
@@ -42,10 +44,11 @@ pub struct LogContract {
 impl LogContract {
 
     #[init]
-    pub fn new() -> Self {
+    pub fn new(admin: String) -> Self {
         log!("Log Contract Init - owner: {}",env::current_account_id());
         Self {
             owner_id: env::current_account_id(),
+            admin: admin.try_into().unwrap(),
             mylog: Vector::new(b"c"),        
         }
 
@@ -128,11 +131,29 @@ impl LogContract {
         result
     }
 
+    /// Return the configured information for this contract
+    ///
+    /// return JSON structure with the logging account and the admin user
+    pub fn info(&self) -> String {
+        
+
+
+
+        let result = json!({
+                "owner_id" : self.owner_id.to_string(),
+                "admin"      : self.admin.to_string(),
+            }).to_string();
+        result
+    }
+    
+
     pub fn reset_log (&mut self) -> String {
         let reset_acct = env::predecessor_account_id().to_string();
         log!("Reset log requested by {}",&reset_acct);
-      //  require!(env::predecessor_account_id() == self.owner_id, "Owner's method");
-        let result = env::current_account_id().to_string() + " " + &reset_acct;
+        let check1 = env::predecessor_account_id() == self.owner_id;
+        let check2 = env::predecessor_account_id() ==  self.admin;
+        require!(check1 || check2, "Only contract or admin can reset");
+        let result = env::current_account_id().to_string() + " " + &self.admin.to_string() + " " + &reset_acct;
         self.mylog.clear();
         result
         
@@ -163,13 +184,31 @@ mod tests {
     }
 
     fn setup_contract() -> LogContract {
-        let account = AccountId::new_unchecked("mmednick.testnet".to_string());
+        let account = AccountId::new_unchecked("admin".to_string());
         let context = get_context(account);
         testing_env!(context.build());
 
-        let contract = LogContract::new();
+        let contract = LogContract::new("admin".to_string());
         contract
      
+    }
+
+    #[test]
+    fn check_info() {
+
+        #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
+        #[serde(crate = "near_sdk::serde")]
+        struct ContractInfo {
+               owner_id:  String,
+               admin: String,
+        }
+    
+        let contract = setup_contract();
+        let info_json = contract.info();
+        println!("Info:  {:?}",info_json);
+        let info_data = serde_json::from_str::<ContractInfo>(&info_json).unwrap();
+        assert_eq!(info_data.admin,"admin".to_string() );
+
     }
 
 	#[test]
