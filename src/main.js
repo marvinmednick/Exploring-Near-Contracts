@@ -143,7 +143,7 @@ function errorHelper(err) {
     /* if there's a cryptic error, provide more helpful feedback and instructions here
      * as soon as we get the error codes propagating back, use those
     */
-    console.log("ERROR INFO",err.message,typeof(err.message));
+    console.log("ERROR INFO",err.message,"TYPE:",typeof(err.message));
 
     var disp_err;
     var isObject = false;
@@ -244,17 +244,21 @@ async function update_current_info(account) {
     let cur_count = 0;
     let update_info = "The log is empty";
 
-    let main_info = JSON.parse(await mainContract.info({"args" : {}}));
-    document.querySelector('#main_contract_admin').innerText = main_info.admin;
+    try {
+        let main_info = JSON.parse(await mainContract.info({"args" : {}}));
+        document.querySelector('#main_contract_admin').innerText = main_info.admin;
 
-    cur_count = await mainContract.num_entries();
-    document.querySelector('#showcount').innerText = cur_count;
+        cur_count = await mainContract.num_entries();
+        document.querySelector('#showcount').innerText = cur_count;
 
-    if (cur_count > 0) {
-        let lastEntry = JSON.parse(await mainContract.get_last());
-        update_info = JSON.stringify(lastEntry, null, 2);
-    }
-    document.querySelector('#cur_info').innerText = update_info;
+        if (cur_count > 0) {
+            let lastEntry = JSON.parse(await mainContract.get_last());
+            update_info = JSON.stringify(lastEntry, null, 2);
+        }
+        document.querySelector('#cur_info').innerText = update_info;
+   } catch (e) {
+       errorHelper(e);
+   }
 
 
 }
