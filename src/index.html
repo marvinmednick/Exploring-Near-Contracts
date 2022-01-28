@@ -99,6 +99,12 @@
             padding: 1px;
             background-color: beige;
         }
+        .balance {
+            margin-left: 8px;
+        }
+        .indented {
+            margin-left: 30px;   
+        }
         </style>
 </head>
 
@@ -129,15 +135,17 @@
             <div class="row">
                 <p class="h3">Main Contract </p>
                 <p>Deployed on account <span id=main_contract_id class="fs-5 fw-bolder"></span></p>
-                <p>Admin acct: <span id=main_contract_admin class="fs-5 fw-bolder"></span></p>
-                <p style="margin-left: 30px;">Available Balance: <span id="main_acct_balance"></span></p>
-                <p>These functions all make function calls direct to the main contract contract</p>
+                <p class="fw-bolder indented">
+                    Contract Avail Balance: <span id="main_acct_balance" class="balance fw-normal"></span><br>
+                    Admin Acct configured: <span id=main_contract_admin class="balance fw-normal"></span>
+                </p>
+                <p>These requsest make calls (or views) directly the main contract</p>
             </div>      
             <!-- main login start -->
             <div class="row border-top border-bottom border-primary" style="padding-top: 20px; padding-bottom: 20px;">
                 <p>
                     <span id="main_login_text"></span><span class="fs-5 fw-bolder text-info" id="main_login_id"></span>
-                    <p style="margin-left: 30px;">Available Balance:<span id="main_login_balance"></span></p>
+                    <p class="indented fw-bolder">Available Balance:<span id="main_login_balance" class="balance fw-normal"></span></p>
                     <span id="contract_owner_text"></span><span class="fs-5 fw-bolder text-info" id="contract_owner_id"></span>
                 </p>
                 <div class="sign-in-main" style="display: none;">
@@ -158,7 +166,8 @@
             <div class="row">
                 <div class="viewcommands" style="display: block;">
                     <br>
-                    <p><span class="h4">View Commands</span> (available without sigining in)</p>
+                    <h4>View Commands</h4>
+                    <p>Direct calls to a contract to view are currently available without sigining (and current require no gas fees) so can be issued with  having a signing key (and therefore don't require 'sign-in'</p>
                 </div>
             </div>
             <div class="row">
@@ -166,7 +175,7 @@
                     <button id="refresh" class="btn btn-primary" style="background-color: #0072CE;">Refresh</button>
                 </div>
                 <div class="col flex">
-                    <p>The page automaitcal updates when it initiates a change, but if updates are made (e.g. via near cli) this will force requests to the contract to refresh the information</p>
+                    <p>The section automatically updates when an action on this page initiates a change, but if updates are made (e.g. via near cli) this will force a request to make new and  refresh the information</p>
                 </div>
             </div>
             <div class="row get_entry_count">
@@ -181,13 +190,15 @@
                 </div>
             </div>
             <br>
-            <div class="after-sign-in-main" style="display: none; padding: 25px;">
+
+            <div class="row after-sign-in-main border-primary border-3 border" style="display: none; padding: 25px;">
                 <br>
-                <p><span class="h4">Call Commands </span>(use contract call methods and modify data)</p>
+                <h4>Call Commands</h4>
+                <p>Methods that modify contract data, transfer funds must use contract call methods and require signing.  Here we use the wallet to 'sign-in' to get signing keys</p>
                 <br>
-                <div class="row border-primary border-top border-bottom">
+                <div class="row " >
                     <!-- MAIN Add Entry form START -->
-                    <div id="add_entry_form" style="display: block; padding-left: 10px; padding-right: 25px">
+                    <div id="add_entry_form " class="border-top border-primary" style="display: block; padding-left: 10px; padding-right: 25px">
                         <form id="main-add-entry-form" name="main-add-entry-form">
                             <br>
                             <div class="row">
@@ -200,7 +211,7 @@
                                     <input type="text" class="form-control" id="Message" placeholder="Message?" name="msg">
                                 </div>
                             </div>
-                            <div class=row style="padding-top: 20px; padding-bottom: 20px;">
+                            <div class="row " style="padding-top: 20px; padding-bottom: 20px;">
                                 <div class="col-4">
                                     <button type="submit" class="btn btn-primary" style="background-color: #0072CE;">Add Entry</button>
                                 </div>
@@ -213,39 +224,43 @@
                     <div class="bg-info text-white">
                         <h4 id="main-add-status" style="display: none">Adding Entry</h4>
                     </div>
-
-                      
+      
                     <!-- MAIN ADD ENTRY FORM END -->
                 </div>
                 <br>
                 <!-- RESET START -->
-                <div class="row log_reset">
-                    <div class="col-4">
-                        <button class="btn btn-primary" style="background-color: #0072CE;">Reset</button></div>
-                    <div class="col"><span class="fs-5"> Clear the log </span>(Reset the log and remove all entries)</div>
-                </div>
-                <div class="row log_reset">
-                    <div class="col-4"></div>
-                    <div class="col"><span id=reset_error class="text-danger"></span></div>
-                    
+                <div class="border-top border-primary" style="display: block; padding-left:  10px; padding-top: 25px">
+                    <div class="row log_reset">
+                        <div class="col-4">
+                            <button id="main_reset" class="btn btn-primary" style="background-color: #0072CE;">Reset</button>
+                        </div>
+                        <div class="col"><span class="fs-5"> Clear the log </span>(Reset the log and remove all entries)
+                        </div>
+                    </div>
+                    <div class="row log_reset">
+                        <div class="col-4">
+                        </div>
+                        <div class="col"><span id=reset_error class="text-danger"></span>
+                        </div>    
                 </div>
                 <!-- RESET END -->
                 <br>
             </div>
         </div>
+    </div>
         <!---  START OF SUB ACCOUNT CONTRACT I/F -->
         <div id="sub_contract" class="col-6 border border-primary">
             <div class="row">
                 <p class="h3">Proxy Contract</p>
                 <p>Deployed on account <span id=sub_contract_id class="fs-5 fw-bolder"></span></p>
-                <p style="margin-left: 30px;">Available Balance: <span id="sub_acct_balance"></span></p>
-                <p>Requests remade via Cross Contract calls to the main contract and data is returned via callbacks</p>
+                <p class="indented fw-bolder">Available Balance: <span id="sub_acct_balance" class="fw-normal balance"></span></p>
+                <p>These requests use contract methods on the Proxy Contract which then initiates Cross Contract calls to the main contract. data is returned via callbacks, use gas and require signing and therefore require sign-in via the wallet to get a signing key</p>
             </div>
             <!-- subacct login start -->
             <div class="row border-top border-bottom border-primary" style="padding-top: 20px; padding-bottom: 20px;">
                 <p>
                     <span id="subacct_login_text"></span><span class="fs-5 fw-bolder text-info" id="subacct_login_id"></span>
-                    <p style="margin-left: 30px;">Available Balance:<span id="sub_login_balance"></span></p>
+                    <p class="indented fw-bolder">Available Balance:<span id="sub_login_balance" class="balance fw-normal"></span></p>
                     <span id="subacct_owner_text"></span><span class="fs-5 fw-bolder text-info" id="subacct_owner_id"></span>
                 </p>
                 <div class="sign-in-subacct" style="display: none;">
@@ -264,9 +279,8 @@
             </div>
             <!-- subacct login end -->
             <div class="after-sign-in-subacct" style="display: none; padding: 25px;">
-                <p><span class="h4">Call Commands </span>(use contract call methods and modify data)</p>
-                <br>
-                <div class="row border-primary border-top border-bottom">
+            
+                <div class="row">
 
                     <!-- SUBACCT ADD ENTRY START -->
                     <div id="subacct_add_entry_form" style="display: block; padding-left: 10px; padding-right: 25px">
@@ -296,7 +310,7 @@
                                     <input type="text" class="form-control" id="amount" placeholder="0" name="amount">
                                     <span id="transfer_errmsg" class="fs-6 text-danger" style="display: none">Invalid Entry</span>
                                 </div>
-                                <div class="col-3">
+                                <div class="col-5">
                                     <select id="denomination" class="form-select fs-6" autocomplete="off" aria-label="Tip range">
                                         <option value="yacto" selected>Million YactoNEAR</option>
                                         <option value="near"> NEAR</option>
@@ -310,12 +324,6 @@
                     </div>
                 </div>
                 <!-- SUBACCDT ADD ENTRY END -->
-                <br>
-                <div class="row log_reset">
-                    <div class="col-4"><button class="btn btn-primary" style="background-color: #0072CE;">Reset</button></div>
-                    <div class="col"><span class="fs-5"> Clear the log </span>(Reset the log and remove all entries)</div>
-                </div>
-                <br>
             </div>
         </div>
         <!---  END OF SUB ACCOUNT CONTRACT I/F -->

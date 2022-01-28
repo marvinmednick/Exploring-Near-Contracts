@@ -8,7 +8,6 @@ const nearMainConfig = getConfig(process.env.NODE_ENV || "development");
 import getSubAcctConfig from "./subacct_config";
 const  nearSubAcctConfig = getSubAcctConfig(process.env.NODE_ENV || "development");
 
-
 var mainContract;
 var subAcctContract;
 
@@ -453,7 +452,7 @@ document.querySelector('#hide_entries').addEventListener('click', () => {
     document.querySelector('#showlistdata').innerText = "";
 });
 
-document.querySelector('.log_reset .btn').addEventListener('click', () => {
+document.querySelector('#main_reset').addEventListener('click', () => {
     mainContract.reset_log({})
       .then(listdata => {
           console.log("retrieved", listdata);
