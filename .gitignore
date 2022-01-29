@@ -31,3 +31,4 @@ contracts/marvfirst_sub/neardev/shared-test/test-account*
 /contracts/marvfirst_sub/res
 /contracts/marvfirst_main/out
 /contracts/marvfirst_sub/out
+*.md.backup

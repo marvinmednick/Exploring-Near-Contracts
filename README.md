@@ -1,16 +1,59 @@
-# Marvin's First Near Smart Contract Project
+# Exploring NEAR Protocol Smart Contracts
 
 ## Overview
 
-This project is simple NEAR Protocol. 
+I created this project to learn the basics of creating, testing and deploying  a smart contracts using NEAR project blockchain. 
 
-This project to learn to create a smart contracts and the JS SDK
+This started out as just trying to figure out how to create a simple contract and grew as I understood more and wanted understand how various things work. 
 
-Goals to learn the basics of creating, testing and deploying a smart contrct on the Near platform and then develop a simple web based applicatition that interactis with it.
+My exploration covered the following areas
+
+* Two Rust smart contract using the near-sdk-rs
+	- defining basic contract structure and methods
+	* accessing and using data from the NEAR env
+	* variou testing options:
+		* rust unit tests 
+		* rust simulation tests 
+		* jest javascript based tests 
+	* A contract taht NEAR specific data structures that are optimzied for accessing data on the blockchain (e.g.  Near "Vector" instead Rust std "Vec") 
+	* Using the NEAR U64/U128 JSON types (that workaround JSON 53 bit limitations)
+* the basics of using the JS API (Reference) to interact with smart contracts 
+* Integrating  with the NEAR wallet:
+	- to 'log in' to acquire the signing key for requests 
+	- to approving transfers associated with requests that transfer tokens
+	- supports multiple wallet logins/signing keys on a single web page
+* cross contract calls between two contracts
+	- how to develop tests for contracts with cross contract calls
+* how to transfer funds between accounts
+* scripts/instructions for deploying, initializing
+
+
+## Functional Overview
+From a functional standpoint, this app is a web page that displays information and allows interation with two smart contracts.
+
+A that provide a *very* basic and limited a set of functionality: They essentiall allow some user specified data along with some additional metadata  to be stored to the contract in sequential  and then allowed them to be read back. 
+
+The two contracts support a very basic 
+
+### The Smart Contracts
+There are two smart contracts in this project:
+* A **main** contract
+* A **proxy** contract
+
+
+#### The Main contract
+
+
+The project includes:
+* Two simple smart contracts written in Rust using near-sdk-rs
+  * A **Main** contract which implements 
+
+* A Web User interface to that sues the interface with the
+
 
 The Contract is written in Rust and uses the near-sdk-rs.  THe UI is nodejs/javascript based.
 
-
+# What this contract Does
 
 Basic logging mechanism
 
@@ -58,7 +101,7 @@ Once the account is created, set environment variable CONTRACT_NAME to reference
     `CONTRACT_NAME=<subaccountname>.<main acct name>.testnet; export CONTRACT_NAME`    
     
     which would be as following if our account was thisproject.myaccount.testnet
-
+    
     `CONTRACT_NAME=thisproject.myaccount.testnet; export CONTRACT_NAME`
 
 #### Deploying and Initializing the Contract.
