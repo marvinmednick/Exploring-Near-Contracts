@@ -31,7 +31,7 @@ My exploration covered the following areas
 ## Functional Overview
 From a functional standpoint, this app is a web page that displays information and allows interation with two smart contracts.
 
-A that provide a *very* basic and limited a set of logging functionality: They essentiall allow some user to log some data (a 'log entry') that is stored by the contract.  Entries can later be read back in order.
+A that provide a *very* basic and limited a set of logging functionality: They essentially allow some user to log some data (a 'log entry') that is stored by the contract.  Entries can later be read back in order.
 
 Each 'log entry' contains some user specified data (a couple of strings) along with some additional metadata (e.g. timestamp).  
 
