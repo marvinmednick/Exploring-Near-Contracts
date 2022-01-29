@@ -1,6 +1,6 @@
 # Exploring NEAR Protocol Smart Contracts
 
-## Overview
+`## Overview
 
 I created this project to learn the basics of creating, testing and deploying  a smart contracts using NEAR project blockchain. 
 
@@ -8,14 +8,14 @@ This started out as just trying to figure out how to create a simple contract an
 
 My exploration covered the following areas
 
-* Two Rust smart contract using the near-sdk-rs
-	- defining basic contract structure and methods
+* Two Rust smart contract that were created using the near-sdk-rs
+	* defining basic contract structure and methods
 	* accessing and using data from the NEAR env
-	* variou testing options:
+	* implements various testing options:
 		* rust unit tests 
 		* rust simulation tests 
 		* jest javascript based tests 
-	* A contract taht NEAR specific data structures that are optimzied for accessing data on the blockchain (e.g.  Near "Vector" instead Rust std "Vec") 
+	* A contract that NEAR specific data structures that are optimized for accessing data on the blockchain (i.e  Near "Vector" instead the Rust std "Vec") 
 	* Using the NEAR U64/U128 JSON types (that workaround JSON 53 bit limitations)
 * the basics of using the JS API (Reference) to interact with smart contracts 
 * Integrating  with the NEAR wallet:
@@ -36,31 +36,42 @@ A that provide a *very* basic and limited a set of logging functionality: They e
 Each 'log entry' contains some user specified data (a couple of strings) along with some additional metadata (e.g. timestamp).  
 
 
-### The Smart Contracts
-There are two smart contracts in this project:
-* A **main** contract
-* A **proxy** contract
+### Key Components 
+There are three key components project:
+* The **main** contract
+* The **proxy** contract
+* The Web User Interface
 
 
-#### The Main contract
+#### Main contract
 The main contract is the one that does that actual data storage and retrieval of the log entries it support the following methods
 
 | Method       | Description                                                 |
 | ------------ | ----------------------------------------------------------- |
 | new          | Initializes the log                                         |
 | add_entry    | Adds an entry to the log                                    |
+| num_entry    | Returns the number of entries that have been added to the log|
 | iist_entries | provides the full list of all the entries in the log        |
 | get_last     | returns only the last entry added to the log                |
 | info         | Returns information about the configuration of the contract |
 | reset_log    | Clears the log                                              |
 
+#### Proxy Contract
+
+THe proxy contract primary functions is the make cross contact calls the Main contract.
+
+| Method | Description|
+|--------|------------|
+|new| Initialize the contract which requires AccountId of the account the main logging contract is deployed|
+|indirect_add_entry| Calls add_entry on the main contact. |
+|indirect_num_entries| Call num_entries on the main contract|
+|info|returns the configuration information for the contract (the AccountId of the main contract)
 
 
-The project includes:
-* Two simple smart contracts written in Rust using near-sdk-rs
-  * A **Main** contract which implements 
+#### Web User Interface
 
-* A Web User interface to that sues the interface with the
+
+
 
 
 The Contract is written in Rust and uses the near-sdk-rs.  THe UI is nodejs/javascript based.
