@@ -97,17 +97,46 @@ Basic logging mechanism
 
     `yarn` 
 
-### Build the contract
+### Build the contracts
 
     `yarn build`
 
-## Initial Deployment
+##  Deployment
+
+
 Contracts are deployed to an account, and each account can only have one contract deployed to it.  
-The contract shoudl be deployed to a subaccount or during development to a dev account.
+The contract should be deployed to a subaccount or during development to a dev account.
 Both methods are described below
 
-### Deploying to specfic named account
+### Deploying to Development Accounts
+The script 'newdeploydev.sh' is included to deploy and initialize each contracts to two separate development accounts.  The script will create a file 'devconfig' which contains exports of the names of each of the accounts that were created.   The script requires one argument the name of an account which will be the 'admin' for the contracts.
 
+
+```newdeploydev.sh <admin_acct_id>```
+
+If the admin account set in ADMIN_NAME environmental variable (export ADMIN_NAME=<admin_acct_id>) then the command
+
+```yarn deploy:dev:new``` 
+
+can be used to call the same script.
+
+
+### Deploying to Specific Named Accounts
+The script "deploy.sh" can be used to deploy contracts to specific accounts.  the script requires three parameters the account to deploy the main contract, the account to deploy the proxy contract, and the name of the account to initialize the contracts as the 'admin' account
+
+``deploy.sh <main_acct_id> <proxy_acct_id> <admin_acct_id>```
+
+Alternatively the 3 ID can be provided as environmental variables:
+```
+export CONTRACT_NAME=<main_acct_id>
+export SUBCONTRACT_NAME=<proxy_acct_id>
+export ADMIN_NAME=<admin_acct_id>
+```
+
+
+
+
+  
 #### Creating a sub-account for deploying the contract to
 Although you can technically uses your main testnet acocunt (e.g. <main acct name>.testnet) it is best practice to create a subaccount to deploy the contract to. 
 This can be down with the near-cli command line tool (see https://github.com/near/near-cli).   
