@@ -1,6 +1,6 @@
 # Exploring NEAR Protocol Smart Contracts
 
-`## Overview
+## Overview
 
 I created this project to learn the basics of creating, testing and deploying  a smart contracts using NEAR project blockchain. 
 
@@ -31,9 +31,9 @@ My exploration covered the following areas
 ## Functional Overview
 From a functional standpoint, this app is a web page that displays information and allows interation with two smart contracts.
 
-A that provide a *very* basic and limited a set of logging functionality: They essentially allow some user to log some data (a 'log entry') that is stored by the contract.  Entries can later be read back in order.
+A that provide a *very* basic and limited a set of logging functionality;  they allow a user to log some data (a 'log entry') that is stored by the contract.  Entries can later be read back in the order added. 
 
-Each 'log entry' contains some user specified data (a couple of strings) along with some additional metadata (e.g. timestamp).  
+Each 'log entry' contains some user specified data (a couple of strings) along with some additional metadata (e.g. timestamp, accountId that added the entry ).  
 
 
 ### Key Components 
@@ -43,7 +43,13 @@ There are three key components project:
 * The Web User Interface
 
 
-#### Main contract
+
+Both contracts are written in Rust using the Near Rust SDK (https://github.com/near/near-sdk-rs )
+
+The web User Interfaces written in javascript and use the NEAR Javascript library  (https://github.com/near/near-api-js)
+
+
+#### The Main contract
 The main contract is the one that does that actual data storage and retrieval of the log entries it support the following methods
 
 | Method       | Description                                                 |
@@ -56,7 +62,7 @@ The main contract is the one that does that actual data storage and retrieval of
 | info         | Returns information about the configuration of the contract |
 | reset_log    | Clears the log                                              |
 
-#### Proxy Contract
+#### The Proxy Contract
 
 THe proxy contract primary functions is the make cross contact calls the Main contract.
 
@@ -65,52 +71,38 @@ THe proxy contract primary functions is the make cross contact calls the Main co
 |new| Initialize the contract which requires AccountId of the account the main logging contract is deployed|
 |indirect_add_entry| Calls add_entry on the main contact. |
 |indirect_num_entries| Call num_entries on the main contract|
-|info|returns the configuration information for the contract (the AccountId of the main contract)
+|info|returns the configuration information for the contract (the AccountId of the main contract)|
 
 
-#### Web User Interface
+#### The Web User Interface
 
+HMTL and javascript pages
 
+# Getting Started
 
+## Clone
 
+## Select/Setup Admin Account
 
-The Contract is written in Rust and uses the near-sdk-rs.  THe UI is nodejs/javascript based.
+Both contracts require initialization with a NEAR account which is considered to be the admin and is allowed to use methods that affect the configuration such as being able to clear the log or for the Proxy contract configure the A 	ccountId of the main contract which it will make the cross contract calls to)
 
-# What this contract Does
-
-Basic logging mechanism
-
-
-## Getting started
-
-### Requirements
-- Clone the project
-- Install Rust/Wasm toolchain  - https://www.near-sdk.io/#install-rust-and-wasm-toolchain
-- Install NodeJS   - See https://nodejs.org/en/download/
-- If you do not already have one, please create  testnet account using the Near Wallet   https://docs.near.org/docs/develop/basics/create-account
-
-
-
-## Buid and Deploy
-
-### Install packages and dependencies.   
+## Install packages and dependencies.   
 
     `yarn` 
 
-### Build the contracts
+## Build the contracts
 
     `yarn build`
 
-##  Deployment
-
+##  Deploy
 
 Contracts are deployed to an account, and each account can only have one contract deployed to it.  
 The contract should be deployed to a subaccount or during development to a dev account.
 Both methods are described below
 
 ### Deploying to Development Accounts
-The script 'newdeploydev.sh' is included to deploy and initialize each contracts to two separate development accounts.  The script will create a file 'devconfig' which contains exports of the names of each of the accounts that were created.   The script requires one argument the name of an account which will be the 'admin' for the contracts.
 
+The script 'newdeploydev.sh' is included to deploy and initialize each contracts to two separate development accounts.    The script requires one argument the name of an account which will be the 'admin' for the contracts and will output a file named 'devconfig' which contains bash shell commands to set the necessary environmental variables for of each of the accounts that were created.  
 
 ```newdeploydev.sh <admin_acct_id>```
 
@@ -133,80 +125,8 @@ export SUBCONTRACT_NAME=<proxy_acct_id>
 export ADMIN_NAME=<admin_acct_id>
 ```
 
-
-
-
-  
-#### Creating a sub-account for deploying the contract to
-Although you can technically uses your main testnet acocunt (e.g. <main acct name>.testnet) it is best practice to create a subaccount to deploy the contract to. 
-This can be down with the near-cli command line tool (see https://github.com/near/near-cli).   
-
-
-Once you have the near-cli tool installed the following:
-
-    `near create-account <subaccountname>.<main acct name>.testnet --masterAccount <main acct name>.testnet`
-
-For example if your primary account was ***"myaccount"*** and the sub account name for ***"thisproject"***, the full name subaccount would be ***"thisproject.myaccount.testnet"***
-
-Once the account is created, set environment variable CONTRACT_NAME to reference it.  As example for the bash shell on linux it would be:
-    
-    `CONTRACT_NAME=<subaccountname>.<main acct name>.testnet; export CONTRACT_NAME`    
-    
-    which would be as following if our account was thisproject.myaccount.testnet
-    
-    `CONTRACT_NAME=thisproject.myaccount.testnet; export CONTRACT_NAME`
-
-#### Deploying and Initializing the Contract.
-
-The contract can be deployed and initialized via the following command:
-
-    `yarn deploy:init`
-
-This initializes the contract with an empty log and marks it with account name that is deployed to so that some function (e.g. 'reset') can only be called using the contract account.  The deploy:init command deploys and intializes the contract in single transaction.
-
-**NOTE:**  The init function can only be called once, after that it will error. The contract can be updated via ***near deploy***, but cannot be re-initialized other than deleting the account and recreating it.
-
-
-### Deploying to a Development Account
-Alternatively during development, near-cli supports creating and deploying to an 'dev' account on the fly.  The name of the dev account will be stored in the 
-
-    `yarn deploy:dev`
-
-This will create a dev account with a name something like "dev-#############-##############" (which each # is a numeric digt).  It will also create a "neardev" sub-directory with a couple of files in it with the actual account number.    
-
-For linux:
-    
-    `source dev-account.env; export CONTRACT_NAME  # sets environmental variable CONTRACT_NAME to the name of the account`   
-
-
-(For more information see https://docs.near.org/docs/concepts/account#dev-accounts for move information about Dev accounts)
-Each Near account is allowed to have one smart contract, so 
-
-## Initialization
-
-
-yarn
-yarn start
-
-To get started with this template:
-
-
-
-    `cargo test -- --nocapture`
-
-8. Build the contract
-
-    `RUSTFLAGS='-C link-arg=-s' cargo build --target wasm32-unknown-unknown --release`
-
-**Get more info at:**
+# References
 
 * [Rust Smart Contract Quick Start](https://docs.near.org/docs/develop/contracts/rust/intro)
 * [Rust SDK Book](https://www.near-sdk.io/)
-
-
-# Background on the Code
-
-## package.json  
-Contains the commands to used by yarn/npm 
-Also includes the dependendies. 
 
