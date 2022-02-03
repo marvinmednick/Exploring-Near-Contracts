@@ -12,8 +12,8 @@ My exploration covered the following areas
 	* defining basic contract structure and methods
 	* accessing and using data from the NEAR env
 	* implements various testing options:
-		* rust unit tests 
-		* rust simulation tests 
+		* Rust unit tests 
+		* Rust simulation tests 
 		* jest javascript based tests 
 	* A contract that NEAR specific data structures that are optimized for accessing data on the blockchain (i.e  Near "Vector" instead the Rust std "Vec") 
 	* Using the NEAR U64/U128 JSON types (that workaround JSON 53 bit limitations)
@@ -33,7 +33,7 @@ From a functional standpoint, this app is a web page that displays information a
 
 A that provide a *very* basic and limited a set of logging functionality;  they allow a user to log some data (a 'log entry') that is stored by the contract.  Entries can later be read back in the order added. 
 
-Each 'log entry' contains some user specified data (a couple of strings) along with some additional metadata (e.g. timestamp, accountId that added the entry ).  
+Each 'log entry' contains some user specified data (a couple of strings) along with some additional metadata ( e.g.  timestamp, AccountId that added the entry ).  
 
 
 ### Key Components 
@@ -80,11 +80,17 @@ HMTL and javascript pages
 
 # Getting Started
 
-## Clone
+Cloning the repo to your local machine.
 
-## Select/Setup Admin Account
+Identify what account will be used as the Admin account
 
-Both contracts require initialization with a NEAR account which is considered to be the admin and is allowed to use methods that affect the configuration such as being able to clear the log or for the Proxy contract configure the A 	ccountId of the main contract which it will make the cross contract calls to)
+Install packages
+
+Build the contracts
+
+Run Tests
+
+
 
 ## Install packages and dependencies.   
 
@@ -93,6 +99,18 @@ Both contracts require initialization with a NEAR account which is considered to
 ## Build the contracts
 
     `yarn build`
+
+## Run Tests
+
+The following will run the unit tests, the Rust Simulation tests and the jest based end-to-end tests in the NEAR shared-test environment.
+
+```
+yarn test
+```
+
+## Select/Setup Admin Account
+
+Both contracts require initialization with a NEAR account which is considered to be the admin and is allowed to use methods that affect the configuration such as being able to clear the log or for the Proxy contract configure the AccountId of the main contract which it will make the cross contract calls to)
 
 ##  Deploy
 
@@ -116,14 +134,55 @@ can be used to call the same script.
 ### Deploying to Specific Named Accounts
 The script "deploy.sh" can be used to deploy contracts to specific accounts.  the script requires three parameters the account to deploy the main contract, the account to deploy the proxy contract, and the name of the account to initialize the contracts as the 'admin' account
 
-``deploy.sh <main_acct_id> <proxy_acct_id> <admin_acct_id>```
+```
+deploy.sh <main_acct_id> <proxy_acct_id> <admin_acct_id>
+```
 
-Alternatively the 3 ID can be provided as environmental variables:
+Alternatively the 3 IDs can be provided as environmental variables :
 ```
 export CONTRACT_NAME=<main_acct_id>
 export SUBCONTRACT_NAME=<proxy_acct_id>
 export ADMIN_NAME=<admin_acct_id>
 ```
+
+and then simply run as:
+
+```
+deploy.sh
+```
+
+## Starting the Application Locally
+
+If you have already deployed and initialized the contracts, you start a web local server using parcel which will make the UI web page available  (usual localhost:1234) with the following command
+
+```
+yarn restart
+```
+
+Alternatively, if you have made some changes that don't impact the on-chain data structures you can rebuild and redeploy the contracts with the start command:
+
+```
+yarn start
+```
+
+This command will rebuild he contracts and redeploy them to the existing accounts (note that it will redeploy the contracts them even if they haven't changed) and then start the local web server as above.
+
+However if you've made changes to the on chain data structure the new contracts will throw errors as they won't be able to access the existing data properly.  In this case you will need to redeploy the contracts to new accounts and re-initialize them [See section on deploying](#deploy)
+
+## Interacting with the Application
+
+Opening the web pages you will see two column one for the Main contract and one for the Proxy contract.  
+
+![image-20220202182708419](C:\Users\mmedn\AppData\Roaming\Typora\typora-user-images\image-20220202182708419.png)
+
+
+
+The header section shows the accounts which each contract is deployed on along with the current available balance on that account, and the information at initialization.  
+
+- For the Main account that is the admin account.  
+
+- For the Proxy contract, the admin account and the contract where it will proxy requests to 
+  (which should be the Main account) 
 
 # References
 
