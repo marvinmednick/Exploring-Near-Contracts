@@ -81,6 +81,7 @@ impl CallLoggerContract {
     ///
     /// Since initialization is only done one once (unless using 'init(ignore_state)' )
     pub fn update_admin(&mut self, admin: String) {
+        
         self.check_for_admin_rights();
         // require!(env::predecessor_account_id() == self.admin_user,"Admin account method");
         self.admin_user = admin.try_into().unwrap();
@@ -93,7 +94,7 @@ impl CallLoggerContract {
     pub fn indirect_add_entry(&mut self, timestamp: String, name: String, message: String) {
 		
         let _cross_contract_call = 
-            Promise::new(self.log_contract_id.clone()).function_call(
+             Promise::new(self.log_contract_id.clone()).function_call(
                 "add_entry".to_string(),
                 json!({
                     "timestamp" : timestamp,

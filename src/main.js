@@ -626,6 +626,9 @@ async function setupConnections() {
   // update global shortcuts for contracts
   mainContract = nearConnections.mainacct.contract;
   subAcctContract = nearConnections.subacct.contract;
+
+  console.log("MAIN",mainContract);
+  console.log("SUB",subAcctContract);
 }
 
 

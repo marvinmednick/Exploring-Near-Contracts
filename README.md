@@ -171,7 +171,7 @@ However if you've made changes to the on chain data structure the new contracts 
 
 ## Interacting with the Application
 
-Opening the web pages you will see two column one for the Main contract and one for the Proxy contract.    (TODO - change admin name in contracts for image)
+Opening the web pages you will see two column one for the Main contract and one for the Proxy contract. 
 
 ![image info](.\header_example.jpg)
 
@@ -191,7 +191,7 @@ Note that the information that is displayed in the header (e.g. the admin user) 
 
 After sign in, the options to add a log entry are enabled and an simple entry form (Name and Message) is displayed. 
 
-(ADD IMAGE HERE)
+![image_info](./images/sign_in_example.jpg)
 
 Both contracts have entry forms, but the Proxy version has an additional field allowing Near tokens to be transferred from logged in user to the Main contract.  Transferring is optional.  To not transfer any  tokens leave the amount at 0.  Any amount such as 1,  0.1,  .0001  can be entered either and can represent  NEAR or Million YactoNEAR).
 

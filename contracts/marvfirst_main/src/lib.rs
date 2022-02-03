@@ -108,6 +108,27 @@ impl LogContract {
 	}
 
 
+    fn  check_for_admin_rights(&self) {
+        let request_acct = env::predecessor_account_id().to_string();
+        log!("Update of log contract requested by {}",&request_acct);
+        let check1 = env::predecessor_account_id() == env::current_account_id();
+        let check2 = env::predecessor_account_id() ==  self.admin;
+        require!(check1 || check2, "Only contract or admin can update configuration");
+
+    }
+
+
+    /// Update admin 
+    ///
+    /// Since initialization is only done one once (unless using 'init(ignore_state)' )
+    pub fn update_admin(&mut self, admin: String) {
+            
+        self.check_for_admin_rights();
+        // require!(env::predecessor_account_id() == self.admin_user,"Admin account method");
+        self.admin = admin.try_into().unwrap();
+    }
+
+
 
     // list_entries 
     pub fn list_entries(&self) -> String {
