@@ -47,16 +47,43 @@ impl CallLoggerContract {
         log!("Init Subcongtract -  Log_contract: {} admin = {}", log_contract, admin);
         Self {
           log_contract_id : log_contract.try_into().unwrap(),
-          admin_user : admin.try_into().unwrap()
+          admin_user : admin.try_into().unwrap(),
         } 
+    }
+
+
+    fn  check_for_admin_rights(&self) {
+        let request_acct = env::predecessor_account_id().to_string();
+        log!("Update of log contract requested by {}",&request_acct);
+        let check1 = env::predecessor_account_id() == env::current_account_id();
+        let check2 = env::predecessor_account_id() ==  self.admin_user;
+        require!(check1 || check2, "Only contract or admin can update configuration");
+
     }
 
     /// Update logging contrct 
     ///
     /// Since initialization is only done one once (unless using 'init(ignore_state)' )
     pub fn update_log_contract(&mut self, log_contract: String) {
-        require!(env::predecessor_account_id() == self.admin_user,"Admin account method");
+        self.check_for_admin_rights();
+        /* require!(env::predecessor_account_id() == self.admin_user,"Admin account method");
+        let request_acct = env::predecessor_account_id().to_string();
+        log!("Update of log contract requested by {}",&request_acct);
+        let check1 = env:   self.chredecessor_account_id() == self.owner_id;
+        let check2 = env::predecessor_account_id() ==  self.admin;
+        require!(check1 || check2, "Only contract or admin can update configuration");
+        */
+
         self.log_contract_id = log_contract.try_into().unwrap();
+    }
+
+    /// Update admin 
+    ///
+    /// Since initialization is only done one once (unless using 'init(ignore_state)' )
+    pub fn update_admin(&mut self, admin: String) {
+        self.check_for_admin_rights();
+        // require!(env::predecessor_account_id() == self.admin_user,"Admin account method");
+        self.admin_user = admin.try_into().unwrap();
     }
 
     /// non-macro method for a cross contract call to add_entry

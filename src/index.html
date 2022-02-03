@@ -126,20 +126,24 @@
         </div>
         <div class="row">
             <p id="error_status" class="text-danger fs-4 fw-bold" style="display: none;"></p>
-        </div>
+        </div> 
         <!-- row -->
     </div>
     <!-- row -->
     <div class="row border border-primary" style="padding: 25px;">
-        <div id="mainContract" class="col-6 border border-primary">
+        <div id="mainContract" class="col-6 border border-primary" >
             <div class="row">
                 <p class="h3">Main Contract </p>
                 <p>Deployed on account <span id=main_contract_id class="fs-5 fw-bolder"></span></p>
                 <p class="fw-bolder indented">
                     Contract Avail Balance: <span id="main_acct_balance" class="balance fw-normal"></span><br>
-                    Admin Acct configured: <span id=main_contract_admin class="balance fw-normal"></span>
+                    Admin Acct configured: <span id=main_contract_admin class="balance fw-normal"></span><br>
+                    <br>
                 </p>
-                <p>These requests make calls (or views) directly the main contract</p>
+                <p>These requests make calls (or views) directly the main contract
+                <br>
+                <br>
+                </p>
             </div>
             <br>      
             <!-- main login start -->
@@ -254,7 +258,11 @@
             <div class="row">
                 <p class="h3">Proxy Contract</p>
                 <p>Deployed on account <span id=sub_contract_id class="fs-5 fw-bolder"></span></p>
-                <p class="indented fw-bolder">Available Balance: <span id="sub_acct_balance" class="fw-normal balance"></span></p>
+                <p class="indented fw-bolder">
+                    Available Balance: <span id="sub_acct_balance" class="fw-normal balance"></span><br>
+                    Contract to log to: <span id="sub_acct_log_contract" class="fw-normal balance"></span><br>
+                    Admin Account: <span id="sub_acct_admin" class="fw-normal balance"></span>
+                </p>
                 <p>These requests use contract methods on the Proxy Contract which then initiates Cross Contract calls to the main contract. data is returned via callbacks, use gas and require signing and therefore require sign-in via the wallet to get a signing key</p>
             </div>
             <!-- subacct login start -->

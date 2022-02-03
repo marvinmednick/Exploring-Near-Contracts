@@ -171,18 +171,45 @@ However if you've made changes to the on chain data structure the new contracts 
 
 ## Interacting with the Application
 
-Opening the web pages you will see two column one for the Main contract and one for the Proxy contract.  
+Opening the web pages you will see two column one for the Main contract and one for the Proxy contract.    (TODO - change admin name in contracts for image)
 
-![image-20220202182708419](C:\Users\mmedn\AppData\Roaming\Typora\typora-user-images\image-20220202182708419.png)
+![image info](.\header_example.jpg)
 
 
 
 The header section shows the accounts which each contract is deployed on along with the current available balance on that account, and the information at initialization.  
 
 - For the Main account that is the admin account.  
-
 - For the Proxy contract, the admin account and the contract where it will proxy requests to 
   (which should be the Main account) 
+
+The web page allows and requires a separate sign in with the NEAR wallet to interact with the contract. Each side has a separate entry for signing in to interact with that particular contract.   
+
+Note that the information that is displayed in the header (e.g. the admin user) is getting that information via a contract method.  Each contract has a 'info' method that provides the currently configured in that contract.  The UI uses a 'view' (read-only) access  to query the contract to get that information.    (View methods don't need to be signed and there for don't require 'log in' to the NEAR wallet to access signing keys) 
+
+### After Sign-in
+
+After sign in, the options to add a log entry are enabled and an simple entry form (Name and Message) is displayed. 
+
+(ADD IMAGE HERE)
+
+Both contracts have entry forms, but the Proxy version has an additional field allowing Near tokens to be transferred from logged in user to the Main contract.  Transferring is optional.  To not transfer any  tokens leave the amount at 0.  Any amount such as 1,  0.1,  .0001  can be entered either and can represent  NEAR or Million YactoNEAR).
+
+### Viewing Records
+
+#### Last Record 
+
+Once an entry is added to the contract (either), the last record from the log will be displayed in the status window.  This shows the full entry that is logged to the contract in JSON format.
+
+The data in the record is as follows:
+
+(ADD record definition here -- maybe comment in code and copy here)
+
+This view of the the last record uses the get_last method which finds the number of entries and then returns  only the last records
+
+#### Display Records
+
+At the bottom of the screen there is an option to display all the records.   This interface interacts with get_entrires (check name) method which returns ALL the entries in one request.  This is sufficient for this exploration project since the number of entries is small, but for a larger dataset it would be updated to use windowing and only retrieve N records at time, using the similar Vector method as 'get_last' uses to read only the last record.     
 
 # References
 

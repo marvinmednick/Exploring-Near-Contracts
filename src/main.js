@@ -50,7 +50,7 @@ window.nearConnections = {
                 contract_account: null,
                 walletConnection: null,
                 contract: null,
-                viewMethods: ['indirect_num_entries', 'indirect_get_last'],
+                viewMethods: ['indirect_num_entries', 'indirect_get_last', 'info'],
                 changeMethods: ['new', 'indirect_add_entry', 'reset_log' ],
               },
 }
@@ -255,6 +255,11 @@ async function update_current_info(account) {
             update_info = JSON.stringify(lastEntry, null, 2);
         }
         document.querySelector('#cur_info').innerText = update_info;
+
+        let sub_info = JSON.parse(await subAcctContract.info({"args" : {}}));
+        document.querySelector('#sub_acct_admin').innerText = sub_info.admin;
+        document.querySelector('#sub_acct_log_contract').innerText = sub_info.log_contract;
+
    } catch (e) {
        errorHelper(e);
    }
