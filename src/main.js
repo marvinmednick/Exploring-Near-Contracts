@@ -1,7 +1,8 @@
 import "regenerator-runtime/runtime";
 import * as nearAPI from "near-api-js";
-const { utils } = require("near-api-js");
+// const { utils } = require("near-api-js");
 import getConfig from "./config";
+import storedLog from "./storedLog"
 import {CONTRACT_NAME, SUBCONTRACT_NAME}  from "./contract_names"
 import Big from 'big.js';
 const nearMainConfig = getConfig(process.env.NODE_ENV || "development");
@@ -14,22 +15,14 @@ var proxy_contract;
 const BOATLOAD_OF_GAS = Big(3).times(10 ** 13).toFixed();
 const TOKEN_AMOUNT = Big(1).times(10**24).toFixed();
 
-function allStorage() {
 
-    var values = [],
-        keys = Object.keys(localStorage),
-        i = keys.length;
+  
+// keep track of the last N URLs that the page was loaded by 
+// (for deubgging interaction and transistion from the the wallet)
+// if this is redirected from the wallet it will include the account and addition information
+ let incomingURL = new URL(window.location.href);
+ storedLog(JSON.stringify(incomingURL),"urls");
 
-    while (i--) {
-        var entry = {
-            'key' : keys[i],
-            'value' : localStorage.getItem(keys[i])
-        }
-        values.push(entry);
-    }
-
-    return values;
-}
 
 // Define Object to hold separate connnections and wallets to allow multiple signin accounts
 //  However it seems that the local storage for the web page only seems to support once
@@ -55,18 +48,56 @@ window.nearConnections = {
               },
 }
 
-
-function localStorage_log(Value) {
-    let index = 0
-    if (index = window.localStorage.getItem("logIndex") != null ) {
-        index = index + 1;
-    }
-
-    let key = "log_" + index;
-    window.localStorage.setItem(key, Value);
-    window.localStorage.setItem("logIndex",index);
+const localStorage_log_config = {
+    maxlen : 50
 }
 
+
+/*
+function localStorage_log(value, prefix = null) {
+   
+
+    let storage_key = "storageLog";
+    if (prefix != null && typeof prefix === 'string') {
+        storage_key = prefix + "_" + storage_key;
+
+    }
+    var mydata = window.localStorage.getItem(storage_key);
+    console.log("MD", mydata);
+    //var mydata = localStorage[storage_key];
+    var mylog;
+    if (mydata == null) {
+            console.log("starting fressh")
+            mylog = [1];
+    }
+    else {
+        console.log("continuing")
+        let newdata = localStorage[storage_key];
+        console.log("S1",storage_key,mydata,newdata)
+        mylog = JSON.parse(mydata);
+    }
+    const entry = {
+        ts : new Date(),
+        data : value
+   }
+
+   console.log("Adding")
+   // add an entry at the end
+    mylog.push(entry)
+
+    // if length has reached the max, then remove the oldest entry
+    if (mylog.length > localStorage_log_config.maxlen) {
+        mylog.shift();
+    }
+
+   console.log("Creating string",mylog);
+   mydata = JSON.stringify(mylog)
+    console.log("STORING",mylog, mydata);
+    localStorage[storage_key] = mydata;
+
+
+}
+*/
 
 async function getKeyStore(account) {
     let x = await new nearAPI.keyStores.BrowserLocalStorageKeyStore(window.localStorage,account); 
@@ -590,10 +621,7 @@ function indirect_add_new_entry(form_info) {
 async function setupConnections() {
 
   // Save a copy of the incoming URL  --
-  // if this is redirected from the wallet it will include the account and key information
-  let incomingURL = new URL(window.location.href);
-  console.log(incomingURL);
-  localStorage_log(JSON.stringify(incomingURL));
+
 
   //create a URL which is referring to the base page
   // note that is currently assumed to be the the root of the server (e.g. localhost:1234/)
