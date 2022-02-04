@@ -8,8 +8,8 @@ const nearMainConfig = getConfig(process.env.NODE_ENV || "development");
 import getSubAcctConfig from "./subacct_config";
 const  nearSubAcctConfig = getSubAcctConfig(process.env.NODE_ENV || "development");
 
-var mainContract;
-var subAcctContract;
+var main_contract;
+var proxy_contract;
 
 const BOATLOAD_OF_GAS = Big(3).times(10 ** 13).toFixed();
 const TOKEN_AMOUNT = Big(1).times(10**24).toFixed();
@@ -56,6 +56,24 @@ window.nearConnections = {
 }
 
 
+function localStorage_log(Value) {
+    let index = 0
+    if (index = window.localStorage.getItem("logIndex") != null ) {
+        index = index + 1;
+    }
+
+    let key = "log_" + index;
+    window.localStorage.setItem(key, Value);
+    window.localStorage.setItem("logIndex",index);
+}
+
+
+async function getKeyStore(account) {
+    let x = await new nearAPI.keyStores.BrowserLocalStorageKeyStore(window.localStorage,account); 
+    // console.log(x); 
+    return(x);
+
+}
 
 // Copied from rust-counter
 async function connect(nearConfig, account, contractName) {
@@ -65,7 +83,7 @@ async function connect(nearConfig, account, contractName) {
     // Initializing connection to the NEAR node.
     connection.near = await nearAPI.connect({
         deps: {
-            keyStore: await new nearAPI.keyStores.BrowserLocalStorageKeyStore()
+            keyStore: await getKeyStore(account)
         },
         ...nearConfig
     });
@@ -95,7 +113,7 @@ async function connect(nearConfig, account, contractName) {
 
 function processJSONErrObject(errObject) {
 
-    console.log("Processing Object")
+//    console.log("Processing Object")
     var retval = "Error during processing";
 
     if ('kind' in errObject && 'ExecutionError' in errObject.kind) {
@@ -115,7 +133,7 @@ function processJSONErrObject(errObject) {
 
 function processStringErrMessage(message) {
 
-    console.log("Processing Message")
+  //  console.log("Processing Message")
     let disp_err = "Error during processing";
 
     if (message.includes('Cannot deserialize the contract state')) {
@@ -150,7 +168,7 @@ function errorHelper(err) {
 
     try {
         err_detail = JSON.parse(err.message);
-  
+ 
         if (err_detail && typeof(err_detail) === "object") {
             isObject = true;
         }
@@ -244,19 +262,19 @@ async function update_current_info(account) {
     let update_info = "The log is empty";
 
     try {
-        let main_info = JSON.parse(await mainContract.info({"args" : {}}));
+        let main_info = JSON.parse(await main_contract.info({"args" : {}}));
         document.querySelector('#main_contract_admin').innerText = main_info.admin;
 
-        cur_count = await mainContract.num_entries();
+        cur_count = await main_contract.num_entries();
         document.querySelector('#showcount').innerText = cur_count;
 
         if (cur_count > 0) {
-            let lastEntry = JSON.parse(await mainContract.get_last());
+            let lastEntry = JSON.parse(await main_contract.get_last());
             update_info = JSON.stringify(lastEntry, null, 2);
         }
         document.querySelector('#cur_info').innerText = update_info;
 
-        let sub_info = JSON.parse(await subAcctContract.info({"args" : {}}));
+        let sub_info = JSON.parse(await proxy_contract.info({"args" : {}}));
         document.querySelector('#sub_acct_admin').innerText = sub_info.admin;
         document.querySelector('#sub_acct_log_contract').innerText = sub_info.log_contract;
 
@@ -420,7 +438,7 @@ document.querySelector('#sign-out-subacct-button').addEventListener('click', () 
 
 
 document.querySelector('#refresh').addEventListener('click', () => {
-    mainContract.num_entries().then(count => {
+    main_contract.num_entries().then(count => {
         //console.log("Count is", count);
         //console.log(document.querySelector('#showcount').innerText)
         // document.querySelector('#showcount').classList.replace('loader','number');
@@ -437,7 +455,7 @@ function append_entry(value, index, array) {
 
 document.querySelector('#display_entries').addEventListener('click', () => {
     document.querySelector('#entry_list_hdr').innerText = formatLogHdr(); //"#".padEnd(4) + "   " + "Timestamp".padEnd(25," ") + "   " + "Account".padEnd(35," ")+ "   " + "Message\n";
-    mainContract.list_entries().then(listdata => {
+    main_contract.list_entries().then(listdata => {
         //console.log("retrieved", listdata);
         const obj = JSON.parse(listdata);
         //console.log("retrieved", obj);
@@ -458,7 +476,7 @@ document.querySelector('#hide_entries').addEventListener('click', () => {
 });
 
 document.querySelector('#main_reset').addEventListener('click', () => {
-    mainContract.reset_log({})
+    main_contract.reset_log({})
       .then(listdata => {
           console.log("retrieved", listdata);
       })
@@ -473,7 +491,7 @@ document.querySelector('#main-add-entry-form').onsubmit = function() {
     event.preventDefault();
 
     // process the form data
-    add_new_entry(this, mainContract);
+    add_new_entry(this, main_contract);
 
 };
 
@@ -507,7 +525,7 @@ function add_new_entry(form_info,contract) {
     $("main-add_status").style = "display:block;";
     document.querySelector('#main-add-status').style = "display: block;";
     document.querySelector('#main-add-entry-form').style = "display: none;";
-        mainContract.add_entry(args,BOATLOAD_OF_GAS,0).then(result => {
+        main_contract.add_entry(args,BOATLOAD_OF_GAS,0).then(result => {
         form_info.reset();
         document.querySelector('#main-add-status').style = "display: none;";
         document.querySelector('#main-add-entry-form').style = "display: block;";
@@ -557,7 +575,7 @@ function indirect_add_new_entry(form_info) {
     document.querySelector('#subacct-add-status').style = "display: block;";
     document.querySelector('#subacct-add-entry-form').style = "display: none;";
 
-    subAcctContract.indirect_add_entry(args, BOATLOAD_OF_GAS, nearamt)
+    proxy_contract.indirect_add_entry(args, BOATLOAD_OF_GAS, nearamt)
         .then(result => {
             form_info.reset();
             document.querySelector('#subacct-add-status').style = "display: none;";
@@ -572,8 +590,10 @@ function indirect_add_new_entry(form_info) {
 async function setupConnections() {
 
   // Save a copy of the incoming URL  --
-  // if this is redirected from the wallet it include the account and key information
+  // if this is redirected from the wallet it will include the account and key information
   let incomingURL = new URL(window.location.href);
+  console.log(incomingURL);
+  localStorage_log(JSON.stringify(incomingURL));
 
   //create a URL which is referring to the base page
   // note that is currently assumed to be the the root of the server (e.g. localhost:1234/)
@@ -624,11 +644,9 @@ async function setupConnections() {
   window.history.replaceState({}, document.title,  noParameterURL.toString());
 
   // update global shortcuts for contracts
-  mainContract = nearConnections.mainacct.contract;
-  subAcctContract = nearConnections.subacct.contract;
+  main_contract = nearConnections.mainacct.contract;
+  proxy_contract = nearConnections.subacct.contract;
 
-  console.log("MAIN",mainContract);
-  console.log("SUB",subAcctContract);
 }
 
 
