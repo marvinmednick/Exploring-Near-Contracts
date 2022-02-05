@@ -1,3 +1,5 @@
+
+
 # Exploring NEAR Protocol Smart Contracts
 
 ## Overview
@@ -173,7 +175,7 @@ However if you've made changes to the on chain data structure the new contracts 
 
 Opening the web pages you will see two column one for the Main contract and one for the Proxy contract. 
 
-![image info](.\header_example.jpg)
+![image info](./images/header_example.jpg)
 
 
 
@@ -226,7 +228,9 @@ Note on timestamps -- when logging an entry provides a timestamp which  is base 
 
 #### Display Records
 
-At the bottom of the screen there is an option to display all the records.   This interface interacts with get_entries (check name) method which returns ALL the entries in one request.  This is sufficient for this exploration project since the number of entries is small, but for a larger dataset it would be updated to use windowing and only retrieve N records at time, using the similar Vector method as 'get_last' uses to read only the last record.     
+At the bottom of the screen there is an option to display all the records.   This interface interacts with get_entries (check name) method which returns ALL the entries in one request.  This is sufficient for this exploration project since the number of entries is small, but for a larger dataset it would be updated to use windowing and only retrieve N records at time, using the similar Vector method as 'get_last' uses to read only the last record. 
+
+<img src="./images/display_list.jpg" alt="image_info" style="zoom:150%;" />    
 
 # References
 

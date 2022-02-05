@@ -180,6 +180,7 @@ let col2_size = 55;
 let col3_size = 35;
 let col4_size = 5;
 let col5_size = 25;
+let col6_size = 15;
 
 function formatLogHdr() {
     let spacer = "  "
@@ -188,6 +189,7 @@ function formatLogHdr() {
         + spacer + "Account".padEnd(col3_size, " ")
         + spacer + "CC".padEnd(col4_size)
         + spacer + "Gas used".padEnd(col5_size)
+        + spacer + "Name".padEnd(col6_size)
         + spacer + "Message\n"
 
     return (result);
@@ -217,6 +219,7 @@ function formatLogEntry(entry) {
       + spacer + entry.account.padEnd(col3_size, " ")
       + spacer + is_cross_contract
       + spacer + ("Main: ".padEnd(7) + entry.used_gas).padEnd(col5_size)
+      + spacer + entry.name.padEnd(col6_size)
       + spacer + entry.message
       + '\n';
 
