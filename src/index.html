@@ -136,7 +136,8 @@
                 <p class="h3">Main Contract </p>
                 <p>Deployed on account <span id=main_contract_id class="fs-5 fw-bolder"></span></p>
                 <p class="fw-bolder indented">
-                    Contract Avail Balance: <span id="main_acct_balance" class="balance fw-normal"></span><br>
+                    Available Balance: <span id="main_acct_balance" class="balance fw-normal"></span><br>
+                    Balance Change: <span id="main_acct_delta" class="balance fw-normal"></span><br>
                     Admin Acct configured: <span id=main_contract_admin class="balance fw-normal"></span><br>
                     <br>
                 </p>
@@ -150,7 +151,9 @@
             <div class="row border-top border-bottom border-primary" style="padding-top: 20px; padding-bottom: 20px;">
                 <p>
                     <span id="main_login_text"></span><span class="fs-5 fw-bolder text-info" id="main_login_id"></span>
-                    <p class="indented fw-bolder">Available Balance:<span id="main_login_balance" class="balance fw-normal"></span></p>
+                    <p class="indented fw-bolder">
+                        Available Balance:<span id="main_login_balance" class="balance fw-normal"></span><br>
+                        Balance Change:<span id="main_login_delta" class="balance fw-normal"></span></p>
                     <span id="contract_owner_text"></span><span class="fs-5 fw-bolder text-info" id="contract_owner_id"></span>
                 </p>
                 <div class="sign-in-main" style="display: none;">
@@ -260,6 +263,7 @@
                 <p>Deployed on account <span id=sub_contract_id class="fs-5 fw-bolder"></span></p>
                 <p class="indented fw-bolder">
                     Available Balance: <span id="sub_acct_balance" class="fw-normal balance"></span><br>
+                    Balance Change: <span id="sub_acct_delta" class="fw-normal balance"></span><br>
                     Contract to log to: <span id="sub_acct_log_contract" class="fw-normal balance"></span><br>
                     Admin Account: <span id="sub_acct_admin" class="fw-normal balance"></span>
                 </p>
@@ -269,7 +273,10 @@
             <div class="row border-top border-bottom border-primary" style="padding-top: 20px; padding-bottom: 20px;">
                 <p>
                     <span id="subacct_login_text"></span><span class="fs-5 fw-bolder text-info" id="subacct_login_id"></span>
-                    <p class="indented fw-bolder">Available Balance:<span id="sub_login_balance" class="balance fw-normal"></span></p>
+                    <p class="indented fw-bolder">
+                        Available Balance:<span id="sub_login_balance" class="balance fw-normal"></span><br>
+                        Balance Change:<span id="sub_login_delta" class="balance fw-normal"></span>
+                    </p>
                     <span id="subacct_owner_text"></span><span class="fs-5 fw-bolder text-info" id="subacct_owner_id"></span>
                 </p>
                 <div class="sign-in-subacct" style="display: none;">

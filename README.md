@@ -189,7 +189,7 @@ Note that the information that is displayed in the header (e.g. the admin user) 
 
 ### After Sign-in
 
-After sign in, the options to add a log entry are enabled and an simple entry form (Name and Message) is displayed. 
+After sign in, the options to add a log entry are enabled and an simple entry form (A timestamp, Name and Message) is displayed. 
 
 ![image_info](./images/sign_in_example.jpg)
 
@@ -203,13 +203,30 @@ Once an entry is added to the contract (either), the last record from the log wi
 
 The data in the record is as follows:
 
-(ADD record definition here -- maybe comment in code and copy here)
+```
+pub struct LogEntry {
+    entry_id:  u64,                  // index of the entry starting from 0
+    timestamp: String,            // timestamp as provided by the user
+    block_ts: u64,                  // the current block_timestamp as reported by env::block_timestamp
+    account: AccountId,         // account which made the request (which could be a user or anothercontract)
+    signaccount: AccountId,  // the account tthat signed the request
+    name: String,                   // Name -- user provided string
+    message: String,              // message -- user provided string
+    used_gas: u64,                // used gas as reported by env::gas in this contract
+    cc_used_gas: u64,          // when call is made by a another contrct, the amount of gas reported in its env::used_gas
+    transfer_amount: u128,  // amount of NEAR transfered (from env::attached_depoist)
+ }
+```
 
 This view of the the last record uses the get_last method which finds the number of entries and then returns  only the last records
 
+
+
+Note on timestamps -- when logging an entry provides a timestamp which  is base on their local machine (e.g. javascript Date() ) and this could vary and can't be considered reliable as comes from the local machine.  As such to ensure that every record is the the contract also logs the current block_timestamp which while may delayed from when the request was made , should be at least consistent and increasing across multiple requests as its maintained and provided by the blockchain.
+
 #### Display Records
 
-At the bottom of the screen there is an option to display all the records.   This interface interacts with get_entrires (check name) method which returns ALL the entries in one request.  This is sufficient for this exploration project since the number of entries is small, but for a larger dataset it would be updated to use windowing and only retrieve N records at time, using the similar Vector method as 'get_last' uses to read only the last record.     
+At the bottom of the screen there is an option to display all the records.   This interface interacts with get_entries (check name) method which returns ALL the entries in one request.  This is sufficient for this exploration project since the number of entries is small, but for a larger dataset it would be updated to use windowing and only retrieve N records at time, using the similar Vector method as 'get_last' uses to read only the last record.     
 
 # References
 

@@ -53,52 +53,6 @@ const localStorage_log_config = {
 }
 
 
-/*
-function localStorage_log(value, prefix = null) {
-   
-
-    let storage_key = "storageLog";
-    if (prefix != null && typeof prefix === 'string') {
-        storage_key = prefix + "_" + storage_key;
-
-    }
-    var mydata = window.localStorage.getItem(storage_key);
-    console.log("MD", mydata);
-    //var mydata = localStorage[storage_key];
-    var mylog;
-    if (mydata == null) {
-            console.log("starting fressh")
-            mylog = [1];
-    }
-    else {
-        console.log("continuing")
-        let newdata = localStorage[storage_key];
-        console.log("S1",storage_key,mydata,newdata)
-        mylog = JSON.parse(mydata);
-    }
-    const entry = {
-        ts : new Date(),
-        data : value
-   }
-
-   console.log("Adding")
-   // add an entry at the end
-    mylog.push(entry)
-
-    // if length has reached the max, then remove the oldest entry
-    if (mylog.length > localStorage_log_config.maxlen) {
-        mylog.shift();
-    }
-
-   console.log("Creating string",mylog);
-   mydata = JSON.stringify(mylog)
-    console.log("STORING",mylog, mydata);
-    localStorage[storage_key] = mydata;
-
-
-}
-*/
-
 async function getKeyStore(account) {
     let x = await new nearAPI.keyStores.BrowserLocalStorageKeyStore(window.localStorage,account); 
     // console.log(x); 
@@ -274,13 +228,6 @@ function formatLogEntry(entry) {
         + spacer + "".padEnd(col4_size)
         + spacer + ("CC: ".padEnd(7) + entry.cc_used_gas).padEnd(col5_size);
     let formatEnd = '</pre></div>';
-    /*
-    let result = entry.entry_id.toString().padEnd(4)
-               + spacer + entry.timestamp.padEnd(25," ")
-               + spacer + (block_iso + " (" + entry.block_ts.toString() + ")").padEnd(50," ")
-               + spacer + entry.account.padEnd(35," ")
-               + "   " + entry.message+ '\n';
-    */
 
     return (formatStart + line1 + line2 + formatEnd);
 }
@@ -316,23 +263,7 @@ async function update_current_info(account) {
 
 }
 
-
-
-
-/*  NOT CURRENTLY USED -- was intend to keep track of balance so it would be 
- * easy to see/visualize the changes are gas and transfere were made, 
- * but since page is reloaded with the transition to the wallet and back
- * these vars get reset on page load, so not useful for the history
- * this data would need to be stored elsewhere to be useful
- */
-
-var prevBalances = {
-        main_login_balance:{ "available" : "Not Available" },
-        sub_login_balance: { "available" : "Not Available" },
-        main_acct_balance: { "available" : "Not Available" },
-        sub_acct_balance:  { "available" : "Not Available" },
- };
-
+ // keep storage for current balances
  var curBalances = {
         main_login_balance: { "available" : "Not Available" },
         sub_login_balance:  { "available" : "Not Available" },
@@ -346,8 +277,9 @@ function updatePrevBalances () {
      * This was to keep the copy, but since the page reloads wheen interface with the wallet
      * the variables get reset -- need to move this data to cookies?
      */
-    prevBalances = JSON.parse(JSON.stringify(curBalances));
-    console.log("updateBal:", prevBalances, curBalances);
+    let prevBalanceData = JSON.stringify(curBalances);
+    localStorage.prevBalances = prevBalanceData;
+    storedLog(curBalances,"balances")
 };
 
 
@@ -359,21 +291,71 @@ function updateLogins() {
 async function updateCurBalances() {
 
     curBalances.main_acct_balance = await nearConnections.mainacct.contract_account.getAccountBalance();
-
     curBalances.sub_acct_balance = await nearConnections.subacct.contract_account.getAccountBalance();
 
+    // retreive last saved prev Balances from 
+    let prevBalancesData = localStorage.prevBalances;
+    var prevBalances = curBalances 
 
+    if (prevBalancesData != null) {
+        prevBalances = JSON.parse(prevBalancesData);
+    }
+
+
+    let is_main_loggedin = false;
+    let is_proxy_loggedin = false;
     if (nearConnections.mainacct.walletConnection.isSignedIn()) {
         curBalances.main_login_balance = await nearConnections.mainacct.login_account.getAccountBalance();
+        is_main_loggedin = true;
+
     }
 
     if (nearConnections.subacct.walletConnection.isSignedIn()) {
         curBalances.sub_login_balance = await  nearConnections.subacct.login_account.getAccountBalance();
+        is_proxy_loggedin = true;
     }
 
-    document.querySelector('#main_acct_balance').innerText = curBalances.main_acct_balance.available;
-    document.querySelector('#sub_acct_balance').innerText =  curBalances.sub_acct_balance.available;
 
+    console.log("TYPE: ",typeof curBalances.main_acct_balance.available, curBalances.main_acct_balance.available);
+
+
+    let delta = {
+        main_acct  : BigInt(curBalances.main_acct_balance.available)  - BigInt(prevBalances.main_acct_balance.available),
+        sub_acct   : BigInt(curBalances.sub_acct_balance.available)  - BigInt(prevBalances.sub_acct_balance.available),
+        main_login : BigInt(curBalances.main_login_balance.available) - BigInt(prevBalances.main_login_balance.available),
+        sub_login  : BigInt(curBalances.sub_login_balance.available)  - BigInt(prevBalances.sub_login_balance.available),
+
+    }
+
+
+    document.querySelector('#main_acct_balance').innerText = curBalances.main_acct_balance.available;
+    document.querySelector('#main_acct_delta').innerText = delta.main_acct ;
+
+    document.querySelector('#sub_acct_balance').innerText = curBalances.sub_acct_balance.available ;
+    document.querySelector('#sub_acct_delta').innerText = delta.sub_acct ;
+
+
+
+
+
+    if (is_main_loggedin) {
+           document.querySelector('#main_login_balance').innerText = curBalances.main_login_balance.available;
+           document.querySelector('#main_login_delta').innerText =  delta.main_login;
+
+
+    } else {
+            document.querySelector('#main_login_balance').innerText = "---";
+            document.querySelector('#main_login_delta').innerText =   "---";
+    }
+
+    if (is_proxy_loggedin) {
+            document.querySelector('#sub_login_balance').innerText =  curBalances.sub_login_balance.available;
+            document.querySelector('#sub_login_delta').innerText =    delta.sub_login;
+    } else {
+            document.querySelector('#sub_login_balance').innerText =  "---";
+            document.querySelector('#sub_login_delta').innerText =  "---";
+    }
+            
 };
 
 
@@ -405,7 +387,6 @@ async function updateUI() {
         Array.from(document.querySelectorAll('.after-sign-in-main')).map(it => it.style = 'display: none;');
         Array.from(document.querySelectorAll('.sign-in-subacct')).map(it => it.style = 'display: block;');
         Array.from(document.querySelectorAll('.after-sign-in-subacct')).map(it => it.style = 'display: none;');
-        document.querySelector('#main_login_balance').innerText = "---";
     } else {
         document.querySelector('#main_login_text').innerText = "You current are logged in as ";
         document.querySelector('#main_login_id').innerText = cur_account;
@@ -413,7 +394,7 @@ async function updateUI() {
         Array.from(document.querySelectorAll('.after-sign-in-main')).map(it => it.style = 'display: block;');
         Array.from(document.querySelectorAll('.sign-in-subacct')).map(it => it.style = 'display: none;');
         Array.from(document.querySelectorAll('.after-sign-in-subacct')).map(it => it.style = 'display: block;');
-        document.querySelector('#main_login_balance').innerText = curBalances.main_login_balance.available;
+     
 
     }
 
@@ -424,13 +405,13 @@ async function updateUI() {
         document.querySelector('#subacct_login_text').innerText = "You are not currently logged in.";
         Array.from(document.querySelectorAll('.sign-in-subacct')).map(it => it.style = 'display: block;');
         Array.from(document.querySelectorAll('.after-sign-in-subacct')).map(it => it.style = 'display: none;');
-        document.querySelector('#sub_login_balance').innerText =  "---";
+        
     } else {
         document.querySelector('#subacct_login_text').innerText = "You current are logged in as "
         document.querySelector('#subacct_login_id').innerText = cur_subaccount;
         Array.from(document.querySelectorAll('.sign-in-subacct')).map(it => it.style = 'display: none;');
         Array.from(document.querySelectorAll('.after-sign-in-subacct')).map(it => it.style = 'display: block;');
-        document.querySelector('#sub_login_balance').innerText =  curBalances.sub_login_balance.available;
+        
 
     }
 
@@ -474,6 +455,7 @@ document.querySelector('#refresh').addEventListener('click', () => {
         //console.log(document.querySelector('#showcount').innerText)
         // document.querySelector('#showcount').classList.replace('loader','number');
         document.querySelector('#showcount').innerText = count === undefined ? 'calculating...' : count;
+        updatePrevBalances();
     }).then(updateUI)
     .catch(err => errorHelper(err));
 });
@@ -557,6 +539,7 @@ function add_new_entry(form_info,contract) {
     document.querySelector('#main-add-status').style = "display: block;";
     document.querySelector('#main-add-entry-form').style = "display: none;";
         main_contract.add_entry(args,BOATLOAD_OF_GAS,0).then(result => {
+        console.log("RESULT: ",result);
         form_info.reset();
         document.querySelector('#main-add-status').style = "display: none;";
         document.querySelector('#main-add-entry-form').style = "display: block;";

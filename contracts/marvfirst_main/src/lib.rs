@@ -18,16 +18,16 @@ pub struct MyTimestamp {
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
 #[serde(crate = "near_sdk::serde")]
 pub struct LogEntry {
-    entry_id:  u64,
-    timestamp: String,
-    block_ts: u64,
-    account: AccountId,
-    signaccount: AccountId,
-    name: String,
-    message: String,
-    used_gas: u64,
-    cc_used_gas: u64,
-    transfer_amount: u128,
+    entry_id:  u64,         // index of the entry starting from 0
+    timestamp: String,      // timestamp as provided by the user
+    block_ts: u64,          // the current block_timestamp as reported by env::block_timestamp
+    account: AccountId,     // account which made the request (which could be a user or another contract)
+    signaccount: AccountId, // the account tthat signed the request
+    name: String,           // Name -- user provided string
+    message: String,        // message -- user provided string
+    used_gas: u64,          // used gas as reported by env::gas in this contract
+    cc_used_gas: u64,       // when call is made by a another contrct, the amount of gas reported in its env::used_gas
+    transfer_amount: u128,  // amount of NEAR transfered (from env::attached_depoist)
  
 }
 
