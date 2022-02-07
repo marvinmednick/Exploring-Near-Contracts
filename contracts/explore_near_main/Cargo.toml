@@ -1,5 +1,5 @@
 [package]
-name = "marvfirst_main"
+name = "explore_near_main"
 version = "0.1.0"
 authors = ["Marvin Mednick <mmednick@gmail.com>"]
 edition = "2021"

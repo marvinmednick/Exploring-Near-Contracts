@@ -1,7 +1,7 @@
 [workspace]
 members = [ 
-	"marvfirst_main",
-	"marvfirst_sub"
+	"explore_near_main",
+	"explore_near_proxy"
 	]
 
 [profile.release]

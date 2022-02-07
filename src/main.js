@@ -3,6 +3,7 @@ import * as nearAPI from "near-api-js";
 // const { utils } = require("near-api-js");
 import getConfig from "./config";
 import storedLog from "./storedLog"
+import engineeringNotation from "./engineering"
 import {CONTRACT_NAME, SUBCONTRACT_NAME}  from "./contract_names"
 import Big from 'big.js';
 const nearMainConfig = getConfig(process.env.NODE_ENV || "development");
@@ -268,10 +269,10 @@ async function update_current_info(account) {
 
  // keep storage for current balances
  var curBalances = {
-        main_login_balance: { "available" : "Not Available" },
-        sub_login_balance:  { "available" : "Not Available" },
-        main_acct_balance:  { "available" : "Not Available" },
-        sub_acct_balance:   { "available" : "Not Available" },
+        main_login_balance: { "available" : 0 },
+        sub_login_balance:  { "available" : 0 },
+        main_acct_balance:  { "available" : 0 },
+        sub_acct_balance:   { "available" : 0 },
  };
 
 
@@ -319,8 +320,12 @@ async function updateCurBalances() {
     }
 
 
-    console.log("TYPE: ",typeof curBalances.main_acct_balance.available, curBalances.main_acct_balance.available);
-
+    /*
+    console.log("BAL: ",typeof curBalances.main_acct_balance.available, curBalances.main_acct_balance.available);
+    console.log("BAL: ",typeof prevBalances.main_acct_balance.available, prevBalances.main_acct_balance.available);
+    console.log("BAL: ",typeof curBalances.main_login_balance.available, curBalances.main_login_balance.available);
+    console.log("BAL: ",typeof prevBalances.main_login_balance.available, prevBalances.main_login_balance.available)
+    */
 
     let delta = {
         main_acct  : BigInt(curBalances.main_acct_balance.available)  - BigInt(prevBalances.main_acct_balance.available),
@@ -332,18 +337,18 @@ async function updateCurBalances() {
 
 
     document.querySelector('#main_acct_balance').innerText = curBalances.main_acct_balance.available;
-    document.querySelector('#main_acct_delta').innerText = delta.main_acct ;
+    document.querySelector('#main_acct_delta').innerText = engineeringNotation(delta.main_acct,9);
 
     document.querySelector('#sub_acct_balance').innerText = curBalances.sub_acct_balance.available ;
-    document.querySelector('#sub_acct_delta').innerText = delta.sub_acct ;
+    document.querySelector('#sub_acct_delta').innerText = engineeringNotation(delta.sub_acct,9) ;
 
 
-
+9
 
 
     if (is_main_loggedin) {
            document.querySelector('#main_login_balance').innerText = curBalances.main_login_balance.available;
-           document.querySelector('#main_login_delta').innerText =  delta.main_login;
+           document.querySelector('#main_login_delta').innerText =  engineeringNotation(delta.main_login);
 
 
     } else {
@@ -353,7 +358,7 @@ async function updateCurBalances() {
 
     if (is_proxy_loggedin) {
             document.querySelector('#sub_login_balance').innerText =  curBalances.sub_login_balance.available;
-            document.querySelector('#sub_login_delta').innerText =    delta.sub_login;
+            document.querySelector('#sub_login_delta').innerText =    engineeringNotation(delta.sub_login);
     } else {
             document.querySelector('#sub_login_balance').innerText =  "---";
             document.querySelector('#sub_login_delta').innerText =  "---";

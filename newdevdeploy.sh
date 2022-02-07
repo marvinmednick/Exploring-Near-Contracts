@@ -11,10 +11,10 @@ if [ $# -ge 1 ]; then
 ADMIN_NAME=$1
 fi
 
-MAIN_DIR=marvfirst_main
-MAIN_WASM=marvfirst_main.wasm
-PROXY_DIR=marvfirst_sub
-PROXY_WASM=marvfirst_sub.wasm
+MAIN_DIR=explore_near_main
+MAIN_WASM=explore_near_main.wasm
+PROXY_DIR=explore_near_proxy
+PROXY_WASM=explore_near_proxy.wasm
 
 #Delete neardev files 
 rm -f contracts/$MAIN_DIR/neardev/dev*

@@ -1,14 +1,14 @@
 use near_sdk_sim::{call, init_simulator, deploy, UserAccount, ContractAccount};
 //use near_sdk_sim::types::AccountId;
-use marvfirst_sub::CallLoggerContractContract;
+use explore_near_proxy::CallLoggerContractContract;
 
-use crate::marvfirst_main::LogContractContract;
+use crate::explore_near_main::LogContractContract;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
-    SUBCONTRACT_WASM_BYTES => "../target/wasm32-unknown-unknown/release/marvfirst_sub.wasm",
+    SUBCONTRACT_WASM_BYTES => "../target/wasm32-unknown-unknown/release/explore_near_proxy.wasm",
 }
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
-    CONTRACT_WASM_BYTES => "../target/wasm32-unknown-unknown/release/marvfirst_main.wasm",
+    CONTRACT_WASM_BYTES => "../target/wasm32-unknown-unknown/release/explore_near_main.wasm",
 }
 
 

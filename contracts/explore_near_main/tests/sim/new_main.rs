@@ -1,9 +1,9 @@
 use near_sdk_sim::{view, call, init_simulator, deploy, UserAccount, ContractAccount, DEFAULT_GAS};
 use near_sdk::serde_json::json;
-use marvfirst_main::LogContractContract;
+use explore_near_main::LogContractContract;
 
 near_sdk_sim::lazy_static_include::lazy_static_include_bytes! {
-    CONTRACT_WASM_BYTES => "../target/wasm32-unknown-unknown/release/marvfirst_main.wasm",
+    CONTRACT_WASM_BYTES => "../target/wasm32-unknown-unknown/release/explore_near_main.wasm",
 }
 
 pub fn init() -> (UserAccount, ContractAccount<LogContractContract>) {

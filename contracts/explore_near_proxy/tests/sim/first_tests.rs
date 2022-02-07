@@ -6,7 +6,7 @@ use near_sdk::{
 };
 use crate::utils::init;
 
-use crate::marvfirst_main::LogEntry;
+use crate::explore_near_main::LogEntry;
 
 #[test]
 fn simluate_initial_setup() {

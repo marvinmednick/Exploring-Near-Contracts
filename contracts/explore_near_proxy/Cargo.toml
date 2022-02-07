@@ -1,5 +1,5 @@
 [package]
-name = "marvfirst_sub"
+name = "explore_near_proxy"
 version = "0.1.0"
 authors = ["Marvin Mednick <mmednick@gmail.com>"]
 edition = "2021"

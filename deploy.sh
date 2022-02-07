@@ -13,10 +13,10 @@ SUBCONTRACT_NAME=$2
 ADMIN_NAME=$3
 fi
 
-MAIN_DIR=marvfirst_main
-MAIN_WASM=marvfirst_main.wasm
-PROXY_DIR=marvfirst_sub
-PROXY_WASM=marvfirst_sub.wasm
+MAIN_DIR=explore_near_main
+MAIN_WASM=explore_near_main.wasm
+PROXY_DIR=explore_near_proxy
+PROXY_WASM=explore_near_proxy.wasm
 
 
 # change directories to have separate neardev directory for each contract
