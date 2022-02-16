@@ -58,15 +58,15 @@ The web User Interfaces written in javascript and use the NEAR Javascript librar
 #### The Main contract
 The main contract is the one that does that actual data storage and retrieval of the log entries it support the following methods
 
-| Method       | Description                                                 |
-| ------------ | ----------------------------------------------------------- |
-| new          | Initializes the log                                         |
-| add_entry    | Adds an entry to the log                                    |
-| num_entry    | Returns the number of entries that have been added to the log|
-| iist_entries | provides the full list of all the entries in the log        |
-| get_last     | returns only the last entry added to the log                |
-| info         | Returns information about the configuration of the contract |
-| reset_log    | Clears the log                                              |
+| Method       | Description                                                  |
+| ------------ | ------------------------------------------------------------ |
+| new          | Initializes the log                                          |
+| add_entry    | Adds an entry to the log                                     |
+| num_entry    | Returns the number of entries that have been added to the log |
+| list_entries | provides the full list of all the entries in the log         |
+| get_last     | returns only the last entry added to the log                 |
+| info         | Returns information about the configuration of the contract  |
+| reset_log    | Clears the log                                               |
 
 #### The Proxy Contract
 
