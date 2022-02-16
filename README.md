@@ -37,8 +37,12 @@ A that provide a *very* basic and limited a set of logging functionality;  they 
 
 Each 'log entry' contains some user specified data (a couple of strings) along with some additional metadata ( e.g.  timestamp, AccountId that added the entry ).  
 
+### Block Diagram
+
+![image_info](./images/block_diagram.jpg)
 
 ### Key Components 
+
 There are three key components project:
 * The **main** contract
 * The **proxy** contract
