@@ -534,7 +534,11 @@ function post_add_entry() {
 
 function add_new_entry(form_info,contract) {
     const d = new Date();
-    //console.log("Date type is", typeof(d), d)
+    console.log("Date type is", typeof(d), d)
+    console.log("Log Start Add Entry Main")
+    console.log("Form info type: ",typeof(form_info))
+    console.log(form_info)
+    console.log("Logging Starting new Add Entry Main")
 
     let args = {
         timestamp: d,
@@ -559,6 +563,7 @@ function add_new_entry(form_info,contract) {
 
 function indirect_add_new_entry(form_info) {
     const d = new Date();
+    console.log("Starting new Indirect Add Entry Main")
 
     var amount_str = "0";
     var transfer_amount = Big(0);
